@@ -1,0 +1,20 @@
+# Entornos virtuales Python
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Node / React
+node_modules/
+dist/
+.vite/
+
+# Archivos de configuración sensible
+.env
+
+# Archivos de sistema y entorno
+.DS_Store
+.vscode/
+.idea/
