@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
@@ -13,20 +15,24 @@ from app.api.health import router as health_router
 from app.api.auth import router as auth_router
 from app.api.intakes import router as intakes_router
 
-# Crear las tablas en PostgreSQL si no existen
-Base.metadata.create_all(bind=engine)
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    # Para desarrollo inicial. Cuando el esquema cambie, se usará Alembic.
+    Base.metadata.create_all(bind=engine)
+    yield
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
     description="Backend API REST para el Sistema Hospitalario de Alerta Temprana",
     version="0.1.0",
-    openapi_url=f"{settings.API_V1_STR}/openapi.json"
+    openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    lifespan=lifespan,
 )
 
 # Configuración CORS para el Frontend (React)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[origin.strip() for origin in settings.FRONTEND_ORIGINS.split(",") if origin.strip()],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

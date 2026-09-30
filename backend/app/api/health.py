@@ -1,11 +1,10 @@
-from fastapi import ApiRouter
+from fastapi import APIRouter
 
-router = ApiRouter()
+router = APIRouter()
 
 @router.get("/healthcheck")
-def health_check ():
+def health_check():
     return {
         "status": "ok",
-        "servicio": "Backend Hospitalario",
-        "base_de_datos": "pendiente_conexion"
+        "servicio": "Backend Hospitalario"
     }
