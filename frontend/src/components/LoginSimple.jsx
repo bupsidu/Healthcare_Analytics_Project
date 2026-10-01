@@ -1,78 +1,73 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'
 
-export function LoginSimple() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [mensaje, setMensaje] = useState('');
+const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setMensaje('Enviando credenciales al servidor FastAPI...');
+export function LoginSimple({ onLogin }) {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [mensaje, setMensaje] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    setMensaje('Validando credenciales...')
+    setIsSubmitting(true)
 
     try {
-      const response = await fetch('http://localhost:8000/api/auth/login', {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          username: email,
-          password: password,
-        }),
-      });
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ username: email, password }),
+      })
+      const data = await response.json()
 
-      const data = await response.json();
-
-      if (response.ok) {
-        setMensaje(`✅ Login exitoso. Token JWT: ${data.access_token.substring(0, 20)}...`);
-        localStorage.setItem('token', data.access_token);
-      } else {
-        setMensaje(`❌ Error de Login: ${data.detail || 'Credenciales inválidas'}`);
+      if (!response.ok) {
+        setMensaje(`Error de login: ${data.detail || 'Credenciales inválidas'}`)
+        return
       }
-    } catch (error) {
-      setMensaje('❌ Error de conexión: No se pudo conectar con http://localhost:8000');
+
+      localStorage.setItem('token', data.access_token)
+      onLogin()
+    } catch {
+      setMensaje('Error de conexión: no se pudo conectar con la API en http://localhost:8000.')
+    } finally {
+      setIsSubmitting(false)
     }
-  };
+  }
 
   return (
-    <div style={{ padding: '24px', maxWidth: '400px', border: '1px solid #cbd5e1', borderRadius: '8px', margin: '30px auto', fontFamily: 'sans-serif', background: '#ffffff' }}>
-      <h3 style={{ marginTop: 0, color: '#0f172a' }}>Acceso Personal Médico</h3>
-      
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '14px', textAlign: 'left' }}>
-          <label style={{ fontSize: '14px', display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>Correo Electrónico:</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="medico@hospital.cl"
-            required
-            style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #94a3b8', boxSizing: 'border-box' }}
-          />
-        </div>
+    <div className="login-panel">
+      <h2>Acceso personal médico</h2>
+      <p className="login-help">Ingresa un usuario registrado en PostgreSQL.</p>
 
-        <div style={{ marginBottom: '18px', textAlign: 'left' }}>
-          <label style={{ fontSize: '14px', display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>Contraseña:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="******"
-            required
-            style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #94a3b8', boxSizing: 'border-box' }}
-          />
-        </div>
+      <form className="login-form" onSubmit={handleSubmit}>
+        <label htmlFor="email">Correo electrónico</label>
+        <input
+          id="email"
+          type="email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          placeholder="medico@hospital.cl"
+          autoComplete="email"
+          required
+        />
 
-        <button type="submit" style={{ width: '100%', padding: '12px', backgroundColor: '#0284c7', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold', fontSize: '15px' }}>
-          Iniciar Sesión
+        <label htmlFor="password">Contraseña</label>
+        <input
+          id="password"
+          type="password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          autoComplete="current-password"
+          required
+        />
+
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Validando...' : 'Iniciar sesión'}
         </button>
       </form>
 
-      {mensaje && (
-        <div style={{ marginTop: '16px', fontSize: '13px', padding: '10px', background: '#f8fafc', borderRadius: '4px', border: '1px solid #e2e8f0' }}>
-          {mensaje}
-        </div>
-      )}
+      {mensaje && <p className="login-message" role="status">{mensaje}</p>}
     </div>
-  );
+  )
 }

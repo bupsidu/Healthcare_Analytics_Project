@@ -2,7 +2,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from app.core.config import settings
 
-# Motor de conexión a PostgreSQL especificando client_encoding utf8 para evitar errores de tildes en Windows
 engine = create_engine(
     settings.database_url,
     client_encoding="utf8",

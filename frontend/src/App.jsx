@@ -1,16 +1,27 @@
-import React from 'react'
+import React, { useState } from 'react'
+import './App.css'
+import { LoginSimple } from './components/LoginSimple.jsx'
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+
   return (
-    <div style={{ fontFamily: 'sans-serif', padding: '40px', textAlign: 'center' }}>
-      <h1>Sistema Hospitalario de Alerta Temprana</h1>
-      <p style={{ color: '#0284c7', fontSize: '18px', fontWeight: 'bold' }}>
-        ✅ Frontend en React funcionando correctamente
-      </p>
-      <p style={{ color: '#64748b' }}>
-        Servidor de desarrollo activo en Vite
-      </p>
-    </div>
+    <main className="app-shell">
+      <section className="app-card">
+        <header className="app-header">
+          <p className="app-kicker">SISTEMA HOSPITALARIO</p>
+          <h1>Sistema Hospitalario de Alerta Temprana</h1>
+        </header>
+
+        {isAuthenticated ? (
+          <section className="home-panel" aria-live="polite">
+            <p className="success-message">Sistema hospitalario funcionando</p>
+          </section>
+        ) : (
+          <LoginSimple onLogin={() => setIsAuthenticated(true)} />
+        )}
+      </section>
+    </main>
   )
 }
 
