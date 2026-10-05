@@ -2,24 +2,23 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.core.config import settings
-from app.db.session import engine, Base
 
-# Importación de modelos para la creación automática de tablas en PostgreSQL
+from app.api.auth import router as auth_router
+from app.api.health import router as health_router
+from app.api.intakes import router as intakes_router
+from app.core.config import settings
+from app.db.session import Base, engine
+
 import app.models.user
 import app.models.establishment
 import app.models.intake
 
-# Importación de enrutadores
-from app.api.health import router as health_router
-from app.api.auth import router as auth_router
-from app.api.intakes import router as intakes_router
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    # Para desarrollo inicial. Cuando el esquema cambie, se usará Alembic.
     Base.metadata.create_all(bind=engine)
     yield
+
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -29,7 +28,6 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Configuración CORS para el Frontend (React)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[origin.strip() for origin in settings.FRONTEND_ORIGINS.split(",") if origin.strip()],
@@ -38,10 +36,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Conectar routers
 app.include_router(health_router, prefix=settings.API_V1_STR)
 app.include_router(auth_router, prefix=settings.API_V1_STR)
 app.include_router(intakes_router, prefix=settings.API_V1_STR)
+
 
 @app.get("/")
 def read_root():
@@ -49,5 +47,5 @@ def read_root():
         "status": "online",
         "system": settings.PROJECT_NAME,
         "version": "0.1.0",
-        "docs": "/docs"
+        "docs": "/docs",
     }

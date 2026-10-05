@@ -1,18 +1,37 @@
-from pydantic import BaseModel
-from typing import Optional
+from datetime import date, datetime
+from enum import Enum
+
+from pydantic import BaseModel, ConfigDict, Field
+
+
+class GrupoEtario(str, Enum):
+    INFANTIL = "Infantil"
+    ADULTO = "Adulto"
+    ADULTO_MAYOR = "Adulto Mayor"
+    GENERAL = "General"
+
 
 class IntakeCreate(BaseModel):
-    fecha: str # YYYY-MM-DD
-    establecimiento_id: int
-    casos_respiratorios: int
-    grupo_etario: Optional[str] = "General"
+    fecha: date
+    establecimiento_id: int = Field(gt=0)
+    casos_respiratorios: int = Field(ge=0)
+    grupo_etario: GrupoEtario = GrupoEtario.GENERAL
+
 
 class IntakeResponse(BaseModel):
     id: int
-    fecha: str
+    fecha: date
     establecimiento_id: int
     casos_respiratorios: int
-    grupo_etario: str
+    grupo_etario: GrupoEtario
+    created_by_user_id: int | None
+    created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
+
+
+class IntakeHistoryResponse(BaseModel):
+    total: int
+    skip: int
+    limit: int
+    items: list[IntakeResponse]

@@ -1,4 +1,5 @@
 from sqlalchemy import Boolean, Column, Integer, String
+from sqlalchemy.orm import relationship
 from app.db.session import Base
 
 class User(Base):
@@ -10,3 +11,5 @@ class User(Base):
     full_name = Column(String(255), nullable=True)
     role = Column(String(30), nullable=False, default="medico")
     is_active = Column(Boolean, nullable=False, default=True)
+
+    ingresos_creados = relationship("DailyIntake", back_populates="creado_por")

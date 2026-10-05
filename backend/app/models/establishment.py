@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import relationship
 from app.db.session import Base
 
 class Establishment(Base):
@@ -9,3 +10,5 @@ class Establishment(Base):
     comuna = Column(String, nullable=False)
     region = Column(String, nullable=False)
     capacidad_camas = Column(Integer, default=50)
+
+    ingresos = relationship("DailyIntake", back_populates="establecimiento")
