@@ -6,9 +6,9 @@ class Establishment(Base):
     __tablename__ = "establecimientos"
 
     id = Column(Integer, primary_key=True, index=True)
-    nombre = Column(String, nullable=False)
-    comuna = Column(String, nullable=False)
+    nombre = Column("name", String, nullable=False)
+    comuna = Column("commune", String, nullable=False)
     region = Column(String, nullable=False)
-    capacidad_camas = Column(Integer, default=50)
+    capacidad_camas = Column("bed_capacity", Integer, default=50)
 
     ingresos = relationship("DailyIntake", back_populates="establecimiento")
