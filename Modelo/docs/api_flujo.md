@@ -11,7 +11,10 @@ flowchart TD
     API --> WX[Open-Meteo API<br/>temp min/max, precipitación]
     API --> AQ[Open-Meteo Air Quality<br/>MP2.5, MP10]
     API --> ENC[(Encoders exportados<br/>región, tipo, categoría)]
-    HIST + WX + AQ --> FEAT[Módulo de features<br/>lags 4d/2d + rolling 7d + flags]
+    HIST --> FEAT[Módulo de features<br/>lags 4d/2d + rolling 7d + flags]
+    WX --> FEAT
+    AQ --> FEAT
+    ENC --> FEAT
     FEAT --> MODEL[model_rf_respiratorio_v1.joblib]
     MODEL -->|pacientes predichos| API
     API -->|JSON| FE
