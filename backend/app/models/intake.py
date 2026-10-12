@@ -8,7 +8,8 @@ class DailyIntake(Base):
     __table_args__ = (
         CheckConstraint("respiratory_cases >= 0", name="ck_ingresos_casos_no_negativos"),
         CheckConstraint(
-            "age_group IN ('Infantil', 'Adulto', 'Adulto Mayor', 'General')",
+            "age_group IN ('Menores de 1', '1-4', '5-14', '15-64', '65+', "
+            "'Infantil', 'Adulto', 'Adulto Mayor', 'General')",
             name="ck_ingresos_grupo_etario",
         ),
     )
@@ -18,7 +19,8 @@ class DailyIntake(Base):
     fecha = Column("date", Date, nullable=False, index=True)
     establecimiento_id = Column("establishment_id", Integer, ForeignKey("establecimientos.id"), nullable=False)
     casos_respiratorios = Column("respiratory_cases", Integer, nullable=False)
-    grupo_etario = Column("age_group", String(30), nullable=False, default="General")
+    # El rango debe indicarse explícitamente al registrar casos nuevos.
+    grupo_etario = Column("age_group", String(30), nullable=False)
     created_by_user_id = Column(Integer, ForeignKey("usuarios.id", ondelete="RESTRICT"), nullable=True)
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 

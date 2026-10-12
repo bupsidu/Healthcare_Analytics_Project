@@ -7,7 +7,13 @@ from app.db.session import get_db
 from app.models.establishment import Establishment
 from app.models.intake import DailyIntake
 from app.models.user import User
-from app.schemas.intake import GrupoEtario, IntakeCreate, IntakeHistoryResponse, IntakeResponse
+from app.schemas.intake import (
+    GrupoEtario,
+    GrupoEtarioAnterior,
+    IntakeCreate,
+    IntakeHistoryResponse,
+    IntakeResponse,
+)
 
 
 router = APIRouter(prefix="/ingresos", tags=["Registro de Pacientes"])
@@ -55,7 +61,7 @@ def listar_historial_ingresos(
     establecimiento_id: int | None = Query(default=None, gt=0),
     fecha_desde: date | None = None,
     fecha_hasta: date | None = None,
-    grupo_etario: GrupoEtario | None = None,
+    grupo_etario: GrupoEtario | GrupoEtarioAnterior | None = None,
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=50, ge=1, le=100),
     db: Session = Depends(get_db),

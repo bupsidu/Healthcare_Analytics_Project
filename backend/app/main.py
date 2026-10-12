@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.auth import router as auth_router
+from app.api.climate import router as climate_router
 from app.api.health import router as health_router
 from app.api.intakes import router as intakes_router
 from app.core.config import settings
@@ -39,6 +40,7 @@ app.add_middleware(
 app.include_router(health_router, prefix=settings.API_V1_STR)
 app.include_router(auth_router, prefix=settings.API_V1_STR)
 app.include_router(intakes_router, prefix=settings.API_V1_STR)
+app.include_router(climate_router, prefix=settings.API_V1_STR)
 
 
 @app.get("/")
