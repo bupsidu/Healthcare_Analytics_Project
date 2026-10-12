@@ -107,9 +107,9 @@ Los artefactos grandes de manejan de la siguiente manera:
 - Modelo entrenado: se publica como evidencia versionada en GitHub Releases.
 - Release actual del modelo: `modelo-v1`.
 
-Enlace del selease:
+Enlace del release:
 
-` `
+`https://github.com/bupsidu/Healthcare_Analytics_Project/releases/tag/modelo-v1`
 
 ## Reproducción del proyecto
 
@@ -143,6 +143,7 @@ El primer notebook prepara los datos. El segundo entrena y evalúa el modelo sin
 
 - Integrante 1 - ML y Data Science Lead:
     Ignacio Fernández
+  
     Datasets, feature engineering, RandomForest, DBSCAN y modelo exportado.
 
 - Integrante 2 - Backend y Database Lead:
