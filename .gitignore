@@ -22,3 +22,12 @@ dist/
 # Configuración sensible
 .env.local
 .env.*.local
+
+# Datos y artefactos de ML: no versionar archivos grandes/generados
+data/raw/
+data/interim/
+data/processed/
+models/*.joblib
+*.parquet
+*.log
+.atl/
