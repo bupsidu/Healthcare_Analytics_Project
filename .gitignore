@@ -28,6 +28,7 @@ data/raw/
 data/interim/
 data/processed/
 models/*.joblib
+Modelo/artifacts/
 *.parquet
 *.log
 .atl/

@@ -1,0 +1,201 @@
+Fecha,Region,IdEstablecimiento,NEstablecimiento,TipoEstablecimiento,Total_real,Total_predicho,Error_abs,TempMin,MP2_5,Frio_Polar_Flag,Lluvia_Intensa_Flag,Alerta_MP25_Flag
+2025-11-23,Maule,16-968,SUR El Aromo,SUR,0,0,0.03,11.8,8.58,0,0,0
+2025-12-28,Maule,16-944,SUR Los Niches,SUR,0,0,0.02,15.5,7.15,0,0,0
+2025-12-11,Metropolitana,10-901,SAPU Dr. Alberto Allende Jones,SAPU,3,4,0.8,14.1,17.79,0,0,1
+2025-12-26,O'Higgins,15-949,SUR Paredones,SUR,8,8,0.06,14.0,7.85,0,0,0
+2025-10-03,Metropolitana,13-818,SAPU Paine,SAPU,27,27,0.4,9.8,35.35,0,0,1
+2025-04-14,Atacama,04-101,Hospital Dr. Jerónimo Méndez Arancibia (Chañaral),Hospital,2,2,0.35,13.3,12.47,0,0,0
+2025-09-02,Maule,16-969,SUR Colbun,SUR,50,49,0.9,9.5,10.11,0,0,0
+2025-10-15,Metropolitana,10-933,SUR San Pedro,SUR,10,10,0.02,10.8,24.25,0,0,1
+2025-02-26,Metropolitana,10-932,SUR Isla de Maipo,SUR,1,1,0.08,14.4,26.89,0,0,1
+2025-08-03,Metropolitana,10-908,SAPU Garín,SAPU,0,0,0.07,1.5,70.61,1,0,1
+2025-12-02,Antofagasta,03-944,SUR María Elena,SUR,0,0,0.04,17.1,11.53,0,0,0
+2025-08-05,Metropolitana,09-815,SAPU Nº 1 Rodrigo Rojas Denegri,SAPU,14,14,0.08,5.5,104.73,0,0,1
+2025-01-22,Metropolitana,10-867,SAPU Santa Rosa de Chena,SAPU,2,2,0.12,13.0,14.5,0,0,0
+2025-07-01,Atacama,04-103,Hospital Provincial del Huasco Monseñor Fernando Ariztía Ruiz (Vallenar),Hospital,0,0,0.1,8.0,10.28,0,0,0
+2025-01-28,Antofagasta,03-910,SAR Alemania,SAR,0,0,0.04,18.7,9.99,0,0,0
+2025-05-19,Coquimbo,201178,SUR Tongoy,SUR,0,0,0.04,9.2,20.1,0,0,1
+2025-08-08,Metropolitana,14-801,SAPU Dr. Alejandro del Río,SAPU,0,0,0.07,2.3,72.33,0,0,1
+2025-06-14,O'Higgins,15-936,SUR Las Cabras,SUR,1,2,0.59,0.2,30.51,1,0,1
+2025-01-10,Maule,16-970,SUR Panimavida,SUR,1,1,0.12,16.9,5.73,0,0,0
+2025-10-03,Metropolitana,14-101,"Complejo Hospitalario Dr. Sótero del Río (Santiago, Puente Alto)",Hospital,9,8,1.35,9.8,35.35,0,0,1
+2025-07-13,Maule,16-958,SUR El Colorado,SUR,0,0,0.1,2.2,27.48,0,0,1
+2025-05-16,Coquimbo,05-940,SAPU Lila Cortés,SAPU,0,0,0.06,11.4,20.34,0,0,1
+2025-11-24,Metropolitana,13-822,SAPU Santa Teresa de Los Andes,SAPU,0,0,0.18,11.5,31.97,0,0,1
+2025-05-21,Atacama,04-900,SAPU Baquedano,SAPU,0,0,0.04,12.2,8.34,0,0,0
+2025-05-04,O'Higgins,15-102,Hospital de Coínco,Hospital,0,0,0.08,2.8,26.5,0,0,1
+2025-12-26,Metropolitana,12-903,SAPU La Reina,SAPU,22,22,0.22,13.2,13.71,0,0,0
+2025-02-10,Metropolitana,14-802,SAPU Los Castaños,SAPU,1,1,0.08,16.7,15.68,0,0,1
+2025-01-10,Metropolitana,14-103,Hospital Padre Alberto Hurtado (San Ramón),Hospital,2,2,0.47,15.4,18.7,0,0,1
+2025-08-21,Metropolitana,13-806,SAPU La Feria,SAPU,0,0,0.09,6.3,23.85,0,1,1
+2025-05-19,Coquimbo,05-940,SAPU Lila Cortés,SAPU,0,0,0.06,9.2,20.1,0,0,1
+2025-01-11,Metropolitana,11-100,Hospital Clínico San Borja Arriarán,Hospital,1,2,0.54,13.5,17.8,0,0,1
+2025-06-07,Metropolitana,10-902,SAPU Dr. Arturo Albertz,SAPU,2,2,0.14,7.8,101.39,0,0,1
+2025-10-26,Coquimbo,05-938,SUR Sotaquí,SUR,0,0,0.04,8.5,13.63,0,0,0
+2025-02-24,Magallanes,26-800,SAPU Dr. Mateo Bencur,SAPU,6,6,0.02,4.0,0.71,0,1,0
+2025-07-13,Coquimbo,05-934,SUR Punitaqui,SUR,0,0,0.06,8.9,26.31,0,0,1
+2025-10-12,Metropolitana,10-902,SAPU Dr. Arturo Albertz,SAPU,0,0,0.09,5.2,34.62,0,0,1
+2025-04-16,Antofagasta,03-932,SUR Socaire,SUR,0,0,0.03,14.6,12.86,0,0,0
+2025-11-03,Metropolitana,10-922,SAPU Santa Anita,SAPU,2,3,0.54,10.0,14.89,0,0,0
+2025-06-26,Metropolitana,09-824,SAPU Presidente Salvador Allende Gossens,SAPU,0,0,0.08,4.1,72.8,0,0,1
+2025-09-01,Metropolitana,10-100,Hospital San Juan de Dios (Santiago),Hospital,0,0,0.13,3.5,52.05,0,0,1
+2025-07-29,Maule,16-961,SUR San Rafael,SUR,0,0,0.03,11.7,21.94,0,0,1
+2025-03-09,O'Higgins,15-955,SUR Requínoa,SUR,16,16,0.14,15.2,10.14,0,0,0
+2025-01-28,Maule,16-831,SAR Carlos Trupp,SAR,0,0,0.02,13.5,4.2,0,0,0
+2025-09-14,Metropolitana,12-806,SAPU Aníbal Ariztía,SAPU,0,0,0.1,6.6,38.93,0,0,1
+2025-01-06,O'Higgins,15-900,SAPU Centro,SAPU,0,0,0.04,16.5,7.95,0,0,0
+2025-07-18,O'Higgins,15-100,Hospital Dr. Franco Ravera Zunino,Hospital,9,9,0.47,2.4,33.07,0,0,1
+2025-09-18,Magallanes,26-704,Hospital Comunitario Cristina Calderón de Puerto Williams,Hospital,0,0,0.09,-7.9,2.75,1,0,0
+2025-12-09,O'Higgins,15-929,SAR San Vicente de Tagua Tagua,SAR,0,0,0.05,13.9,6.48,0,0,0
+2025-10-23,Arica y Parinacota,201855,SAPU CORTO Matrona Rosa Vascope Zarzola,SAPU,5,5,0.04,14.2,11.85,0,0,0
+2025-07-21,Maule,16-900,SAPU Valentín Letelier,SAPU,0,0,0.05,4.0,25.53,0,0,1
+2025-02-26,O'Higgins,15-103,Hospital Del Salvador de Peumo,Hospital,0,0,0.08,18.9,8.01,0,0,0
+2025-09-11,O'Higgins,201194,SUR Gultro,SUR,0,0,0.03,3.5,19.31,0,0,1
+2025-06-20,Atacama,04-909,SAPU El Palomar,SAPU,10,11,0.84,8.3,6.72,0,0,0
+2025-03-26,O'Higgins,15-114,Hospital de Litueche,Hospital,1,1,0.24,7.4,11.35,0,0,0
+2025-12-28,Antofagasta,03-901,SAPU Centro Sur de Antofagasta,SAPU,28,27,0.58,17.6,10.01,0,0,0
+2025-08-12,O'Higgins,15-110,Hospital de Santa Cruz,Hospital,2,2,0.06,-32.0,30.6,1,0,1
+2025-05-22,Magallanes,201079,"SAPU ""Dr. Juan Lozic Perez""",SAPU,12,12,0.18,-7.3,0.6,1,0,0
+2025-04-09,Maule,201043,SUR La Huerta de Hualañé,SUR,0,0,0.03,11.2,17.06,0,0,1
+2025-03-06,Maule,16-111,Hospital San Juan de Dios (Cauquenes),Hospital,3,3,0.2,13.7,4.89,0,0,0
+2025-08-30,O'Higgins,15-952,SUR Codegua,SUR,8,8,0.05,8.2,38.3,0,1,1
+2025-09-08,Metropolitana,09-805,SAR La Pincoya,SAR,4,4,0.22,5.6,29.37,0,0,1
+2025-06-11,O'Higgins,15-105,Hospital San Vicente de Tagua -Tagua,Hospital,21,21,0.41,6.8,55.57,0,0,1
+2025-08-21,Metropolitana,09-808 ,SAPU Alberto Bachelet Martínez,SAPU,12,13,0.74,6.3,23.85,0,1,1
+2025-07-01,Metropolitana,12-101,"Hospital Dr. Luis Tisné B. (Santiago, Peñalolén)",Hospital,3,3,0.22,3.2,98.75,0,0,1
+2025-10-17,Metropolitana,13-829,SAR Eugenia Muñoz Dalmatín,SAR,11,11,0.43,8.3,37.94,0,0,1
+2025-01-04,Metropolitana,14-821,SAPU Cardenal Silva Henríquez de Puente Alto,SAPU,0,0,0.05,13.8,16.56,0,0,1
+2025-07-25,Atacama,04-103,Hospital Provincial del Huasco Monseñor Fernando Ariztía Ruiz (Vallenar),Hospital,9,8,0.78,5.8,10.0,0,0,0
+2025-10-21,Maule,16-806,SAR La Florida,SAR,0,0,0.03,12.4,6.08,0,0,0
+2025-08-09,Metropolitana,13-922,SUR Dr. Raúl Moya,SUR,0,0,0.08,6.5,64.35,0,1,1
+2025-01-10,O'Higgins,15-935,SUR Peralillo,SUR,0,0,0.04,15.9,6.45,0,0,0
+2025-12-08,Metropolitana,11-806,SAPU San José de Chuchunco,SAPU,3,3,0.09,13.7,16.05,0,0,1
+2025-03-04,Antofagasta,03-931,SUR San Pedro Atacama,SUR,6,7,0.59,15.6,9.46,0,0,0
+2025-02-04,Metropolitana,10-911,SAPU Pablo Neruda,SAPU,0,0,0.05,15.9,20.87,0,0,1
+2025-08-03,Metropolitana,14-805,SAPU Los Quillayes,SAPU,54,54,0.14,1.5,70.61,1,0,1
+2025-10-05,Atacama,04-930,SUR Diego de Almagro,SUR,0,0,0.04,8.0,8.22,0,0,0
+2025-10-03,Maule,16-960,SUR Pelarco,SUR,8,8,0.17,7.9,9.24,0,0,0
+2025-06-26,O'Higgins,15-110,Hospital de Santa Cruz,Hospital,0,0,0.25,1.4,32.74,1,0,1
+2025-11-26,O'Higgins,15-939,SUR Coltauco,SUR,13,13,0.07,13.5,13.97,0,0,0
+2025-06-28,Antofagasta,03-945,SUR Sierra Gorda,SUR,0,0,0.05,11.9,12.75,0,1,0
+2025-09-11,Maule,16-104,Hospital de Licantén,Hospital,2,2,0.01,4.6,8.0,0,0,0
+2025-08-10,O'Higgins,15-953,SUR Olivar,SUR,3,3,0.09,1.6,39.96,1,0,1
+2025-10-24,Metropolitana,09-890 ,SAPU Cristo Vive,SAPU,0,0,0.05,10.2,13.2,0,1,0
+2025-04-22,Metropolitana,201712,SAR ELSA ROMO ARAVENA,SAR,4,4,0.32,6.7,56.93,0,0,1
+2025-01-11,Antofagasta,03-931,SUR San Pedro Atacama,SUR,0,0,0.06,19.2,9.04,0,0,0
+2025-04-12,O'Higgins,15-955,SUR Requínoa,SUR,0,0,0.03,3.6,17.0,0,0,1
+2025-04-11,Maule,16-831,SAR Carlos Trupp,SAR,0,0,0.03,9.7,9.78,0,0,0
+2025-11-08,Magallanes,26-704,Hospital Comunitario Cristina Calderón de Puerto Williams,Hospital,0,0,0.06,3.2,1.62,0,0,0
+2025-07-12,Metropolitana,12-818,SAPU Lo Hermida,SAPU,0,0,0.08,-0.6,88.46,1,0,1
+2025-12-04,Metropolitana,14-912,SAPU Dr. José Manuel Balmaceda,SAPU,0,0,0.06,14.9,14.0,0,0,0
+2025-11-18,Maule,16-802 ,SAR Bombero Garrido,SAR,0,0,0.05,14.2,2.61,0,0,0
+2025-11-11,O'Higgins,15-113,Hospital de Lolol,Hospital,0,0,0.07,9.1,6.05,0,0,0
+2025-12-07,Metropolitana,09-101,"Hospital Clínico de Niños Dr. Roberto del Río (Santiago, Independencia)",Hospital,2,2,0.49,14.7,24.82,0,0,1
+2025-09-07,Maule,16-106,Hospital de Curepto,Hospital,0,0,0.12,8.8,22.82,0,0,1
+2025-04-19,Metropolitana,14-900,SAPU José Alvo,SAPU,0,0,0.11,6.4,47.0,0,0,1
+2025-03-04,Metropolitana,13-831,SAPU Edgardo Enríquez Froedden,SAPU,0,0,0.05,12.8,19.69,0,0,1
+2025-05-13,Metropolitana,10-939,SAR Violeta Parra,SAR,23,25,1.53,6.3,69.4,0,0,1
+2025-06-18,Metropolitana,13-190 ,Hospital Parroquial de San Bernardo (D),Hospital,0,0,0.14,-1.0,51.9,1,0,1
+2025-05-02,Antofagasta,03-802,SAPU Corvallis,SAPU,0,0,0.05,12.2,10.44,0,0,0
+2025-04-04,Metropolitana,12-903,SAPU La Reina,SAPU,0,0,0.1,8.5,48.89,0,0,1
+2025-03-27,O'Higgins,15-112,Hospital de Pichilemu,Hospital,12,12,0.02,11.3,19.37,0,0,1
+2025-06-18,Metropolitana,12-807,SAPU Lo Barnechea,SAPU,6,6,0.08,-1.0,51.9,1,0,1
+2025-03-07,Magallanes,26-102,Hospital Dr. Marco Antonio Chamorro (Porvenir),Hospital,0,0,0.06,-1.7,1.82,1,1,0
+2025-01-16,Metropolitana,09-809,SAR Conchalí,SAR,29,29,0.47,16.6,12.03,0,0,0
+2025-01-27,Coquimbo,05-928,SAPU Fray Jorge,SAPU,0,0,0.04,13.7,7.43,0,0,0
+2025-05-24,Metropolitana,11-100,Hospital Clínico San Borja Arriarán,Hospital,9,10,0.65,4.9,90.23,0,0,1
+2025-01-11,Metropolitana,10-933,SUR San Pedro,SUR,0,0,0.04,13.5,17.8,0,0,1
+2025-06-26,Metropolitana,14-900,SAPU José Alvo,SAPU,10,10,0.01,4.1,72.8,0,0,1
+2025-11-24,Coquimbo,05-103 ,Hospital Dr. Humberto Elorza Cortés (Illapel),Hospital,0,0,0.09,14.4,13.31,0,1,0
+2025-12-16,Metropolitana,13-802,SAR San Miguel,SAR,0,0,0.06,12.0,24.83,0,0,1
+2025-01-29,Coquimbo,05-937,SUR Tamaya,SUR,2,2,0.21,14.0,12.33,0,1,0
+2025-02-01,Maule,16-946,SUR Morza,SUR,0,0,0.03,15.7,5.42,0,0,0
+2025-08-05,Metropolitana,13-190 ,Hospital Parroquial de San Bernardo (D),Hospital,7,7,0.28,5.5,104.73,0,0,1
+2025-05-21,Maule,16-958,SUR El Colorado,SUR,0,0,0.03,9.9,17.85,0,0,1
+2025-03-14,Maule,16-102,Hospital de Molina,Hospital,1,1,0.11,12.2,10.27,0,0,0
+2025-03-26,Coquimbo,201180,SUR El Palqui,SUR,0,0,0.04,10.5,11.75,0,0,0
+2025-06-25,Maule,16-832,SAR Constitución,SAR,0,0,0.02,3.5,6.99,0,0,0
+2025-10-20,Metropolitana,09-102 ,"Instituto Psiquiátrico Dr. José Horwitz Barak (Santiago, Recoleta)",Hospital,0,0,0.25,7.2,26.92,0,0,1
+2025-08-28,Metropolitana,12-903,SAPU La Reina,SAPU,9,9,0.06,8.2,73.58,0,0,1
+2025-06-11,Metropolitana,13-911,SAR Enrique Molina,SAR,2,2,0.13,5.2,88.88,0,0,1
+2025-10-09,Metropolitana,13-802,SAR San Miguel,SAR,0,0,0.09,9.2,36.72,0,0,1
+2025-11-13,Metropolitana,14-811,SAPU Santiago de Nueva Extremadura,SAPU,0,0,0.05,10.1,24.22,0,0,1
+2025-04-08,Arica y Parinacota,01-100,Hospital Regional Dr. Juan Noé Crevani (Arica),Hospital,111,106,5.35,19.2,11.47,0,0,0
+2025-06-14,Maule,16-969,SUR Colbun,SUR,43,42,0.91,0.9,16.18,1,0,1
+2025-04-18,Maule,16-106,Hospital de Curepto,Hospital,0,0,0.09,6.8,6.19,0,0,0
+2025-10-29,Metropolitana,12-807,SAPU Lo Barnechea,SAPU,5,5,0.04,11.0,25.68,0,1,1
+2025-08-15,Metropolitana,13-921,SUR Maipo,SUR,0,0,0.05,10.4,22.88,0,1,1
+2025-08-22,Metropolitana,13-832,SAPU Juan Pablo II,SAPU,0,0,0.08,3.7,10.62,0,1,0
+2025-03-11,Metropolitana,11-900,SAPU Padre Vicente Irarrázabal,SAPU,0,0,0.08,13.3,34.88,0,0,1
+2025-01-26,Atacama,04-101,Hospital Dr. Jerónimo Méndez Arancibia (Chañaral),Hospital,0,0,0.07,16.3,6.62,0,0,0
+2025-03-09,Metropolitana,12-815,SAPU San Luis,SAPU,0,0,0.12,13.0,32.11,0,0,1
+2025-09-06,Metropolitana,10-110,Instituto Traumatológico Dr. Teodoro Gebauer,Hospital,0,0,0.13,5.5,61.46,0,0,1
+2025-04-10,Maule,16-803,SAPU Curicó Centro,SAPU,0,0,0.04,10.3,8.42,0,1,0
+2025-06-18,Coquimbo,05-102 ,Hospital Dr. Antonio Tirado Lanas de Ovalle,Hospital,0,0,0.1,7.0,17.12,0,0,1
+2025-09-24,Magallanes,26-800,SAPU Dr. Mateo Bencur,SAPU,0,0,0.06,-2.8,0.95,1,0,0
+2025-02-13,Maule,16-946,SUR Morza,SUR,0,0,0.02,13.5,5.08,0,0,0
+2025-09-24,Maule,16-952,SUR Sagrada Familia,SUR,0,0,0.02,6.3,10.14,0,0,0
+2025-12-25,Metropolitana,13-920,SUR Los Bajos de San Agustín,SUR,0,0,0.04,14.8,18.73,0,0,1
+2025-12-14,Metropolitana,13-911,SAR Enrique Molina,SAR,6,6,0.14,13.1,14.86,0,1,0
+2025-10-14,Maule,16-110,Hospital San José (Parral),Hospital,0,0,0.09,7.6,5.82,0,0,0
+2025-07-04,O'Higgins,15-939,SUR Coltauco,SUR,4,4,0.06,2.5,35.21,0,0,1
+2025-07-04,Metropolitana,14-105,Hospital Clínico Metropolitano La Florida Dra. Eloísa Díaz Insunza,Hospital,5,6,0.8,2.1,74.12,0,0,1
+2025-10-26,Metropolitana,09-815,SAPU Nº 1 Rodrigo Rojas Denegri,SAPU,7,7,0.05,6.3,28.72,0,0,1
+2025-10-29,Metropolitana,12-814,SAPU La Faena,SAPU,9,9,0.23,11.0,25.68,0,1,1
+2025-03-25,Atacama,04-929,SUR Alto del Carmen,SUR,0,0,0.06,15.9,9.31,0,0,0
+2025-04-16,Metropolitana,11-100,Hospital Clínico San Borja Arriarán,Hospital,1,1,0.4,6.9,39.37,0,0,1
+2025-03-12,Metropolitana,13-180,"Hospital El Pino (Santiago, San Bernardo)",Hospital,0,0,0.13,13.3,34.63,0,0,1
+2025-06-06,Atacama,04-929,SUR Alto del Carmen,SUR,0,0,0.04,10.0,7.98,0,0,0
+2025-08-03,Coquimbo,05-101,Hospital San Pablo (Coquimbo),Hospital,1,1,0.31,9.8,13.53,0,0,0
+2025-02-17,Coquimbo,05-817 ,SAPU Jorge Jordán Domic,SAPU,0,0,0.04,13.6,9.54,0,0,0
+2025-09-08,Metropolitana,10-934,SUR Villa Alhué,SUR,0,0,0.15,5.6,29.37,0,0,1
+2025-10-18,Metropolitana,10-902,SAPU Dr. Arturo Albertz,SAPU,2,2,0.08,8.8,36.18,0,0,1
+2025-01-10,Antofagasta,03-801,SAPU Antonio Rendic,SAPU,0,0,0.04,18.2,8.47,0,0,0
+2025-11-01,Metropolitana,10-140,Hospital de Peñaflor,Hospital,0,0,0.11,9.1,14.1,0,0,0
+2025-04-12,Metropolitana,201438,Servicio de Urgencia Rural SUR Irene Frei Montalva,SUR,12,12,0.42,5.5,40.52,0,0,1
+2025-10-07,Magallanes,26-704,Hospital Comunitario Cristina Calderón de Puerto Williams,Hospital,4,4,0.07,4.8,0.53,0,1,0
+2025-12-10,Metropolitana,14-807,SAR La Bandera,SAR,31,32,0.54,12.3,16.54,0,0,1
+2025-09-20,Metropolitana,13-190 ,Hospital Parroquial de San Bernardo (D),Hospital,0,0,0.14,4.8,26.4,0,1,1
+2025-05-05,Metropolitana,11-805,SAPU Dr. Norman Voulliéme,SAPU,0,0,0.05,5.1,53.27,0,0,1
+2025-07-07,Magallanes,26-100 ,Hospital Clínico de Magallanes Dr. Lautaro Navarro Avaria,Hospital,26,28,2.23,-6.5,0.88,1,0,0
+2025-12-17,Metropolitana,11-195,Hospital de Urgencia Asistencia Pública Dr. Alejandro del Río,Hospital,20,21,0.61,15.6,36.71,0,0,1
+2025-11-27,O'Higgins,15-103,Hospital Del Salvador de Peumo,Hospital,4,4,0.03,10.5,12.71,0,0,0
+2025-11-30,Metropolitana,09-941,SAPU Libertadores,SAPU,2,3,0.66,11.2,14.43,0,0,0
+2025-12-22,Metropolitana,10-918,SAPU El Monte,SAPU,0,0,0.06,14.1,13.98,0,0,0
+2025-04-01,Antofagasta,03-804,SAPU Juan Pablo II de Antofagasta,SAPU,57,57,0.37,16.2,11.09,0,0,0
+2025-03-28,Metropolitana,14-819,SAPU El Roble,SAPU,0,0,0.19,8.0,31.14,0,0,1
+2025-09-20,Metropolitana,13-911,SAR Enrique Molina,SAR,45,46,0.53,4.8,26.4,0,1,1
+2025-05-02,Atacama,04-902,SAPU Joan Crawford Astudillo,SAPU,1,1,0.08,8.0,8.7,0,0,0
+2025-10-16,Metropolitana,11-903,SAR Enfermera Sofía Pincheira,SAR,0,0,0.2,8.9,30.4,0,0,1
+2025-11-18,Metropolitana,201632,SAR Michelle Bachelet,SAR,0,0,0.05,13.0,20.4,0,0,1
+2025-03-09,Metropolitana,13-822,SAPU Santa Teresa de Los Andes,SAPU,0,0,0.12,13.0,32.11,0,0,1
+2025-08-12,Metropolitana,13-818,SAPU Paine,SAPU,27,27,0.04,7.1,72.76,0,0,1
+2025-11-10,Metropolitana,13-831,SAPU Edgardo Enríquez Froedden,SAPU,0,0,0.06,7.8,16.11,0,0,1
+2025-02-13,Coquimbo,05-826,SAR Emilio Schaffhauser,SAR,0,0,0.04,15.2,9.09,0,0,0
+2025-05-31,Antofagasta,03-802,SAPU Corvallis,SAPU,3,3,0.34,13.7,16.12,0,0,1
+2025-07-21,Antofagasta,03-931,SUR San Pedro Atacama,SUR,13,13,0.19,11.9,13.76,0,0,0
+2025-03-04,Metropolitana,10-120,Hospital  Félix Bulnes Cerda,Hospital,6,6,0.15,12.8,19.69,0,0,1
+2025-11-12,Antofagasta,03-944,SUR María Elena,SUR,0,0,0.04,15.1,11.04,0,1,0
+2025-06-07,Metropolitana,13-808,SAPU Clara Estrella,SAPU,13,14,1.14,7.8,101.39,0,0,1
+2025-05-25,Maule,16-969,SUR Colbun,SUR,2,2,0.18,4.7,30.01,0,1,1
+2025-01-12,Metropolitana,12-810,SAPU Rosita Renard,SAPU,0,0,0.05,14.8,18.17,0,0,1
+2025-01-24,Metropolitana,11-809,SAPU Dra. Ana María Juricic,SAPU,13,13,0.49,14.0,18.89,0,0,1
+2025-07-18,Metropolitana,11-901,SAPU Dr. Iván Insunza,SAPU,6,6,0.27,1.0,73.12,1,0,1
+2025-10-14,O'Higgins,15-108,Hospital Mercedes de Chimbarongo,Hospital,27,27,0.29,7.0,12.36,0,0,0
+2025-10-28,Metropolitana,201063,SAPU DR. AGUSTIN CRUZ MELO,SAPU,52,51,1.34,8.4,26.35,0,0,1
+2025-07-28,Maule,16-954,SUR Mercedes,SUR,0,0,0.03,9.1,16.9,0,0,1
+2025-04-06,Coquimbo,05-101,Hospital San Pablo (Coquimbo),Hospital,0,0,0.08,10.0,8.81,0,0,0
+2025-05-20,Antofagasta,03-900,SAPU Central Oriente de Antofagasta,SAPU,34,36,1.68,14.2,11.83,0,0,0
+2025-11-02,Maule,16-969,SUR Colbun,SUR,0,0,0.01,9.7,5.19,0,0,0
+2025-06-01,Metropolitana,10-910,SAPU Lo Franco,SAPU,5,5,0.21,1.7,81.67,1,0,1
+2025-08-28,Metropolitana,14-819,SAPU El Roble,SAPU,31,31,0.46,8.2,73.58,0,0,1
+2025-12-14,Maule,16-820,SAPU Amanda Benavente,SAPU,0,0,0.03,13.4,3.78,0,0,0
+2025-05-17,Metropolitana,10-913,SAPU Violeta Parra,SAPU,33,34,0.8,9.3,56.52,0,0,1
+2025-02-15,Metropolitana,12-904,SAPU Aguilucho,SAPU,0,0,0.05,11.2,13.78,0,0,0
+2025-08-13,O'Higgins,201815,SUR Quinta de Tilcoco,SUR,20,21,0.92,8.2,36.19,0,0,1
+2025-12-23,Metropolitana,10-913,SAPU Violeta Parra,SAPU,1,1,0.12,12.4,14.46,0,0,0
+2025-03-02,Maule,16-807,SAPU Julio Contardo Urzúa,SAPU,0,0,0.03,13.3,5.37,0,0,0
+2025-04-27,Antofagasta,03-101,Hospital Dr. Carlos Cisternas (Calama),Hospital,0,0,0.08,14.4,12.05,0,0,0
+2025-10-13,Metropolitana,10-902,SAPU Dr. Arturo Albertz,SAPU,30,31,0.7,7.7,34.93,0,0,1
+2025-06-09,Metropolitana,09-914,SAPU Esmeralda,SAPU,70,65,4.52,0.4,92.4,1,0,1
+2025-10-03,Metropolitana,10-906,SAPU Dr. Gustavo Molina,SAPU,54,53,0.64,9.8,35.35,0,0,1
