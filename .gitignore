@@ -18,3 +18,7 @@ dist/
 .DS_Store
 .vscode/
 .idea/
+
+# Configuración sensible
+.env.local
+.env.*.local
