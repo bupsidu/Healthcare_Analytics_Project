@@ -1,6 +1,5 @@
 from pathlib import Path
 
-from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import URL
 
@@ -10,7 +9,6 @@ BASE_DIR = Path(__file__).resolve().parents[2]
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Sistema Hospitalario Alerta Temprana"
     API_V1_STR: str = "/api"
-    DEBUG: bool = False
     FRONTEND_ORIGINS: str = "http://localhost:5173"
 
     # Seguridad JWT
@@ -24,18 +22,6 @@ class Settings(BaseSettings):
     POSTGRES_USER: str = "postgres"
     POSTGRES_PASSWORD: str = "postgres"
     POSTGRES_DB: str = "hospital_db"
-
-    @field_validator("DEBUG", mode="before")
-    @classmethod
-    def parse_debug(cls, value):
-        """Acepta etiquetas habituales de entorno además de true/false."""
-        if isinstance(value, str):
-            normalized = value.strip().lower()
-            if normalized in {"release", "production", "prod"}:
-                return False
-            if normalized in {"development", "dev"}:
-                return True
-        return value
 
     @property
     def database_url(self) -> URL:
