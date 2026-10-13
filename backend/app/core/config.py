@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Sistema Hospitalario Alerta Temprana"
     API_V1_STR: str = "/api"
     FRONTEND_ORIGINS: str = "http://localhost:5173"
+    ML_ARTIFACTS_DIR: Path = BASE_DIR.parent / "Modelo" / "artifacts"
 
     # Seguridad JWT
     SECRET_KEY: str

@@ -2,13 +2,16 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.concurrency import run_in_threadpool
 
 from app.api.auth import router as auth_router
 from app.api.climate import router as climate_router
 from app.api.health import router as health_router
 from app.api.intakes import router as intakes_router
-from app.core.config import settings
+from app.api.predictions import router as predictions_router
+from app.core.config import BASE_DIR, settings
 from app.db.session import Base, engine
+from app.services.ml_service import PredictionService
 
 import app.models.user
 import app.models.establishment
@@ -16,8 +19,9 @@ import app.models.intake
 
 
 @asynccontextmanager
-async def lifespan(_: FastAPI):
+async def lifespan(application: FastAPI):
     Base.metadata.create_all(bind=engine)
+    await run_in_threadpool(application.state.prediction_service.load)
     yield
 
 
@@ -28,6 +32,11 @@ app = FastAPI(
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
     lifespan=lifespan,
 )
+
+artifacts_dir = settings.ML_ARTIFACTS_DIR
+if not artifacts_dir.is_absolute():
+    artifacts_dir = BASE_DIR / artifacts_dir
+app.state.prediction_service = PredictionService(artifacts_dir.resolve())
 
 app.add_middleware(
     CORSMiddleware,
@@ -41,6 +50,7 @@ app.include_router(health_router, prefix=settings.API_V1_STR)
 app.include_router(auth_router, prefix=settings.API_V1_STR)
 app.include_router(intakes_router, prefix=settings.API_V1_STR)
 app.include_router(climate_router, prefix=settings.API_V1_STR)
+app.include_router(predictions_router, prefix=settings.API_V1_STR)
 
 
 @app.get("/")
