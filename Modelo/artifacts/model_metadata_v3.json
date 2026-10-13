@@ -1,0 +1,179 @@
+{
+  "release": "modelo-v3",
+  "arquitectura": "dos-etapas",
+  "granularidad_evaluacion": "El dataset tiene ~4 filas por (establecimiento, Fecha) porque cada fila es una causa respiratoria distinta del archivo DEIS (la columna de causa se descartó al unificar). La demanda real de un establecimiento en un día es la SUMA de esas filas, por lo que la evaluación a nivel establecimiento se hace a nivel ESTABLECIMIENTO + DÍA.",
+  "explicacion": "v1 tenía data leakage: target Total == suma de 5 rangos etarios usados como features (MAE 0.321 / R² 0.9956 artificiales). v2 corrigió el leakage pero quedó con R² 0.008 a nivel establecimiento, porque el clima es a nivel REGIÓN e idéntico para todos los establecimientos de una región+fecha (~44 establecimientos por grupo con desviación estándar de Total ≈ 13.6): el modelo no podía distinguirlos. v3 resuelve eso con dos etapas: (1) predecir la demanda TOTAL de la región por día, donde el clima sí varía entre regiones y tiene señal real; (2) repartir ese total a cada establecimiento con su cuota histórica (share 2024), cuya estabilidad se verificó en 0.993 de correlación entre 2024 y 2025 sobre 297 establecimientos comunes.",
+  "etapa_1": {
+    "nivel": "region",
+    "target": "suma de Total por (Region, Fecha)",
+    "features": [
+      "TempMin",
+      "TempMax",
+      "Precipitacion_mm",
+      "MP2_5",
+      "MP10",
+      "TempMin_Lag_4D",
+      "MP2_5_Lag_2D",
+      "Frio_Polar_Flag",
+      "Lluvia_Intensa_Flag",
+      "Alerta_MP25_Flag",
+      "Region_Media_7d_TempMin",
+      "Region_Media_7d_MP25",
+      "Region_Encoded",
+      "Cat_TempMin_Encoded"
+    ],
+    "n_features": 14,
+    "model_type": "RandomForestRegressor",
+    "metrics_test_2025": {
+      "MAE": 715.4131,
+      "RMSE": 1195.097,
+      "R2": 0.5643
+    },
+    "cv_mae_mean": 882.6877,
+    "cv_mae_std": 236.441,
+    "cv_mae_folds": [
+      918.9815,
+      1137.5974,
+      1122.4327,
+      531.2057,
+      703.2212
+    ],
+    "feature_importance": {
+      "MP2_5_Lag_2D": 0.199497,
+      "Region_Encoded": 0.19788,
+      "Region_Media_7d_MP25": 0.195803,
+      "MP2_5": 0.13165,
+      "Alerta_MP25_Flag": 0.106347,
+      "MP10": 0.064431,
+      "TempMin_Lag_4D": 0.027509,
+      "Region_Media_7d_TempMin": 0.0264,
+      "TempMax": 0.02312,
+      "TempMin": 0.019664,
+      "Cat_TempMin_Encoded": 0.005385,
+      "Precipitacion_mm": 0.001807,
+      "Frio_Polar_Flag": 0.000364,
+      "Lluvia_Intensa_Flag": 0.000144
+    }
+  },
+  "etapa_2": {
+    "nivel": "establecimiento",
+    "metodo": "cuota histórica (share) sobre train 2024",
+    "formula": "pred_establecimiento = pred_region_total * share_normalizado",
+    "fallback_establecimientos_nuevos": "Si el establecimiento no aparece en train 2024 se le asigna la mediana de las cuotas de su TipoEstablecimiento dentro de su región; si la región no tiene ese tipo, la mediana global del tipo; si el tipo es desconocido, 0. Luego las cuotas se renormalizan dentro de cada región para que la suma repartida sea exactamente el total regional predicho.",
+    "n_establecimientos_con_cuota": 298,
+    "n_establecimientos_test_sin_cuota": 41,
+    "metrics_test_2025": {
+      "MAE": 20.1195,
+      "RMSE": 42.7962,
+      "R2": -1.979,
+      "sesgo_pct": 34.63
+    }
+  },
+  "metrics_sistema_completo": {
+    "MAE": 20.1195,
+    "RMSE": 42.7962,
+    "R2": -1.979,
+    "sesgo_pct": 34.63
+  },
+  "train_year": 2024,
+  "test_year": 2025,
+  "train_rows_establecimiento": 420844,
+  "test_rows_establecimiento": 473808,
+  "train_rows_region": 2185,
+  "test_rows_region": 2887,
+  "hyperparameters": {
+    "n_estimators": 200,
+    "max_depth": 15,
+    "min_samples_split": 50,
+    "min_samples_leaf": 20,
+    "max_features": "sqrt",
+    "random_state": 42,
+    "cv": "TimeSeriesSplit(n_splits=5) sobre Etapa 1",
+    "scoring": "neg_mean_absolute_error"
+  },
+  "comparacion_v2": {
+    "nota": "v2 reportaba MAE 9.979 / R² 0.008 a nivel FILA (una fila = una causa respiratoria). Re-agregando las predicciones de v2 a nivel ESTABLECIMIENTO + DÍA (granularidad comparable con v3) resulta MAE 17.437 / RMSE 24.260 / R² 0.0427 con sesgo +17.3%.",
+    "v2_nivel_establecimiento_dia": {
+      "MAE": 17.437,
+      "RMSE": 24.26,
+      "R2": 0.0427,
+      "sesgo_pct": 17.3
+    },
+    "v3_nivel_establecimiento_dia": {
+      "MAE": 20.1195,
+      "RMSE": 42.7962,
+      "R2": -1.979,
+      "sesgo_pct": 34.63
+    },
+    "veredicto": "v3 NO mejora a nivel establecimiento respecto a v2: el MAE sube y el R² pasa de ~0.04 a negativo. Ver `diagnostico` para el porqué."
+  },
+  "diagnostico": {
+    "regiones_nuevas_en_test": [
+      "Antofagasta",
+      "Atacama"
+    ],
+    "drift_MP2_5": {
+      "Arica y Parinacota": {
+        "train_2024": 8.98,
+        "test_2025": 12.28,
+        "var_pct": 36.7
+      },
+      "Coquimbo": {
+        "train_2024": 8.49,
+        "test_2025": 13.33,
+        "var_pct": 57.0
+      },
+      "Magallanes": {
+        "train_2024": 2.26,
+        "test_2025": 1.67,
+        "var_pct": -26.3
+      },
+      "Maule": {
+        "train_2024": 7.92,
+        "test_2025": 10.85,
+        "var_pct": 37.0
+      },
+      "Metropolitana": {
+        "train_2024": 28.77,
+        "test_2025": 41.63,
+        "var_pct": 44.7
+      },
+      "O'Higgins": {
+        "train_2024": 12.59,
+        "test_2025": 18.51,
+        "var_pct": 47.1
+      }
+    },
+    "ablation_sin_contaminacion": {
+      "features": [
+        "TempMin",
+        "TempMax",
+        "Precipitacion_mm",
+        "TempMin_Lag_4D",
+        "Frio_Polar_Flag",
+        "Lluvia_Intensa_Flag",
+        "Region_Media_7d_TempMin",
+        "Region_Encoded",
+        "Cat_TempMin_Encoded"
+      ],
+      "nivel_region": {
+        "MAE": 382.9329,
+        "RMSE": 612.5126,
+        "R2": 0.8855
+      },
+      "nivel_establecimiento": {
+        "MAE": 12.7345,
+        "RMSE": 18.4559,
+        "R2": 0.446,
+        "sesgo_pct": 5.94
+      },
+      "lectura": "Quitar las 5 features de contaminación MEJORA ambas etapas. La contaminación correlaciona con la demanda dentro de 2024 (señal espuria/estacional), pero su nivel medio subió +26% a +57% entre 2024 y 2025 mientras la demanda BAJÓ ~5%. El RF aprendió 'más MP2.5 → más demanda' y extrapola con sesgo positivo. Además la contaminación ya está proxyada por Region_Encoded (cada región tiene un rango típico propio)."
+    },
+    "causas_raiz_recomendadas": [
+      "1. Features de contaminación en nivel ABSOLUTO no generalizan entre años (drift de +26% a +57% en MP2.5). Usar anomalías z-score por región o excluirsas.",
+      "2. Region_Encoded con LabelEncoder es ORDINAL: el RF lo trata como número continuo (Antofagasta=0 ... O'Higgins=7), lo que introduce un orden falso. One-hot region lo sube de R² 0.56 a 0.80 a nivel región.",
+      "3. Antofagasta y Atacama no tienen temperatura 2024 en crudo (archivos con columnas Instante/RRR6 en vez de Fecha/MediaCli), por lo que filter_and_clean() las elimina de train y el modelo nunca las ve.",
+      "4. Sin estacionalidad explícita (día del año / semana epidémica) el RF no puede capturar el ciclo respiratorio; un baseline de media histórica por región le gana en R² (0.81 vs 0.56)."
+    ]
+  }
+}

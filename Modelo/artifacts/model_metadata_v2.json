@@ -1,0 +1,43 @@
+{
+  "release": "modelo-v2",
+  "model_type": "RandomForestRegressor",
+  "target": "Total",
+  "features": [
+    "TempMin",
+    "TempMax",
+    "Precipitacion_mm",
+    "MP2_5",
+    "MP10",
+    "TempMin_Lag_4D",
+    "MP2_5_Lag_2D",
+    "Frio_Polar_Flag",
+    "Lluvia_Intensa_Flag",
+    "Alerta_MP25_Flag",
+    "Cat_TempMin_Encoded",
+    "Region_Media_7d_TempMin",
+    "Region_Media_7d_MP25",
+    "Region_Encoded",
+    "TipoEstablecimiento_Encoded"
+  ],
+  "n_features": 15,
+  "train_year": 2024,
+  "test_year": 2025,
+  "train_rows": 420844,
+  "test_rows": 473808,
+  "metrics": {
+    "MAE": 9.979,
+    "RMSE": 14.6501,
+    "R2": 0.0082,
+    "CV_MAE_mean": 10.9842,
+    "CV_MAE_std": 2.5303
+  },
+  "hyperparameters": {
+    "n_estimators": 200,
+    "max_depth": 15,
+    "min_samples_split": 50,
+    "min_samples_leaf": 20,
+    "max_features": "sqrt",
+    "random_state": 42
+  },
+  "leakage_fix": "v2 excluye los conteos por rango etario (Menores_1 ... De_65_y_mas) porque Total == suma de esos rangos, lo que causaba data leakage en v1. v2 predice solo con clima y contaminación."
+}

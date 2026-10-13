@@ -1,0 +1,53 @@
+{
+  "model_name": "model_rf_respiratorio.joblib",
+  "release": "modelo-v1",
+  "target": "Total",
+  "train_period": "2024",
+  "test_period": "2025",
+  "rows_total": 894652,
+  "rows_train": 420844,
+  "rows_test": 473808,
+  "regions": 8,
+  "establishments": 339,
+  "date_min": "2024-01-01",
+  "date_max": "2025-12-31",
+  "features": [
+    "Menores_1",
+    "De_1_a_4",
+    "De_5_a_14",
+    "De_15_a_64",
+    "De_65_y_mas",
+    "TempMin",
+    "TempMax",
+    "Precipitacion_mm",
+    "MP2_5",
+    "MP10",
+    "TempMin_Lag_4D",
+    "MP2_5_Lag_2D",
+    "Frio_Polar_Flag",
+    "Lluvia_Intensa_Flag",
+    "Alerta_MP25_Flag",
+    "Cat_TempMin_Encoded",
+    "Region_Media_7d_TempMin",
+    "Region_Media_7d_MP25",
+    "Region_Encoded",
+    "TipoEstablecimiento_Encoded"
+  ],
+  "metrics": {
+    "MAE": 0.32104924567986004,
+    "RMSE": 0.9797888156782735,
+    "R2": 0.9955639427408247,
+    "CV_MAE_mean_recorded": 0.608,
+    "CV_MAE_std_recorded": 0.3
+  },
+  "environment": {
+    "python": "3.13.6",
+    "sklearn": "1.7.2",
+    "pandas": "2.3.3",
+    "numpy": "2.3.5"
+  },
+  "model_file": "models/model_rf_respiratorio.joblib",
+  "model_sha256": "f6ff542d1401256c979c4960dcc3603b24a6965e8d321f1c07a9fb1f31c8ebb1",
+  "model_bytes": 83175345,
+  "generated_at": "2026-10-12T01:40:33"
+}
