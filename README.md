@@ -105,11 +105,11 @@ Los artefactos grandes de manejan de la siguiente manera:
 
 - Datos completos: se comparten por el medio interno del equipo.
 - Modelo entrenado: se publica como evidencia versionada en GitHub Releases.
-- Release actual del modelo: `modelo-v1`.
+- Release actual del modelo: `modelo-v6-e2` (RandomForest directo, MAE 9.33 / R² 0.72 en test 2025; ver `Modelo/docs/model_evolution.md` para la evolución v1→v6).
 
 Enlace del release:
 
-`https://github.com/bupsidu/Healthcare_Analytics_Project/releases/tag/modelo-v1`
+`https://github.com/bupsidu/Healthcare_Analytics_Project/releases/tag/modelo-v6-e2`
 
 ## Reproducción del proyecto
 
