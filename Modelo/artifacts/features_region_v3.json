@@ -1,0 +1,16 @@
+[
+  "TempMin",
+  "TempMax",
+  "Precipitacion_mm",
+  "MP2_5",
+  "MP10",
+  "TempMin_Lag_4D",
+  "MP2_5_Lag_2D",
+  "Frio_Polar_Flag",
+  "Lluvia_Intensa_Flag",
+  "Alerta_MP25_Flag",
+  "Region_Media_7d_TempMin",
+  "Region_Media_7d_MP25",
+  "Region_Encoded",
+  "Cat_TempMin_Encoded"
+]

@@ -1,0 +1,266 @@
+{
+  "release": "modelo-v4",
+  "arquitectura": "dos-etapas + anomalías estacionales",
+  "granularidad_evaluacion": "El dataset tiene ~4 filas por (establecimiento, Fecha) porque cada fila es una causa respiratoria distinta del archivo DEIS (la columna de causa se descartó al unificar). La demanda real de un establecimiento en un día es la SUMA de esas filas, por lo que la evaluación a nivel establecimiento se hace a nivel ESTABLECIMIENTO + DÍA.",
+  "explicacion": "v4 conserva la arquitectura de dos etapas de v3 (Etapa 1 predice el total regional por día; Etapa 2 reparte por cuota histórica), pero corrige la causa raíz del fracaso de v3: la contaminación en nivel ABSOLUTO era señal espuria (proxy de la estación) con drift interanual de +26% a +57% en MP2.5 mientras la demanda bajaba ~5%, lo que sesgaba las predicciones al alza. v4 usa ANOMALÍAS (valor − baseline estacional de 2024) más estacionalidad cíclica explícita (Doy_Sin/Doy_Cos) y one-hot de región, de modo que el modelo separa el efecto estacional del efecto de la contaminación y es robusto al desplazamiento de niveles base entre años.",
+  "metodo_anomalias_anti_leakage": {
+    "descripcion": "El baseline estacional de cada variable (TempMin, MP2_5, MP10) se calcula SOLO con datos de train (2024): media por región × día-del-año (1..366), huecos interpolados linealmente y suavizado con ventana móvil CENTRAL de 15 días. Ese baseline se aplica a train y a test por (región, día-del-año de la fecha). anomalía = valor absoluto − baseline. Nunca se usa información de test (2025) para calcular los baselines.",
+    "ventana_suavizado_dias": 15,
+    "variables": [
+      "TempMin",
+      "MP2_5",
+      "MP10"
+    ],
+    "fallback_regiones_sin_baseline": "Antofagasta y Atacama no existen en train 2024 (sus CSV SENAMHI 2024 tienen columnas Instante/RRR6 y filter_and_clean() los descarta), por lo que se les asigna el baseline NACIONAL: promedio entre las curvas suavizadas de las 6 regiones de train.",
+    "absolutos_conservados": "Se conserva TempMin en nivel absoluto porque el frío absoluto es fisiológicamente relevante y su drift interanual es pequeño. Los absolutos MP2_5 y MP10 se REEMPLAZAN por sus anomalías."
+  },
+  "etapa_1": {
+    "nivel": "region",
+    "target": "suma de Total por (Region, Fecha)",
+    "features": [
+      "TempMin",
+      "TempMax",
+      "Precipitacion_mm",
+      "TempMin_Lag_4D",
+      "MP2_5_Lag_2D",
+      "Frio_Polar_Flag",
+      "Lluvia_Intensa_Flag",
+      "Alerta_MP25_Flag",
+      "Region_Media_7d_TempMin",
+      "Region_Media_7d_MP25",
+      "Anom_TempMin",
+      "Anom_MP2_5",
+      "Anom_MP10",
+      "Doy_Sin",
+      "Doy_Cos",
+      "Region_Antofagasta",
+      "Region_Arica y Parinacota",
+      "Region_Atacama",
+      "Region_Coquimbo",
+      "Region_Magallanes",
+      "Region_Maule",
+      "Region_Metropolitana",
+      "Region_O'Higgins"
+    ],
+    "n_features": 23,
+    "model_type": "RandomForestRegressor",
+    "metrics_test_2025": {
+      "MAE": 539.0498,
+      "RMSE": 812.5376,
+      "R2": 0.7986
+    },
+    "cv_mae_mean": 717.5286,
+    "cv_mae_std": 192.1031,
+    "cv_mae_folds": [
+      892.6316,
+      936.4197,
+      677.5903,
+      396.1561,
+      684.8453
+    ],
+    "feature_importance": {
+      "Region_Metropolitana": 0.253939,
+      "Anom_MP2_5": 0.168277,
+      "Anom_MP10": 0.120409,
+      "Region_Media_7d_MP25": 0.104962,
+      "MP2_5_Lag_2D": 0.090665,
+      "Alerta_MP25_Flag": 0.056416,
+      "Region_O'Higgins": 0.026869,
+      "Doy_Cos": 0.02153,
+      "Region_Media_7d_TempMin": 0.021213,
+      "Region_Maule": 0.02078,
+      "Anom_TempMin": 0.020419,
+      "TempMin_Lag_4D": 0.019461,
+      "TempMin": 0.019032,
+      "Region_Magallanes": 0.015843,
+      "Doy_Sin": 0.013954,
+      "TempMax": 0.01271,
+      "Region_Arica y Parinacota": 0.007722,
+      "Region_Coquimbo": 0.003036,
+      "Precipitacion_mm": 0.00235,
+      "Frio_Polar_Flag": 0.000276,
+      "Lluvia_Intensa_Flag": 0.000137,
+      "Region_Antofagasta": 0.0,
+      "Region_Atacama": 0.0
+    }
+  },
+  "etapa_2": {
+    "nivel": "establecimiento",
+    "metodo": "cuota histórica (share) sobre train 2024",
+    "formula": "pred_establecimiento = pred_region_total * share_normalizado",
+    "fallback_establecimientos_nuevos": "Si el establecimiento no aparece en train 2024 se le asigna la mediana de las cuotas de su TipoEstablecimiento dentro de su región; si la región no tiene ese tipo, la mediana global del tipo; si el tipo es desconocido, 0. Luego las cuotas se renormalizan dentro de cada región para que la suma repartida sea exactamente el total regional predicho.",
+    "n_establecimientos_con_cuota": 298,
+    "n_establecimientos_test_sin_cuota": 41,
+    "metrics_test_2025": {
+      "MAE": 16.3067,
+      "RMSE": 28.1086,
+      "R2": -0.2851,
+      "sesgo_pct": 24.95
+    }
+  },
+  "metrics_sistema_completo": {
+    "MAE": 16.3067,
+    "RMSE": 28.1086,
+    "R2": -0.2851,
+    "sesgo_pct": 24.95
+  },
+  "train_year": 2024,
+  "test_year": 2025,
+  "train_rows_establecimiento": 420844,
+  "test_rows_establecimiento": 473808,
+  "train_rows_region": 2185,
+  "test_rows_region": 2887,
+  "hyperparameters": {
+    "n_estimators": 200,
+    "max_depth": 15,
+    "min_samples_split": 50,
+    "min_samples_leaf": 20,
+    "max_features": "sqrt",
+    "random_state": 42,
+    "cv": "TimeSeriesSplit(n_splits=5) sobre Etapa 1",
+    "scoring": "neg_mean_absolute_error"
+  },
+  "comparacion_v2_v3_v4": {
+    "nota": "Todas las métricas a nivel ESTABLECIMIENTO + DÍA sobre test 2025 (granularidad comparable). v2 y v3 son valores de referencia ya verificados en sesiones anteriores.",
+    "v2_nivel_establecimiento_dia": {
+      "MAE": 17.437,
+      "RMSE": 24.26,
+      "R2": 0.0427,
+      "sesgo_pct": 17.3
+    },
+    "v3_nivel_establecimiento_dia": {
+      "MAE": 20.119,
+      "RMSE": 42.796,
+      "R2": -1.979,
+      "sesgo_pct": 34.6
+    },
+    "v4_nivel_establecimiento_dia": {
+      "MAE": 16.3067,
+      "RMSE": 28.1086,
+      "R2": -0.2851,
+      "sesgo_pct": 24.95
+    },
+    "referencia_ablacion_v3_sin_contaminacion": {
+      "MAE": 12.7,
+      "R2": 0.446,
+      "nota": "Ablación de v3 sin features de contaminación absoluta (referencia verificada en sesiones anteriores)."
+    }
+  },
+  "diagnostico": {
+    "hallazgo_contaminacion_spuria": "En v3 la contaminación en nivel absoluto correlacionaba con la demanda DENTRO de 2024 porque ambas cosas suben en invierno (proxy de la estación), no porque la contaminación cause la demanda de forma aislada. Entre 2024 y 2025 el MP2.5 subió +26% a +57% en 5 de 6 regiones mientras la demanda bajó ~5%: el RF extrapoló la correlación espuria con sesgo fuerte positivo (+34.6% en v3). v4 usa anomalías (robustas al nivel base) y estacionalidad cíclica explícita para que el modelo separe 'efecto invierno' de 'efecto contaminación'.",
+    "regiones_nuevas_en_test": [
+      "Antofagasta",
+      "Atacama"
+    ],
+    "establecimientos_test_sin_cuota": 41,
+    "drift_MP2_5": {
+      "Arica y Parinacota": {
+        "train_2024": 8.98,
+        "test_2025": 12.28,
+        "var_pct": 36.7
+      },
+      "Coquimbo": {
+        "train_2024": 8.49,
+        "test_2025": 13.33,
+        "var_pct": 57.0
+      },
+      "Magallanes": {
+        "train_2024": 2.26,
+        "test_2025": 1.67,
+        "var_pct": -26.3
+      },
+      "Maule": {
+        "train_2024": 7.92,
+        "test_2025": 10.85,
+        "var_pct": 37.0
+      },
+      "Metropolitana": {
+        "train_2024": 28.77,
+        "test_2025": 41.63,
+        "var_pct": 44.7
+      },
+      "O'Higgins": {
+        "train_2024": 12.59,
+        "test_2025": 18.51,
+        "var_pct": 47.1
+      }
+    },
+    "ablation_v4_sin_contaminacion": {
+      "features": [
+        "TempMin",
+        "TempMax",
+        "Precipitacion_mm",
+        "TempMin_Lag_4D",
+        "Frio_Polar_Flag",
+        "Lluvia_Intensa_Flag",
+        "Region_Media_7d_TempMin",
+        "Anom_TempMin",
+        "Doy_Sin",
+        "Doy_Cos",
+        "Region_Antofagasta",
+        "Region_Arica y Parinacota",
+        "Region_Atacama",
+        "Region_Coquimbo",
+        "Region_Magallanes",
+        "Region_Maule",
+        "Region_Metropolitana",
+        "Region_O'Higgins"
+      ],
+      "nivel_region": {
+        "MAE": 393.0505,
+        "RMSE": 602.3748,
+        "R2": 0.8893
+      },
+      "nivel_establecimiento": {
+        "MAE": 13.3959,
+        "RMSE": 21.5831,
+        "R2": 0.2423,
+        "sesgo_pct": 13.72
+      },
+      "lectura": "Compara el sistema v4 CON y SIN features de contaminación (anomalías + lag + flags + rolling). Si MAE/R² con contaminación son mejores, la anomalía aporta señal real; si son peores, la contaminación sigue siendo ruido/drift incluso en forma de anomalía."
+    },
+    "ablation_v4_anomalias_solo": {
+      "features": [
+        "TempMin",
+        "TempMax",
+        "Precipitacion_mm",
+        "TempMin_Lag_4D",
+        "Frio_Polar_Flag",
+        "Lluvia_Intensa_Flag",
+        "Region_Media_7d_TempMin",
+        "Anom_TempMin",
+        "Anom_MP2_5",
+        "Anom_MP10",
+        "Doy_Sin",
+        "Doy_Cos",
+        "Region_Antofagasta",
+        "Region_Arica y Parinacota",
+        "Region_Atacama",
+        "Region_Coquimbo",
+        "Region_Magallanes",
+        "Region_Maule",
+        "Region_Metropolitana",
+        "Region_O'Higgins"
+      ],
+      "nivel_region": {
+        "MAE": 462.0845,
+        "RMSE": 691.6182,
+        "R2": 0.8541
+      },
+      "nivel_establecimiento": {
+        "MAE": 14.6699,
+        "RMSE": 23.1865,
+        "R2": 0.1256,
+        "sesgo_pct": 19.63
+      },
+      "lectura": "Quita SOLO los absolutos de contaminación (MP2_5_Lag_2D, Alerta_MP25_Flag, Region_Media_7d_MP25) conservando las anomalías Anom_MP2_5 / Anom_MP10. Aísla el efecto de las anomalías puras sobre el sistema completo."
+    },
+    "veredicto_contaminacion": "HONESTO: la contaminación EMPEORA el sistema incluso en forma de anomalía (el solo-clima tiene mejor MAE y R² a nivel establecimiento que el v4 completo). Causa probable: el baseline está fijado en los niveles de 2024, por lo que el drift de MP2.5 (+26% a +57% entre 2024 y 2025) se filtra a las anomalías de test (anomalía media > 0 en 2025) y el modelo proyecta al alza la relación corto-plazo aprendida dentro de 2024. Además, quitar solo los absolutos (conservando anomalías) tampoco mejora al solo-clima: el problema no es solo el nivel absoluto.",
+    "correcciones_respecto_v3": [
+      "1. Contaminación por ANOMALÍA (valor − baseline estacional 2024) en vez de absoluto: elimina el proxy-estación y el drift de nivel base.",
+      "2. Estacionalidad explícita Doy_Sin/Doy_Cos: en v3 el RF no tenía forma de representar el ciclo anual (un baseline de media histórica por región le ganaba en R²).",
+      "3. One-hot de Región en vez de LabelEncoder: v3 trataba la región como número continuo con un orden falso.",
+      "4. Se elimina Cat_TempMin_Encoded (100% redundante con TempMin)."
+    ]
+  }
+}

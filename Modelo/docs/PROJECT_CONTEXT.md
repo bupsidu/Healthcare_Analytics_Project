@@ -57,3 +57,36 @@
 1. **Integrante 1 (ML & Data Science Lead):** Datasets 2024-2025, Feature Engineering, Random Forest, DBSCAN, `.joblib`.
 2. **Integrante 2 (Backend & Database Lead):** FastAPI REST API, PostgreSQL + SQLAlchemy, Open-Meteo HTTP Client, Docker Compose.
 3. **Integrante 3 (Frontend & UI/UX Lead):** App Web React, Tailwind CSS, Formulario Triage, Dashboard 96h con Recharts.
+
+---
+
+## 🚀 6. Hoja de Ruta — Mejoras Futuras
+
+### Estado actual: modelo v6 (directo a nivel establecimiento)
+- Predicción del **total** de atenciones respiratorias a 96 horas con **un solo
+  `RandomForest` a nivel establecimiento** (27 features: demanda reciente
+  `Total_Lag_4`, cuota trailing, predicción regional, one-hot tipo/región,
+  estacionalidad y clima regional sin contaminación). Reemplaza a la v5 de dos
+  etapas: MAE **9.334** / R² **0.7231** / sesgo +9.77% vs 14.763 / 0.141 de v5
+  (test 2025, nivel establecimiento+día).
+- El proceso de iteración v1→v6, sus problemas y correcciones, está documentado
+  en [`model_evolution.md`](model_evolution.md); el detalle técnico de la v6
+  está en [`model_report.md`](model_report.md).
+
+### Mejora 1 — Multi-target por rango etario
+- Predecir la demanda por grupo etario (`<1`, `1-4`, `5-14`, `15-64`, `65+`).
+- Las columnas ya están preservadas en el dataset; es la extensión más directa.
+
+### Mejora 2 — Tipo de enfermedad
+- Predecir la causa o grupo de enfermedad respiratoria (CIE-10 J00-J99).
+- **Requisito previo:** análisis exploratorio de frecuencia por causa; el desbalance de
+  clases puede volver inútil la predicción en enfermedades raras.
+- **Enfoque recomendado:** partir con categorías agrupadas (agudas, crónicas, neumonía)
+  en lugar de todas las causas del capítulo J.
+
+### Mejora 3 — Rango etario × enfermedad
+- Predicción combinada multidimensional. Es el punto final natural, pero el más complejo.
+
+### Habilitador de precisión (futuro)
+- Incorporar datos históricos de urgencias DEIS de **2022 y 2023** para ampliar la serie
+  de entrenamiento y mejorar la precisión de las mejoras 1-3.

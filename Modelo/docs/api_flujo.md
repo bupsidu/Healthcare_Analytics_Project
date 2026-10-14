@@ -85,12 +85,22 @@ CREATE TABLE predicciones (
 );
 ```
 
-## Qué falta exportar del lado ML
+## Encoders (exportados en `encoders.joblib`)
 
-El release `modelo-v1` trae el modelo, las features y el metadata, pero faltan los encoders:
+El diccionario de traducción texto → número está en `Modelo/artifacts/encoders.joblib`:
 
-- `region_encoder` (Region → número)
-- `tipo_encoder` (TipoEstablecimiento → número)
-- `cat_temp_encoder` (Cat_TempMin → número)
+- `temp_order`: mapeo ordinal de `Cat_TempMin` (Muy Frío=0 … Caluroso=4).
+- `le_region`: `LabelEncoder` de las 8 regiones del modelo.
+- `le_tipo`: `LabelEncoder` de los 5 tipos de establecimiento (CEAR, Hospital, SAPU, SAR, SUR).
 
-Estos se exportarán como `encoders.joblib` en el próximo release (`modelo-v1.1`). Hasta entonces, la API puede usar el camino MVP: recibir las 20 features ya computadas.
+Uso en el backend:
+
+```python
+enc = joblib.load("artifacts/encoders.joblib")
+region_enc = enc["le_region"].transform([region])[0]
+tipo_enc = enc["le_tipo"].transform([tipo])[0]
+cat_enc = enc["temp_order"].get(cat_temp, -1)
+```
+
+**Ojo**: las clases de los encoders son fijas (las del entrenamiento). Si llega una
+región o tipo desconocido, hay que manejarlo con un valor de fallback (por ejemplo -1).
