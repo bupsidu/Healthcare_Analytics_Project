@@ -8,6 +8,7 @@ from app.api.auth import router as auth_router
 from app.api.climate import router as climate_router
 from app.api.health import router as health_router
 from app.api.intakes import router as intakes_router
+from app.api.ml_data import router as ml_data_router
 from app.api.predictions import router as predictions_router
 from app.core.config import BASE_DIR, settings
 from app.db.session import Base, engine
@@ -16,6 +17,7 @@ from app.services.ml_service import PredictionService
 import app.models.user
 import app.models.establishment
 import app.models.intake
+import app.models.ml_data
 
 
 @asynccontextmanager
@@ -51,6 +53,7 @@ app.include_router(auth_router, prefix=settings.API_V1_STR)
 app.include_router(intakes_router, prefix=settings.API_V1_STR)
 app.include_router(climate_router, prefix=settings.API_V1_STR)
 app.include_router(predictions_router, prefix=settings.API_V1_STR)
+app.include_router(ml_data_router, prefix=settings.API_V1_STR)
 
 
 @app.get("/")
