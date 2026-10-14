@@ -1,0 +1,324 @@
+{
+  "release": "modelo-v6-e1",
+  "experimento": "E1 — réplica de v5 con Etapa 2 de cuota dinámica trailing",
+  "descripcion": "E1 es una réplica DEL PIPELINE v5 con UN ÚNICO cambio: la Etapa 2 pasa de cuota histórica FIJA 2024 a cuota dinámica TRAILING (shift(4) + rolling(30, min_periods=10) de CALENDARIO por establecimiento) repartida con denominador REGIONAL — Σ peso sobre TODOS los estabs de la región en cada fecha, reporten o no — de modo que los estabs no reportantes dejan su parte sin repartir (semántica de v5) y ningún reportante se queda con el total regional. La Etapa 1 se importa del propio módulo v5 (features, anomalías trailing N=45, one-hot de región, RF y semilla idénticos), el split es train 2024 / test 2025 y la evaluación es a nivel ESTABLECIMIENTO + DÍA, de modo que la comparación E1 vs v5 aisla el efecto de la cuota.",
+  "granularidad_evaluacion": "El dataset tiene ~4 filas por (establecimiento, Fecha) porque cada fila es una causa respiratoria distinta del archivo DEIS. La demanda real de un establecimiento en un día es la SUMA de esas filas; se agrega por (estab, fecha) antes de evaluar.",
+  "aviso_anti_leakage": {
+    "formula": "trail_e(T) = Total_e.shift(4).rolling(30, min_periods=10).sum() sobre la serie del establecimiento REINDEXADA AL CALENDARIO DIARIO completo de su rango (días sin reporte = NaN).",
+    "horizonte_horas": 96,
+    "lag_dias": 4,
+    "por_que_es_anti_leakage": "El shift(4) sobre el calendario garantiza que la información disponible al pronosticar la fecha T es hasta T-4 (lag real de días de calendario): el día T NUNCA entra en su propia cuota ni en la media de fallback de su Región en T, cuyo trail también es ≤ T-4. No se usa el target de T ni ninguna fecha ≥ T.",
+    "cruce_2024_2025": "La ventana SÍ puede cruzar la frontera 2024→2025: los días anteriores a T ya fueron observados en el sistema real (misma suposición que los lags de features y el baseline trailing de la Etapa 1).",
+    "share_2024": "La cuota base y sus medianas de fallback se calculan SOLO desde train 2024."
+  },
+  "configuracion_cuota_trailing": {
+    "ventana_dias": 30,
+    "min_periods": 10,
+    "lag_dias": 4,
+    "serie": "CAMBIO DE SEMÁNTICA (documentado): la serie de cada establecimiento (panel 2024+2025 agregado por estab+fecha, filas multi-causa sumadas) se REINDEXA al CALENDARIO DIARIO completo de su rango antes del shift/rolling: los días sin reporte quedan con Total=NaN y el rolling suma solo las observaciones disponibles. La ventana es de CALENDARIO, no de FILAS: shift(4) es un lag real de 4 días y trail_e(T) existe en cada fecha T con ≥10 observaciones en [T-33, T-4], aunque el estab no haya reportado ese día.",
+    "fallback_sin_trail": "Establecimientos sin trail en T (menos de 10 observaciones en la ventana de calendario [T-33, T-4]): share_2024_e × media(trail) de su Región en T, promediada sobre TODOS los estabs de la región CON trail en T (reporten o no ese día); si esa Región en T no tiene ningún trail, share_2024_e directo.",
+    "fallback_establecimientos_nuevos": "MISMO fallback jerárquico que v5 (calculado solo desde train 2024): mediana de las cuotas de su TipoEstablecimiento dentro de su región → mediana global del tipo → 0.",
+    "denominador_regional": "CORRECCIÓN del defecto de diseño previo (renormalizar entre los reportantes del día, que concentraba el 100% del total regional en los días con UN solo reportante): denominador(T, Región) = Σ peso_e(T) sobre TODOS los establecimientos de la región (reporten o no ese día). pred_e(T) = peso_e(T)/denominador(T, Región) × pred_region(T). Los estabs que NO reportan ese día dejan su parte SIN REPARTIR (misma semántica conservadora de v5).",
+    "total_regional": "Se multiplica por el total regional PREDICHO por la Etapa 1 (predicción real del modelo RF), NO por la región observada: a diferencia del diagnóstico v6 (que usaba el total regional real y por eso era un techo diagnóstico), E1 es DESPLEGABLE.",
+    "estadisticas_test_2025": {
+      "filas_estab_fecha_reportantes": 118452,
+      "filas_reportantes_con_trail": 117279,
+      "pct_filas_reportantes_con_trail": 99.01,
+      "filas_reportantes_en_fallback_de_trail": 1173,
+      "filas_grilla_regional": 121940,
+      "filas_grilla_con_trail": 118816,
+      "pct_filas_grilla_con_trail": 97.44,
+      "establecimientos_test_sin_share_2024": 41
+    }
+  },
+  "etapa_1": {
+    "nivel": "region",
+    "identica_a_v5": true,
+    "como_se_garantiza": "Las funciones de la Etapa 1 se importan del módulo reentrenar_modelo_v5_trailing (no se reescriben ni se modifican): mismas features, mismo baseline trailing N=45, mismo one-hot, mismos hiperparámetros y misma semilla.",
+    "features": [
+      "TempMin",
+      "TempMax",
+      "Precipitacion_mm",
+      "TempMin_Lag_4D",
+      "Region_Media_7d_TempMin",
+      "Frio_Polar_Flag",
+      "Lluvia_Intensa_Flag",
+      "Anom_MP2_5",
+      "Anom_MP10",
+      "Anom_MP2_5_Lag_2D",
+      "Anom_MP2_5_Media_7d",
+      "Alerta_Anom_MP25_Flag",
+      "Doy",
+      "Doy_Sin",
+      "Doy_Cos",
+      "Region_Antofagasta",
+      "Region_Arica y Parinacota",
+      "Region_Atacama",
+      "Region_Coquimbo",
+      "Region_Magallanes",
+      "Region_Maule",
+      "Region_Metropolitana",
+      "Region_O'Higgins"
+    ],
+    "n_features": 23,
+    "model_type": "RandomForestRegressor",
+    "metrics_test_2025": {
+      "MAE": 467.384,
+      "RMSE": 690.4895,
+      "R2": 0.8545
+    },
+    "verificacion_identidad_vs_v5": {
+      "metrics_v5_region": {
+        "MAE": 467.384,
+        "RMSE": 690.4895,
+        "R2": 0.8545
+      },
+      "coinciden": true
+    }
+  },
+  "etapa_2": {
+    "nivel": "establecimiento",
+    "metodo": "cuota dinámica trailing con denominador REGIONAL (E1) — reemplaza la cuota fija 2024 de v5",
+    "formula": "pred_e(T) = (peso_e(T) / denominador_regional(T)) * pred_region_total; peso_e(T) = trail_e(T) de CALENDARIO o share_2024_e × media regional del trail; denominador = Σ peso sobre TODOS los estabs de la región (reporten o no)",
+    "n_establecimientos_test": 338,
+    "n_establecimientos_test_sin_share_2024": 41
+  },
+  "metricas_establecimiento": {
+    "n": 118452,
+    "MAE": 13.8083,
+    "RMSE": 22.2623,
+    "R2": 0.1939,
+    "sesgo_pct": 21.73
+  },
+  "metricas_por_region": {
+    "e1_cuota_trailing": {
+      "Antofagasta": {
+        "n": 7489,
+        "MAE": 12.5963,
+        "RMSE": 19.1313,
+        "R2": 0.1045,
+        "sesgo_pct": 38.21
+      },
+      "Arica y Parinacota": {
+        "n": 1674,
+        "MAE": 22.7225,
+        "RMSE": 45.14,
+        "R2": -0.3403,
+        "sesgo_pct": 42.19
+      },
+      "Atacama": {
+        "n": 5473,
+        "MAE": 45.3669,
+        "RMSE": 58.7723,
+        "R2": -9.2927,
+        "sesgo_pct": 215.97
+      },
+      "Coquimbo": {
+        "n": 10672,
+        "MAE": 13.34,
+        "RMSE": 20.7919,
+        "R2": -0.7068,
+        "sesgo_pct": 53.57
+      },
+      "Magallanes": {
+        "n": 3279,
+        "MAE": 11.134,
+        "RMSE": 14.8228,
+        "R2": 0.2816,
+        "sesgo_pct": 35.77
+      },
+      "Maule": {
+        "n": 21454,
+        "MAE": 10.4383,
+        "RMSE": 16.0885,
+        "R2": 0.6801,
+        "sesgo_pct": 16.58
+      },
+      "Metropolitana": {
+        "n": 54326,
+        "MAE": 10.2366,
+        "RMSE": 14.1538,
+        "R2": 0.6897,
+        "sesgo_pct": -5.59
+      },
+      "O'Higgins": {
+        "n": 14085,
+        "MAE": 21.0173,
+        "RMSE": 29.0406,
+        "R2": -2.6423,
+        "sesgo_pct": 102.29
+      }
+    },
+    "v5_cuota_fija_via_control_verificado": {
+      "Antofagasta": {
+        "n": 7489,
+        "MAE": 19.3343,
+        "RMSE": 25.7419,
+        "R2": -0.6213,
+        "sesgo_pct": 37.58
+      },
+      "Arica y Parinacota": {
+        "n": 1674,
+        "MAE": 22.2472,
+        "RMSE": 43.4226,
+        "R2": -0.2403,
+        "sesgo_pct": 37.15
+      },
+      "Atacama": {
+        "n": 5473,
+        "MAE": 45.8809,
+        "RMSE": 56.9664,
+        "R2": -8.6699,
+        "sesgo_pct": 215.95
+      },
+      "Coquimbo": {
+        "n": 10672,
+        "MAE": 13.6259,
+        "RMSE": 21.2605,
+        "R2": -0.7846,
+        "sesgo_pct": 52.82
+      },
+      "Magallanes": {
+        "n": 3279,
+        "MAE": 11.937,
+        "RMSE": 16.5754,
+        "R2": 0.1017,
+        "sesgo_pct": 35.73
+      },
+      "Maule": {
+        "n": 21454,
+        "MAE": 11.1414,
+        "RMSE": 17.3284,
+        "R2": 0.6289,
+        "sesgo_pct": 16.57
+      },
+      "Metropolitana": {
+        "n": 54326,
+        "MAE": 10.9626,
+        "RMSE": 15.3083,
+        "R2": 0.637,
+        "sesgo_pct": -6.49
+      },
+      "O'Higgins": {
+        "n": 14085,
+        "MAE": 21.0478,
+        "RMSE": 28.9178,
+        "R2": -2.6116,
+        "sesgo_pct": 101.92
+      }
+    },
+    "nota": "Las métricas de v5 por región provienen del CONTROL con cuota fija (mismo código, mismo split), verificado idéntico a model_metadata_v5.json a nivel global."
+  },
+  "diagnostico_dias_incompletos": {
+    "defecto_previo_corregido": "La PRIMERA versión de E1 renormalizaba la cuota trailing entre los establecimientos CON fila ese día (los que reportaron). Los establecimientos NO reportan todos los días: hay (Región, Fecha) del test con UN SOLO establecimiento reportante (p. ej. O'Higgins 2025-05-05: 1 de 44 estabs, Total real 81). Con la renormalización entre reportantes, el ÚNICO reportante se llevaba el 100% del total regional PREDICHO por la Etapa 1 (~2.000-2.600) mientras su demanda real era de decenas: error de miles en esa fila. Eso produjo MAE 14.0604 (mejor que v5) pero RMSE 29.1255 / R² −0.3798 (mucho peor que v5), con 1,42% de las filas explicando el 44,54% del SSE.",
+    "correccion_aplicada": "Denominador REGIONAL: denominador(T, Región) = Σ peso_e(T) sobre TODOS los establecimientos de la región (reporten o no ese día), con trail calculado sobre la serie de cada estab REINDEXADA AL CALENDARIO diario (días sin reporte = NaN). pred_e(T) = peso_e(T)/denominador(T, Región) × pred_region(T): los estabs que no reportan dejan su parte SIN REPARTIR, igual que v5, y ningún reportante puede quedarse con el total regional.",
+    "por_que_v5_no_lo_padece": "v5 renormaliza la cuota de forma ESTÁTICA por región, así que en un día con estabs faltantes solo reparte share_2024 × pred_region_total (fracción pequeña) y DEJA SIN REPARTIR el resto del total regional predicho: subestima el total predicho (sesgo global menor) pero evita los errores gigantes puntuales.",
+    "referencia_e1_previo_sin_denominador_regional": {
+      "metricas_establecimiento": {
+        "MAE": 14.0604,
+        "RMSE": 29.1255,
+        "R2": -0.3798,
+        "sesgo_pct": 22.99
+      },
+      "pct_filas_con_5_o_menos_estabs": 1.42,
+      "pct_del_SSE_en_esas_filas": 44.54,
+      "nota": "Valores de la versión previa de E1 (renormalización entre reportantes del día), registrados aquí como referencia histórica del defecto corregido."
+    },
+    "grupos_region_fecha_totales": 2887,
+    "grupos_con_todos_los_estabs": 1666,
+    "grupos_con_estabs_faltantes": 1221,
+    "grupos_con_menos_del_50pct_estabs": 13,
+    "filas_con_5_o_menos_estabs": 1687,
+    "pct_filas_con_5_o_menos_estabs": 1.42,
+    "pct_del_SSE_E1_en_esas_filas": 5.87,
+    "pct_del_SSE_v5_en_esas_filas": 5.09,
+    "suma_total_predicho_E1": 4220361.05,
+    "suma_total_predicho_v5": 4195325.24,
+    "suma_total_real": 3466844.0,
+    "lectura_sesgo": "Con el denominador regional, E1 ya NO reparte el 100% del total regional predicho (4,263,779): reparte 4,220,361 (1.0% menos, 809 de 2,887 grupos con parte sin repartir) porque la cuota de los estabs que no reportan ese día queda fuera del reparto — la misma semántica conservadora de v5 (reparte 4,195,325). Total real = 3,466,844."
+  },
+  "control_cuota_fija_reproduce_v5": {
+    "descripcion": "Mismo código de reparto/evaluación pero con la cuota FIJA 2024 de v5: sirve como control de que la ÚNICA diferencia del pipeline E1 vs v5 es la cuota.",
+    "metricas_control": {
+      "n": 118452,
+      "MAE": 14.7633,
+      "RMSE": 22.9807,
+      "R2": 0.141,
+      "sesgo_pct": 21.01
+    },
+    "metricas_v5_reportadas": {
+      "MAE": 14.7633,
+      "RMSE": 22.9807,
+      "R2": 0.141,
+      "sesgo_pct": 21.01
+    },
+    "reproduce_v5_exactamente": true
+  },
+  "comparacion_e1_vs_v5": {
+    "referencia_v5": {
+      "MAE": 14.7633,
+      "RMSE": 22.9807,
+      "R2": 0.141,
+      "sesgo_pct": 21.01
+    },
+    "e1_cuota_trailing": {
+      "n": 118452,
+      "MAE": 13.8083,
+      "RMSE": 22.2623,
+      "R2": 0.1939,
+      "sesgo_pct": 21.73
+    },
+    "delta": {
+      "MAE": {
+        "v5_cuota_fija": 14.7633,
+        "e1_cuota_trailing": 13.8083,
+        "delta_e1_menos_v5": -0.955
+      },
+      "RMSE": {
+        "v5_cuota_fija": 22.9807,
+        "e1_cuota_trailing": 22.2623,
+        "delta_e1_menos_v5": -0.7184
+      },
+      "R2": {
+        "v5_cuota_fija": 0.141,
+        "e1_cuota_trailing": 0.1939,
+        "delta_e1_menos_v5": 0.0529
+      },
+      "sesgo_pct": {
+        "v5_cuota_fija": 21.01,
+        "e1_cuota_trailing": 21.73,
+        "delta_e1_menos_v5": 0.72
+      }
+    },
+    "mejora_en_mae": true,
+    "mejora_en_rmse": true,
+    "mejora_en_r2": true,
+    "mejora_en_sesgo_absoluto": false,
+    "n_mejoras_de_4": 3,
+    "veredicto": "MEJORA EN 3/4 MÉTRICAS: la cuota trailing con denominador regional mejora MAE 13.8083 vs 14.7633; RMSE 22.2623 vs 22.9807; R² 0.1939 vs 0.1410, pero empeora sesgo |%| 21.7300 vs 21.0100. Ver metricas_por_region y diagnostico_dias_incompletos para el detalle. NO se vende como éxito total."
+  },
+  "semilla": 42,
+  "hiperparametros": {
+    "n_estimators": 200,
+    "max_depth": 15,
+    "min_samples_split": 50,
+    "min_samples_leaf": 20,
+    "max_features": "sqrt",
+    "random_state": 42,
+    "split": "train = 2024, test = 2025",
+    "cv_heredada_de_v5": {
+      "cv": "TimeSeriesSplit(n_splits=5) sobre Etapa 1",
+      "scoring": "neg_mean_absolute_error",
+      "cv_mae_mean": 726.4407,
+      "cv_mae_std": 318.9382,
+      "nota": "La CV no se re-ejecuta en E1: la Etapa 1 es idéntica a v5 y estos valores provienen de model_metadata_v5.json."
+    }
+  },
+  "limitaciones": [
+    "Solo 2 años de datos (train 2024 / test 2025): la comparación E1 vs v5 se hace sobre el mismo split, por lo que el delta mide el efecto de la cuota en este test, no una validación externa.",
+    "SEMÁNTICA DE CALENDARIO (cambio documentado): el trail se calcula sobre la serie de cada estab reindexada al calendario diario de su rango (Total→NaN en días sin reporte), con shift(4).rolling(30, min_periods=10).sum(). El rolling suma solo las observaciones REALES dentro de la ventana [T-33, T-4]: un estab esporádico acumula menos de 30 días de dato en esa ventana; min_periods=10 exige ≥10 observaciones. Esto reemplaza la semántica por FILAS de la primera versión de E1 y del diagnóstico v6 (que no era un lag exacto de 4 días de calendario).",
+    "El trail de los primeros días de 2025 usa la historia de diciembre de 2024 (información ya observada); los estabs nuevos o con historia insuficiente (<10 observaciones en la ventana de calendario) caen al fallback share_2024_e × media regional del trail en T.",
+    "Los establecimientos NO reportan todos los días (grupos (Región, Fecha) con estabs faltantes, incluso días con UN solo reportante). Con el denominador REGIONAL esos reportantes NO se llevan el total regional (corregido respecto de la versión previa de E1, donde 1,42% de las filas explicaban el 44,54% del SSE), pero la cuota de los no reportantes queda SIN REPARTIR: el total predicho queda algo por debajo del total regional predicho por la Etapa 1, al igual que en v5.",
+    "Las métricas por región de v5 no estaban almacenadas en su metadata: aquí se obtienen vía el control con cuota fija (reproduce exactamente a v5 a nivel global)."
+  ]
+}

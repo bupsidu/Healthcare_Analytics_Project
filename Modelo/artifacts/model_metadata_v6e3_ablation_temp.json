@@ -1,0 +1,471 @@
+{
+  "release": "modelo-v6-e3-ablation-temperatura",
+  "experimento": "E3 (ablación) — ¿dieron mejores resultados las temperaturas absolutas (v6/E2) que las categorías de temperatura (estilo v1)?",
+  "pregunta_respondida": "¿absolutas vs categóricas (one-hot) vs categóricas ordinales para las 4 features de temperatura?",
+  "configuraciones": {
+    "A_absolutas_control": {
+      "descripcion": "4 temperaturas CONTINUAS tal cual E2 (control)",
+      "metricas_establecimiento": {
+        "n": 118452,
+        "MAE": 9.3338,
+        "RMSE": 13.0481,
+        "R2": 0.7231,
+        "sesgo_pct": 9.77
+      },
+      "metricas_por_region": {
+        "Antofagasta": {
+          "n": 7489,
+          "MAE": 8.8544,
+          "RMSE": 12.3263,
+          "R2": 0.6282,
+          "sesgo_pct": 14.33
+        },
+        "Arica y Parinacota": {
+          "n": 1674,
+          "MAE": 11.424,
+          "RMSE": 16.7812,
+          "R2": 0.8148,
+          "sesgo_pct": 10.1
+        },
+        "Atacama": {
+          "n": 5473,
+          "MAE": 15.1279,
+          "RMSE": 18.6153,
+          "R2": -0.0326,
+          "sesgo_pct": 64.79
+        },
+        "Coquimbo": {
+          "n": 10672,
+          "MAE": 8.155,
+          "RMSE": 11.4841,
+          "R2": 0.4793,
+          "sesgo_pct": 20.86
+        },
+        "Magallanes": {
+          "n": 3279,
+          "MAE": 7.3625,
+          "RMSE": 10.233,
+          "R2": 0.6576,
+          "sesgo_pct": 6.2
+        },
+        "Maule": {
+          "n": 21454,
+          "MAE": 7.9405,
+          "RMSE": 11.7464,
+          "R2": 0.8295,
+          "sesgo_pct": 5.77
+        },
+        "Metropolitana": {
+          "n": 54326,
+          "MAE": 9.9995,
+          "RMSE": 13.863,
+          "R2": 0.7023,
+          "sesgo_pct": 4.57
+        },
+        "O'Higgins": {
+          "n": 14085,
+          "MAE": 7.9954,
+          "RMSE": 10.3519,
+          "R2": 0.5372,
+          "sesgo_pct": 21.68
+        }
+      },
+      "features": [
+        "Total_Lag_4",
+        "Share_Trailing",
+        "Pred_Region",
+        "Pred_E1",
+        "Tipo_CEAR",
+        "Tipo_Hospital",
+        "Tipo_SAPU",
+        "Tipo_SAR",
+        "Tipo_SUR",
+        "Region_Antofagasta",
+        "Region_Arica y Parinacota",
+        "Region_Atacama",
+        "Region_Coquimbo",
+        "Region_Magallanes",
+        "Region_Maule",
+        "Region_Metropolitana",
+        "Region_O'Higgins",
+        "Doy",
+        "Doy_Sin",
+        "Doy_Cos",
+        "TempMin",
+        "TempMax",
+        "Precipitacion_mm",
+        "TempMin_Lag_4D",
+        "Region_Media_7d_TempMin",
+        "Frio_Polar_Flag",
+        "Lluvia_Intensa_Flag"
+      ],
+      "n_features": 27
+    },
+    "B_categoricas_onehot": {
+      "descripcion": "Las 4 temperaturas recortadas con bins clínicos y codificadas one-hot (unión train+test)",
+      "metricas_establecimiento": {
+        "n": 118452,
+        "MAE": 9.339,
+        "RMSE": 12.986,
+        "R2": 0.7257,
+        "sesgo_pct": 9.62
+      },
+      "metricas_por_region": {
+        "Antofagasta": {
+          "n": 7489,
+          "MAE": 8.6481,
+          "RMSE": 12.0548,
+          "R2": 0.6444,
+          "sesgo_pct": 12.42
+        },
+        "Arica y Parinacota": {
+          "n": 1674,
+          "MAE": 11.4572,
+          "RMSE": 16.6352,
+          "R2": 0.818,
+          "sesgo_pct": 9.65
+        },
+        "Atacama": {
+          "n": 5473,
+          "MAE": 14.6684,
+          "RMSE": 18.0018,
+          "R2": 0.0344,
+          "sesgo_pct": 62.34
+        },
+        "Coquimbo": {
+          "n": 10672,
+          "MAE": 8.1518,
+          "RMSE": 11.4108,
+          "R2": 0.4859,
+          "sesgo_pct": 20.93
+        },
+        "Magallanes": {
+          "n": 3279,
+          "MAE": 7.438,
+          "RMSE": 10.2157,
+          "R2": 0.6588,
+          "sesgo_pct": 7.82
+        },
+        "Maule": {
+          "n": 21454,
+          "MAE": 7.9543,
+          "RMSE": 11.6785,
+          "R2": 0.8315,
+          "sesgo_pct": 5.38
+        },
+        "Metropolitana": {
+          "n": 54326,
+          "MAE": 10.0293,
+          "RMSE": 13.851,
+          "R2": 0.7028,
+          "sesgo_pct": 4.44
+        },
+        "O'Higgins": {
+          "n": 14085,
+          "MAE": 8.1728,
+          "RMSE": 10.557,
+          "R2": 0.5187,
+          "sesgo_pct": 23.37
+        }
+      },
+      "features": [
+        "Total_Lag_4",
+        "Share_Trailing",
+        "Pred_Region",
+        "Pred_E1",
+        "Tipo_CEAR",
+        "Tipo_Hospital",
+        "Tipo_SAPU",
+        "Tipo_SAR",
+        "Tipo_SUR",
+        "Region_Antofagasta",
+        "Region_Arica y Parinacota",
+        "Region_Atacama",
+        "Region_Coquimbo",
+        "Region_Magallanes",
+        "Region_Maule",
+        "Region_Metropolitana",
+        "Region_O'Higgins",
+        "Doy",
+        "Doy_Sin",
+        "Doy_Cos",
+        "Precipitacion_mm",
+        "Frio_Polar_Flag",
+        "Lluvia_Intensa_Flag",
+        "TempMin_Cat_Cálido",
+        "TempMin_Cat_Frío",
+        "TempMin_Cat_Muy Frío",
+        "TempMin_Cat_Templado",
+        "TempMax_Cat_Caluroso",
+        "TempMax_Cat_Cálido",
+        "TempMax_Cat_Frío",
+        "TempMax_Cat_Muy Frío",
+        "TempMax_Cat_Templado",
+        "TempMin_Lag_4D_Cat_Cálido",
+        "TempMin_Lag_4D_Cat_Frío",
+        "TempMin_Lag_4D_Cat_Muy Frío",
+        "TempMin_Lag_4D_Cat_Templado",
+        "Region_Media_7d_TempMin_Cat_Cálido",
+        "Region_Media_7d_TempMin_Cat_Frío",
+        "Region_Media_7d_TempMin_Cat_Muy Frío",
+        "Region_Media_7d_TempMin_Cat_Templado"
+      ],
+      "n_features": 40
+    },
+    "C_categoricas_ordinal": {
+      "descripcion": "Las 4 temperaturas con bins clínicos codificados ordinalmente (Muy Frío=0 … Caluroso=4), estilo v1/encoders.joblib",
+      "metricas_establecimiento": {
+        "n": 118452,
+        "MAE": 9.2869,
+        "RMSE": 13.0398,
+        "R2": 0.7234,
+        "sesgo_pct": 9.42
+      },
+      "metricas_por_region": {
+        "Antofagasta": {
+          "n": 7489,
+          "MAE": 8.5915,
+          "RMSE": 12.1096,
+          "R2": 0.6412,
+          "sesgo_pct": 11.12
+        },
+        "Arica y Parinacota": {
+          "n": 1674,
+          "MAE": 11.1177,
+          "RMSE": 16.3938,
+          "R2": 0.8232,
+          "sesgo_pct": 8.16
+        },
+        "Atacama": {
+          "n": 5473,
+          "MAE": 14.5624,
+          "RMSE": 18.0799,
+          "R2": 0.026,
+          "sesgo_pct": 61.94
+        },
+        "Coquimbo": {
+          "n": 10672,
+          "MAE": 8.1106,
+          "RMSE": 11.4631,
+          "R2": 0.4812,
+          "sesgo_pct": 20.32
+        },
+        "Magallanes": {
+          "n": 3279,
+          "MAE": 7.3387,
+          "RMSE": 10.1943,
+          "R2": 0.6602,
+          "sesgo_pct": 7.0
+        },
+        "Maule": {
+          "n": 21454,
+          "MAE": 7.929,
+          "RMSE": 11.7196,
+          "R2": 0.8303,
+          "sesgo_pct": 5.53
+        },
+        "Metropolitana": {
+          "n": 54326,
+          "MAE": 10.0252,
+          "RMSE": 13.9735,
+          "R2": 0.6976,
+          "sesgo_pct": 4.62
+        },
+        "O'Higgins": {
+          "n": 14085,
+          "MAE": 7.9552,
+          "RMSE": 10.3422,
+          "R2": 0.5381,
+          "sesgo_pct": 21.33
+        }
+      },
+      "features": [
+        "Total_Lag_4",
+        "Share_Trailing",
+        "Pred_Region",
+        "Pred_E1",
+        "Tipo_CEAR",
+        "Tipo_Hospital",
+        "Tipo_SAPU",
+        "Tipo_SAR",
+        "Tipo_SUR",
+        "Region_Antofagasta",
+        "Region_Arica y Parinacota",
+        "Region_Atacama",
+        "Region_Coquimbo",
+        "Region_Magallanes",
+        "Region_Maule",
+        "Region_Metropolitana",
+        "Region_O'Higgins",
+        "Doy",
+        "Doy_Sin",
+        "Doy_Cos",
+        "Precipitacion_mm",
+        "Frio_Polar_Flag",
+        "Lluvia_Intensa_Flag",
+        "TempMin_CatOrd",
+        "TempMax_CatOrd",
+        "TempMin_Lag_4D_CatOrd",
+        "Region_Media_7d_TempMin_CatOrd"
+      ],
+      "n_features": 27
+    }
+  },
+  "comparativa": {
+    "A_menos_B_onehot": {
+      "MAE": -0.0052,
+      "RMSE": 0.0621,
+      "R2": -0.0026,
+      "sesgo_pct": 0.15
+    },
+    "A_menos_C_ordinal": {
+      "MAE": 0.0469,
+      "RMSE": 0.0083,
+      "R2": -0.0003,
+      "sesgo_pct": 0.35
+    },
+    "lectura": "Deltas = control (A) − variante. En MAE/RMSE un delta NEGATIVO significa que las absolutas tienen MENOR error; en R² un delta POSITIVO significa que las absolutas explican más varianza."
+  },
+  "conclusion": {
+    "absolutas_ganan_vs_onehot": true,
+    "absolutas_ganan_vs_ordinal": false,
+    "mae_absolutas": 9.3338,
+    "mae_onehot": 9.339,
+    "mae_ordinal": 9.2869,
+    "delta_mae_vs_onehot": 0.0052,
+    "delta_mae_vs_ordinal": -0.0469,
+    "margen_pct_vs_onehot": 0.06,
+    "margen_pct_vs_ordinal": 0.5,
+    "resumen_numerico": "Control A (absolutas) MAE=9.3338 / R²=0.7231; B (one-hot) MAE=9.339 / R²=0.7257 (ΔMAE A−B = -0.0052); C (ordinal) MAE=9.2869 / R²=0.7234 (ΔMAE A−C = +0.0469)."
+  },
+  "control_A_reproduce_E2": {
+    "identico": true,
+    "esperado": {
+      "MAE": 9.3338,
+      "RMSE": 13.0481,
+      "R2": 0.7231,
+      "sesgo_pct": 9.77
+    },
+    "obtenido": {
+      "n": 118452,
+      "MAE": 9.3338,
+      "RMSE": 13.0481,
+      "R2": 0.7231,
+      "sesgo_pct": 9.77
+    },
+    "n_esperado": 118452
+  },
+  "bins": {
+    "limites": [
+      "-inf",
+      -5,
+      5,
+      15,
+      25,
+      "inf"
+    ],
+    "etiquetas": [
+      "Muy Frío",
+      "Frío",
+      "Templado",
+      "Cálido",
+      "Caluroso"
+    ],
+    "codificacion_ordinal": {
+      "Muy Frío": 0,
+      "Frío": 1,
+      "Templado": 2,
+      "Cálido": 3,
+      "Caluroso": 4
+    },
+    "origen": "Mismos bins que feature_engineering.discretize_temperature (pd.cut, borde derecho incluido)",
+    "aplicacion": "Se aplican a las 4 features (incluyendo TempMin_Lag_4D y Region_Media_7d_TempMin) DESPUÉS de calcularlas en continuo e imputar con mediana de train; la categoría describe el régimen de temperatura de esa ventana."
+  },
+  "configuracion_comun": {
+    "target": "Total (nivel, sin transformar)",
+    "split": "train = 2024, test = 2025",
+    "modelo": "RandomForestRegressor (hiperparámetros del v5/E2)",
+    "semilla": 42,
+    "hiperparametros": {
+      "n_estimators": 200,
+      "max_depth": 15,
+      "min_samples_split": 50,
+      "min_samples_leaf": 20,
+      "max_features": "sqrt",
+      "random_state": 42
+    },
+    "imputado": "mediana de SOLO train (sobre el continuo, antes de categorizar)",
+    "features_base_comunes": [
+      "Total_Lag_4",
+      "Share_Trailing",
+      "Pred_Region",
+      "Pred_E1",
+      "Tipo_CEAR",
+      "Tipo_Hospital",
+      "Tipo_SAPU",
+      "Tipo_SAR",
+      "Tipo_SUR",
+      "Region_Antofagasta",
+      "Region_Arica y Parinacota",
+      "Region_Atacama",
+      "Region_Coquimbo",
+      "Region_Magallanes",
+      "Region_Maule",
+      "Region_Metropolitana",
+      "Region_O'Higgins",
+      "Doy",
+      "Doy_Sin",
+      "Doy_Cos",
+      "Precipitacion_mm",
+      "Frio_Polar_Flag",
+      "Lluvia_Intensa_Flag"
+    ],
+    "features_bajo_test": [
+      "TempMin",
+      "TempMax",
+      "TempMin_Lag_4D",
+      "Region_Media_7d_TempMin"
+    ],
+    "frio_polar_flag_se_mantiene": true,
+    "evaluacion": "MAE/RMSE/R²/sesgo% a nivel establecimiento+día sobre test 2025, global y por región (definiciones idénticas a v5/E1/E2)",
+    "etapa_1_v5_identica": true
+  },
+  "distribucion_categorias": {
+    "Muy Frío": {
+      "TempMin": 341,
+      "TempMax": 9,
+      "TempMin_Lag_4D": 305,
+      "Region_Media_7d_TempMin": 314
+    },
+    "Frío": {
+      "TempMin": 24123,
+      "TempMax": 811,
+      "TempMin_Lag_4D": 23750,
+      "Region_Media_7d_TempMin": 23758
+    },
+    "Templado": {
+      "TempMin": 72735,
+      "TempMax": 19495,
+      "TempMin_Lag_4D": 72776,
+      "Region_Media_7d_TempMin": 72759
+    },
+    "Cálido": {
+      "TempMin": 8013,
+      "TempMax": 43132,
+      "TempMin_Lag_4D": 8381,
+      "Region_Media_7d_TempMin": 8381
+    },
+    "Caluroso": {
+      "TempMin": 0,
+      "TempMax": 41765,
+      "TempMin_Lag_4D": 0,
+      "Region_Media_7d_TempMin": 0
+    }
+  },
+  "sanity_categorias": {
+    "solo_toman_los_5_valores": true,
+    "verificado_con_assert": true
+  },
+  "nota_metodologica": "Mismo split que v6 (train 2024 / test 2025), mismos hiperparámetros y semilla: la comparación es INTERNA de la sesión sobre un único test, NO una validación externa. Los deltas miden el efecto de la codificación de temperatura en este test; no se guardan modelos .joblib porque es un experimento de evidencia (la metadata basta).",
+  "tiempo_total_script_segundos": 7.8
+}

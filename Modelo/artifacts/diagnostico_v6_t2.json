@@ -1,0 +1,261 @@
+{
+  "descripcion": "Diagnóstico T2-T4 v6: descomposición de error nivel establecimiento+día, test 2025.",
+  "panel": {
+    "filas_estab_dia_test": 118452,
+    "establecimientos_test": 338,
+    "regiones_con_train_2024": [
+      "Arica y Parinacota",
+      "Coquimbo",
+      "Magallanes",
+      "Maule",
+      "Metropolitana",
+      "O'Higgins"
+    ],
+    "regiones_nuevas_sin_train_2024": [
+      "Antofagasta",
+      "Atacama"
+    ],
+    "nota_multi_causa": "Filas multi-causa agregadas por (estab, fecha) con suma de Total."
+  },
+  "C_v5_reportado_desde_metadata": {
+    "MAE": 14.7633,
+    "RMSE": 22.9807,
+    "R2": 0.141,
+    "sesgo_pct": 21.01
+  },
+  "A_techo_climatologico_share_x_media_2024": {
+    "n": 105008,
+    "MAE": 10.403,
+    "RMSE": 19.4032,
+    "R2": 0.4111,
+    "sesgo_pct": 7.12
+  },
+  "B_techo_etapa1_perfecta_share_x_reg_real": {
+    "n": 118452,
+    "MAE": 8.383,
+    "RMSE": 12.2492,
+    "R2": 0.756,
+    "sesgo_pct": 0.0
+  },
+  "D_cuota_trailing30_shift4_x_reg_real": {
+    "n": 118452,
+    "MAE": 6.9524,
+    "RMSE": 10.0513,
+    "R2": 0.8357,
+    "sesgo_pct": 0.0
+  },
+  "pura_persistencia_pred_Total_lag4": {
+    "n": 117101,
+    "MAE": 11.0739,
+    "RMSE": 16.039,
+    "R2": 0.5839,
+    "sesgo_pct": -0.03
+  },
+  "A_solo_regiones_con_train_2024": {
+    "n": 105008,
+    "MAE": 10.403,
+    "RMSE": 19.4032,
+    "R2": 0.4111,
+    "sesgo_pct": 7.12
+  },
+  "por_region_B_vs_D": {
+    "Antofagasta": {
+      "B": {
+        "n": 7489,
+        "MAE": 13.2918,
+        "RMSE": 18.0416,
+        "R2": 0.2036,
+        "sesgo_pct": 0.0
+      },
+      "D": {
+        "n": 7489,
+        "MAE": 6.373,
+        "RMSE": 9.1714,
+        "R2": 0.7942,
+        "sesgo_pct": 0.0
+      }
+    },
+    "Arica y Parinacota": {
+      "B": {
+        "n": 1674,
+        "MAE": 9.6069,
+        "RMSE": 13.7048,
+        "R2": 0.8765,
+        "sesgo_pct": 0.0
+      },
+      "D": {
+        "n": 1674,
+        "MAE": 6.7026,
+        "RMSE": 9.3702,
+        "R2": 0.9422,
+        "sesgo_pct": -0.0
+      }
+    },
+    "Atacama": {
+      "B": {
+        "n": 5473,
+        "MAE": 10.379,
+        "RMSE": 13.4204,
+        "R2": 0.4633,
+        "sesgo_pct": 0.0
+      },
+      "D": {
+        "n": 5473,
+        "MAE": 6.2805,
+        "RMSE": 9.2577,
+        "R2": 0.7446,
+        "sesgo_pct": 0.0
+      }
+    },
+    "Coquimbo": {
+      "B": {
+        "n": 10672,
+        "MAE": 6.2727,
+        "RMSE": 9.1431,
+        "R2": 0.67,
+        "sesgo_pct": -0.0
+      },
+      "D": {
+        "n": 10672,
+        "MAE": 5.6491,
+        "RMSE": 8.285,
+        "R2": 0.729,
+        "sesgo_pct": -0.0
+      }
+    },
+    "Magallanes": {
+      "B": {
+        "n": 3279,
+        "MAE": 6.1406,
+        "RMSE": 8.9434,
+        "R2": 0.7385,
+        "sesgo_pct": -0.0
+      },
+      "D": {
+        "n": 3279,
+        "MAE": 4.9343,
+        "RMSE": 6.9138,
+        "R2": 0.8437,
+        "sesgo_pct": 0.0
+      }
+    },
+    "Maule": {
+      "B": {
+        "n": 21454,
+        "MAE": 7.4217,
+        "RMSE": 11.5328,
+        "R2": 0.8356,
+        "sesgo_pct": 0.0
+      },
+      "D": {
+        "n": 21454,
+        "MAE": 6.6137,
+        "RMSE": 9.958,
+        "R2": 0.8775,
+        "sesgo_pct": 0.0
+      }
+    },
+    "Metropolitana": {
+      "B": {
+        "n": 54326,
+        "MAE": 8.906,
+        "RMSE": 12.7847,
+        "R2": 0.7468,
+        "sesgo_pct": -0.0
+      },
+      "D": {
+        "n": 54326,
+        "MAE": 7.9158,
+        "RMSE": 11.166,
+        "R2": 0.8069,
+        "sesgo_pct": 0.0
+      }
+    },
+    "O'Higgins": {
+      "B": {
+        "n": 14085,
+        "MAE": 6.4203,
+        "RMSE": 9.0261,
+        "R2": 0.6481,
+        "sesgo_pct": 0.0
+      },
+      "D": {
+        "n": 14085,
+        "MAE": 5.8083,
+        "RMSE": 8.1299,
+        "R2": 0.7145,
+        "sesgo_pct": 0.0
+      }
+    }
+  },
+  "B_regiones_con_train": {
+    "n": 105490,
+    "MAE": 7.931,
+    "RMSE": 11.663,
+    "R2": 0.7867,
+    "sesgo_pct": -0.0
+  },
+  "D_regiones_con_train": {
+    "n": 105490,
+    "MAE": 7.0284,
+    "RMSE": 10.1501,
+    "R2": 0.8384,
+    "sesgo_pct": 0.0
+  },
+  "B_regiones_nuevas": {
+    "n": 12962,
+    "MAE": 12.0619,
+    "RMSE": 16.2515,
+    "R2": 0.3048,
+    "sesgo_pct": 0.0
+  },
+  "D_regiones_nuevas": {
+    "n": 12962,
+    "MAE": 6.334,
+    "RMSE": 9.2079,
+    "R2": 0.7768,
+    "sesgo_pct": 0.0
+  },
+  "suelo_ruido": {
+    "std_dentro_region_fecha_media": 19.981,
+    "std_dentro_region_fecha_mediana": 17.939,
+    "interpretacion": "Dispersion del Total real entre estabs de la misma región+fecha; cualquier modelo basado en share llega como máximo hasta este suelo."
+  },
+  "T4_senal_lag4": {
+    "n_filas": 117101,
+    "OLS_R2_total_sobre_pred_B": 0.7604,
+    "OLS_R2_total_sobre_pred_B_mas_lag4": 0.7797,
+    "delta_R2_por_lag4_sobre_B": 0.0193,
+    "OLS_R2_total_sobre_pred_D": 0.8358,
+    "OLS_R2_total_sobre_pred_D_mas_lag4": 0.8358,
+    "delta_R2_por_lag4_sobre_D": 0.0,
+    "correl_residuo_B_con_lag4": 0.0458,
+    "correl_parcial_residuo_B_vs_lag4_dado_pred_B": 0.2841,
+    "interpretacion": "delta_R2 > 0.05 y correl_parcial moderada ⇒ la demanda propia a T-4 explica varianza más allá de la cuota; es candidata a feature de la v6."
+  },
+  "T3_cuota_trailing_vs_fija": {
+    "B_cuota_fija_2024": {
+      "n": 118452,
+      "MAE": 8.383,
+      "RMSE": 12.2492,
+      "R2": 0.756,
+      "sesgo_pct": 0.0
+    },
+    "D_cuota_trailing_30d": {
+      "n": 118452,
+      "MAE": 6.9524,
+      "RMSE": 10.0513,
+      "R2": 0.8357,
+      "sesgo_pct": 0.0
+    },
+    "delta_MAE_D_menos_B": -1.4306,
+    "delta_R2_D_menos_B": 0.0797,
+    "interpretacion": "Si delta_MAE ≈ 0 o > 0, la cuota trailing NO supera a la fija con Etapa 1 perfecta (hipótesis T3 descartada)."
+  },
+  "nota_limitaciones": [
+    "El shift(4)/rolling(30) es por FILAS: si un estab tiene fechas faltantes, el lag no es exactamente T-4 de calendario.",
+    "A usa el total regional observado de 2024 (mismo MM-DD); Antofagasta/Atacama no existen en 2024 → excluidas de A.",
+    "B y D usan el total regional REAL (información no disponible en producción): son TECHOS diagnósticos, no modelos desplegables.",
+    "Las métricas C (v5) se leen de model_metadata_v5.json sin re-entrenar."
+  ]
+}

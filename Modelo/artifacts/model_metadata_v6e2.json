@@ -1,0 +1,236 @@
+{
+  "release": "modelo-v6-e2",
+  "experimento": "E2 — modelo DIRECTO a nivel establecimiento (una sola etapa) que reemplaza la arquitectura dos-etapas de v5/E1",
+  "descripcion": "E2 entrena UN RandomForestRegressor directamente sobre filas (establecimiento, fecha) con target Total en nivel, reemplazando la cadena Etapa 1 (región) → Etapa 2 (cuota) de v5/E1. Motivación (diagnóstico T2–T4): la Etapa 1 concentra ~6.4 MAE del error de v5; la persistencia pura (pred = lag 4) ya logra MAE 11.07 / R² 0.584, mejor que v5. El modelo directo usa la demanda reciente (Total_Lag_4), la cuota trailing (Share_Trailing, E1) y el sistema dos-etapas completo como features (Pred_Region y Pred_E1 = Share_Trailing × Pred_Region) para CORREGIR ese sistema, en lugar de depender de él.",
+  "granularidad_evaluacion": "El dataset tiene ~4 filas por (establecimiento, Fecha) (cada fila es una causa DEIS); se suman por (estab, fecha) antes de armar el panel y de evaluar, idéntico a v5/E1.",
+  "features": [
+    "Total_Lag_4",
+    "Share_Trailing",
+    "Pred_Region",
+    "Pred_E1",
+    "Tipo_CEAR",
+    "Tipo_Hospital",
+    "Tipo_SAPU",
+    "Tipo_SAR",
+    "Tipo_SUR",
+    "Region_Antofagasta",
+    "Region_Arica y Parinacota",
+    "Region_Atacama",
+    "Region_Coquimbo",
+    "Region_Magallanes",
+    "Region_Maule",
+    "Region_Metropolitana",
+    "Region_O'Higgins",
+    "Doy",
+    "Doy_Sin",
+    "Doy_Cos",
+    "TempMin",
+    "TempMax",
+    "Precipitacion_mm",
+    "TempMin_Lag_4D",
+    "Region_Media_7d_TempMin",
+    "Frio_Polar_Flag",
+    "Lluvia_Intensa_Flag"
+  ],
+  "n_features": 27,
+  "configuracion": {
+    "target": "Total (nivel, sin transformar)",
+    "filas": "una por (establecimiento, fecha)",
+    "split": "train = 2024, test = 2025",
+    "modelo": "RandomForestRegressor (hiperparámetros del v5)",
+    "semilla": 42,
+    "hiperparametros": {
+      "n_estimators": 200,
+      "max_depth": 15,
+      "min_samples_split": 50,
+      "min_samples_leaf": 20,
+      "max_features": "sqrt",
+      "random_state": 42
+    },
+    "horizonte_horas": 96,
+    "lag_dias": 4,
+    "features_detalle": {
+      "core": [
+        "Total_Lag_4",
+        "Share_Trailing",
+        "Pred_Region",
+        "Pred_E1"
+      ],
+      "one_hot_tipo_establecimiento": [
+        "Tipo_CEAR",
+        "Tipo_Hospital",
+        "Tipo_SAPU",
+        "Tipo_SAR",
+        "Tipo_SUR"
+      ],
+      "one_hot_region": [
+        "Region_Antofagasta",
+        "Region_Arica y Parinacota",
+        "Region_Atacama",
+        "Region_Coquimbo",
+        "Region_Magallanes",
+        "Region_Maule",
+        "Region_Metropolitana",
+        "Region_O'Higgins"
+      ],
+      "estacionalidad": [
+        "Doy",
+        "Doy_Sin",
+        "Doy_Cos"
+      ],
+      "clima_regional_dia_T": [
+        "TempMin",
+        "TempMax",
+        "Precipitacion_mm",
+        "TempMin_Lag_4D",
+        "Region_Media_7d_TempMin",
+        "Frio_Polar_Flag",
+        "Lluvia_Intensa_Flag"
+      ]
+    }
+  },
+  "metricas_establecimiento": {
+    "n": 118452,
+    "MAE": 9.3338,
+    "RMSE": 13.0481,
+    "R2": 0.7231,
+    "sesgo_pct": 9.77
+  },
+  "metricas_por_region": {
+    "Antofagasta": {
+      "n": 7489,
+      "MAE": 8.8544,
+      "RMSE": 12.3263,
+      "R2": 0.6282,
+      "sesgo_pct": 14.33
+    },
+    "Arica y Parinacota": {
+      "n": 1674,
+      "MAE": 11.424,
+      "RMSE": 16.7812,
+      "R2": 0.8148,
+      "sesgo_pct": 10.1
+    },
+    "Atacama": {
+      "n": 5473,
+      "MAE": 15.1279,
+      "RMSE": 18.6153,
+      "R2": -0.0326,
+      "sesgo_pct": 64.79
+    },
+    "Coquimbo": {
+      "n": 10672,
+      "MAE": 8.155,
+      "RMSE": 11.4841,
+      "R2": 0.4793,
+      "sesgo_pct": 20.86
+    },
+    "Magallanes": {
+      "n": 3279,
+      "MAE": 7.3625,
+      "RMSE": 10.233,
+      "R2": 0.6576,
+      "sesgo_pct": 6.2
+    },
+    "Maule": {
+      "n": 21454,
+      "MAE": 7.9405,
+      "RMSE": 11.7464,
+      "R2": 0.8295,
+      "sesgo_pct": 5.77
+    },
+    "Metropolitana": {
+      "n": 54326,
+      "MAE": 9.9995,
+      "RMSE": 13.863,
+      "R2": 0.7023,
+      "sesgo_pct": 4.57
+    },
+    "O'Higgins": {
+      "n": 14085,
+      "MAE": 7.9954,
+      "RMSE": 10.3519,
+      "R2": 0.5372,
+      "sesgo_pct": 21.68
+    }
+  },
+  "sanity_check_anti_leakage": {
+    "r2_mayor_a_0_9_sospechoso_de_fuga": false,
+    "r2_observado": 0.7231,
+    "verificacion": {
+      "target_no_es_feature": true,
+      "total_lag_4_coincide_con_T_menos_4": 219995,
+      "total_lag_4_filas_con_historial_comparable": 219995,
+      "total_lag_4_igual_al_mismo_dia": 16430,
+      "lectura": "Total_Lag_4 se construye con shift(4) sobre el calendario ANTES de unir con el target: por construcción no lee Total(e, T). El contador de igualdad con el mismo día solo puede ser > 0 por coincidencia exacta de valor (demanda estable), no por fuga.",
+      "correlacion_total_lag_4_vs_total": 0.8016,
+      "correlacion_sospechosa": false,
+      "pred_region_es_feature": true,
+      "pred_e1_es_feature": true
+    }
+  },
+  "comparativa": {
+    "referencias": {
+      "v5 trailing (dos etapas)": {
+        "MAE": 14.7633,
+        "RMSE": 22.9807,
+        "R2": 0.141,
+        "sesgo_pct": 21.01
+      },
+      "E1 cuota trailing (dos etapas)": {
+        "MAE": 13.8083,
+        "RMSE": 22.2623,
+        "R2": 0.1939,
+        "sesgo_pct": 21.73
+      },
+      "exploratoria post-hoc (sin contam + Anom_TempMin)": {
+        "MAE": 12.7845,
+        "RMSE": 20.33,
+        "R2": 0.3277,
+        "sesgo_pct": 11.32
+      },
+      "E2 modelo directo (este script)": {
+        "MAE": 9.3338,
+        "RMSE": 13.0481,
+        "R2": 0.7231,
+        "sesgo_pct": 9.77
+      }
+    },
+    "supera_a_exploratoria_post_hoc": true,
+    "nota": "La exploratoria post-hoc (12.7845 / 0.3277 / +11.32) es EXPLORATORIA (seleccionada observando el test 2025): si E2 la supera, esa ventaja también debe confirmarse con datos adicionales (2023+) antes de claim de mejora validada."
+  },
+  "identidad_etapa_1_v5": {
+    "etapa_1_region_identica_a_v5": true,
+    "metrics_v5_region": {
+      "MAE": 467.384,
+      "RMSE": 690.4895,
+      "R2": 0.8545
+    },
+    "nota": "Pred_Region proviene del RF de la Etapa 1 del v5 (config trailing), importado del módulo v5 sin modificarlo."
+  },
+  "verificacion_anti_leakage": {
+    "target_no_es_feature": true,
+    "total_lag_4_coincide_con_T_menos_4": 219995,
+    "total_lag_4_filas_con_historial_comparable": 219995,
+    "total_lag_4_igual_al_mismo_dia": 16430,
+    "lectura": "Total_Lag_4 se construye con shift(4) sobre el calendario ANTES de unir con el target: por construcción no lee Total(e, T). El contador de igualdad con el mismo día solo puede ser > 0 por coincidencia exacta de valor (demanda estable), no por fuga.",
+    "correlacion_total_lag_4_vs_total": 0.8016,
+    "correlacion_sospechosa": false,
+    "pred_region_es_feature": true,
+    "pred_e1_es_feature": true
+  },
+  "supuesto_clima_dia_T": "MISMO supuesto que v5/v6: las variables climáticas de la fecha T (TempMin, TempMax, Precipitacion_mm, flags) se asumen DISPONIBLES al momento de pronosticar T (variables exógenas de pronóstico). No es fuga del target: el clima no es Total(e, T).",
+  "pred_region_train_in_sample": "Pred_Region en las filas de TRAIN (2024) es la predicción IN-SAMPLE del RF de la Etapa 1 (entrenado con 2024). No hay fuga del target del estab (es un total regional agregado), pero es una feature más 'limpia' en train que en test: se documenta como limitación. En test Pred_Region es la predicción genuina de futuro.",
+  "tiempo_entrenamiento_segundos": 6.7,
+  "tiempo_total_script_segundos": 8.6,
+  "limitaciones": [
+    "Solo 2 años de datos (train 2024 / test 2025): la comparación E2 vs v5/E1/exploratoria se hace sobre el mismo split; el delta mide el efecto en este test, no una validación externa.",
+    "Pred_Region en train es in-sample del RF de la Etapa 1 (ver pred_region_train_in_sample): el modelo directo ve una versión más 'limpia' de esa feature en train que en test, lo que puede inflar ligeramente el ajuste en train. No es fuga del target.",
+    "Pred_E1 hereda el sesgo positivo de v5/E1 (~+21%): el sistema dos-etapas sobreestima el total; el modelo directo debe aprender a corregirlo, y su sesgo depende de qué tan bien lo logre.",
+    "La persistencia pura (MAE 11.07 / R² 0.584) sigue siendo un referencial FUERTE: si E2 no la supera, el modelo directo con estas features no aporta sobre el baseline trivial.",
+    "La exploratoria post-hoc (12.784 / 0.3277) es EXPLORATORIA (seleccionada con el test a la vista): superarla no equivale a una mejora validada.",
+    "Regiones nuevas en test (Antofagasta, Atacama) no existen en train 2024 (bug CSV SENAMHI): sus one-hot están en 100% cero y sus Total_Lag_4/Share_Trailing solo se apoyan en su historia de 2025 (≤ T-4).",
+    "Se entrenó con los MISMOS hiperparámetros del v5 (n_estimators=200, max_depth=15, min_samples_split=50, min_samples_leaf=20, max_features='sqrt', random_state=42, n_jobs=-1) para que la comparación AISLE el efecto de la arquitectura, no el del tuner; optimizarlos es trabajo futuro.",
+    "El modelo se exporta pero no se validó con años adicionales (2023 no está disponible en el dataset actual)."
+  ]
+}
