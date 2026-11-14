@@ -7,6 +7,10 @@ API REST con FastAPI, PostgreSQL, autenticación JWT, Open-Meteo y modelo ML.
 Requisitos: PostgreSQL en ejecución, una base creada (por ejemplo,
 `hospital_db`) y Python; se recomienda 3.13 para reproducir el entorno ML.
 
+En Mac (Terminal) los comandos equivalentes son: `cp .env.example .env`,
+`python3 -m venv .venv`, `.venv/bin/python -m pip install -r requirements.txt`
+y `.venv/bin/python -m uvicorn app.main:app --reload`.
+
 Desde la raíz del proyecto, en PowerShell:
 
 ```powershell
@@ -41,7 +45,7 @@ Salvo registro, login, `/` y `/api/healthcheck`, las rutas requieren JWT.
 | Demanda observada diaria | `PUT /api/demanda-diaria`, `GET /api/demanda-diaria` |
 | Pronóstico Open-Meteo | `GET /api/clima` |
 | Clima almacenado | `PUT /api/clima/diario`, `GET /api/clima/historial` |
-| Inferencia ML actual | `POST /api/predict` |
+| Inferencia ML (modelo v6) | `POST /api/predict` |
 | Predicciones almacenadas | `GET /api/predicciones/historial` |
 
 ## Alcance y pendientes
@@ -53,11 +57,18 @@ Salvo registro, login, `/` y `/api/healthcheck`, las rutas requieren JWT.
 - Los `PUT` diarios reemplazan la fila, no suman valores. El PUT climático
   deja en `NULL` los valores omitidos. No hay carga automática desde DEIS.
 - `GET /api/clima` devuelve 96 horas de pronóstico, sin guardarlo.
-- `POST /api/predict` recibe 20 variables precalculadas de `modelo-v1`.
-  No prepara datos ni guarda resultados y no verifica anticipación de 96h.
-  El semáforo es demostrativo; el historial estará vacío si no hay resultados guardados.
-- Pendientes: contrato/artefactos del modelo nuevo, preparación automática,
-  persistencia de la inferencia, permisos por rol/hospital y despliegue Docker.
+- `POST /api/predict` usa el modelo **v6 E2** (`modelo-v6-e2`, 27 variables).
+  El backend deriva Pred_E1, estacionalidad, one-hot de región y tipo, y
+  `Frio_Polar_Flag` (temp_min ≤ 2 °C). Quien consulta aporta `fecha`, `region`,
+  `tipo_establecimiento`, `total_lag_4`, `share_trailing`, `pred_region`, el clima
+  (`temp_min`, `temp_max`, `precipitacion_mm`, `temp_min_lag_4d`,
+  `region_media_7d_temp_min`) y `lluvia_intensa` (precipitación sobre el p90 regional).
+  Si se envía `id_establecimiento` (código DEIS existente) la predicción se guarda
+  en `predicciones` (una por establecimiento, fecha y versión); si no existe → 404.
+  No verifica anticipación de 96 h y el semáforo es demostrativo.
+- Pendientes: cálculo automático de `total_lag_4`, `share_trailing` y `pred_region`
+  desde la base (requiere historial de demanda y contaminación y el modelo regional
+  de v5), permisos por rol/hospital, Docker y despliegue en la nube.
 
 ## Pruebas y documentación
 

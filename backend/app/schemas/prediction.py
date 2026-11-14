@@ -1,55 +1,68 @@
+from datetime import date
 from enum import Enum
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from app.schemas.ml_data import EstablishmentType, NonEmptyText
+
+
+class MlRegion(str, Enum):
+    """Regiones con las que se entrenó el modelo v6 (los nombres deben ser idénticos)."""
+
+    ANTOFAGASTA = "Antofagasta"
+    ARICA = "Arica y Parinacota"
+    ATACAMA = "Atacama"
+    COQUIMBO = "Coquimbo"
+    MAGALLANES = "Magallanes"
+    MAULE = "Maule"
+    METROPOLITANA = "Metropolitana"
+    OHIGGINS = "O'Higgins"
+
 
 PREDICTION_EXAMPLE = {
-    "Menores_1": 8,
-    "De_1_a_4": 15,
-    "De_5_a_14": 12,
-    "De_15_a_64": 25,
-    "De_65_y_mas": 18,
-    "TempMin": 1.5,
-    "TempMax": 14.2,
-    "Precipitacion_mm": 5.0,
-    "MP2_5": 28.5,
-    "MP10": 55.0,
-    "TempMin_Lag_4D": 0.8,
-    "MP2_5_Lag_2D": 32.0,
-    "Frio_Polar_Flag": 1,
-    "Lluvia_Intensa_Flag": 0,
-    "Alerta_MP25_Flag": 1,
-    "Cat_TempMin_Encoded": 1,
-    "Region_Media_7d_TempMin": 2.1,
-    "Region_Media_7d_MP25": 25.4,
-    "Region_Encoded": 0,
-    "TipoEstablecimiento_Encoded": 0,
+    "fecha": "2025-07-15",
+    "region": "Metropolitana",
+    "tipo_establecimiento": "Hospital",
+    "id_establecimiento": "99-001",
+    "total_lag_4": 40,
+    "share_trailing": 0.05,
+    "pred_region": 800,
+    "temp_min": 3.0,
+    "temp_max": 14.0,
+    "precipitacion_mm": 5.0,
+    "temp_min_lag_4d": 4.0,
+    "region_media_7d_temp_min": 4.5,
+    "lluvia_intensa": False,
 }
 
 
 class PredictRequest(BaseModel):
-    """Variables ya calculadas y codificadas como durante el entrenamiento."""
+    """Entradas del modelo v6 que dependen de historial o del modelo regional.
 
-    Menores_1: int = Field(ge=0, strict=True)
-    De_1_a_4: int = Field(ge=0, strict=True)
-    De_5_a_14: int = Field(ge=0, strict=True)
-    De_15_a_64: int = Field(ge=0, strict=True)
-    De_65_y_mas: int = Field(ge=0, strict=True)
-    TempMin: float
-    TempMax: float
-    Precipitacion_mm: float = Field(ge=0)
-    MP2_5: float = Field(ge=0)
-    MP10: float = Field(ge=0)
-    TempMin_Lag_4D: float
-    MP2_5_Lag_2D: float = Field(ge=0)
-    Frio_Polar_Flag: int = Field(ge=0, le=1, strict=True)
-    Lluvia_Intensa_Flag: int = Field(ge=0, le=1, strict=True)
-    Alerta_MP25_Flag: int = Field(ge=0, le=1, strict=True)
-    Cat_TempMin_Encoded: int = Field(ge=0, le=4, strict=True)
-    Region_Media_7d_TempMin: float
-    Region_Media_7d_MP25: float = Field(ge=0)
-    Region_Encoded: int = Field(ge=0, strict=True, description="Código del encoder ML, no código oficial de región")
-    TipoEstablecimiento_Encoded: int = Field(ge=0, strict=True)
+    El backend deriva el resto de las 27 variables (Pred_E1, estacionalidad,
+    one-hot de región y tipo, Frio_Polar_Flag). Mientras no exista carga
+    automática de historial, quien consulta aporta estos valores.
+    """
+
+    fecha: date = Field(description="Fecha objetivo de la predicción (día T)")
+    region: MlRegion
+    tipo_establecimiento: EstablishmentType
+    id_establecimiento: NonEmptyText | None = Field(
+        default=None,
+        description="Código DEIS. Si se indica y existe en el catálogo, la predicción se guarda.",
+    )
+    total_lag_4: float = Field(ge=0, description="Total de pacientes del establecimiento hace 4 días (Total_Lag_4)")
+    share_trailing: float = Field(ge=0, le=1, description="Cuota trailing del establecimiento en su región (Share_Trailing)")
+    pred_region: float = Field(ge=0, description="Total regional predicho por la etapa 1 de v5 (Pred_Region)")
+    temp_min: float = Field(ge=-60, le=60)
+    temp_max: float = Field(ge=-60, le=60)
+    precipitacion_mm: float = Field(ge=0)
+    temp_min_lag_4d: float = Field(ge=-60, le=60)
+    region_media_7d_temp_min: float = Field(ge=-60, le=60)
+    lluvia_intensa: bool = Field(
+        strict=True,
+        description="1 si la precipitación supera el percentil 90 regional (Lluvia_Intensa_Flag)",
+    )
 
     model_config = ConfigDict(
         extra="forbid",
@@ -59,8 +72,8 @@ class PredictRequest(BaseModel):
 
     @model_validator(mode="after")
     def temperature_bounds(self):
-        if self.TempMin > self.TempMax:
-            raise ValueError("TempMin no puede superar TempMax")
+        if self.temp_min > self.temp_max:
+            raise ValueError("temp_min no puede superar temp_max")
         return self
 
 
@@ -83,3 +96,6 @@ class PredictResponse(BaseModel):
     recomendacion: str
     alerta_demostracion: bool = True
     version_modelo: str
+    fecha: date | None = None
+    id_establecimiento: str | None = None
+    guardada: bool = False
