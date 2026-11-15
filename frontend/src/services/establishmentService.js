@@ -38,28 +38,17 @@ export const establishmentService = {
     if (lista.length > 0) {
       const email = usuario?.email?.toLowerCase() || ''
       const dominio = email.split('@')[1] || ''
-
-      // Buscar coincidencia entre el dominio del correo y el nombre o comuna del centro
+      // Buscar coincidencia real entre el dominio del correo y el nombre o comuna del centro
       const coincidencia = lista.find((est) => {
         const nombreLimpio = est.nombre.toLowerCase()
         const comunaLimpia = est.comuna.toLowerCase()
         return dominio.includes(nombreLimpio) || dominio.includes(comunaLimpia)
       })
-
       if (coincidencia) {
         return coincidencia
       }
-
-      // Si es un correo de prueba genérico (@example.com, @gmail.com), toma el primer centro activo de la DB
-      return lista[0]
     }
-
-    // Respaldo de seguridad solo si la base de datos está completamente vacía
-    return {
-      id: 1,
-      nombre: 'Centro de Salud',
-      tipo: 'Clínica',
-      comuna: 'Metropolitana',
-    }
+    // Si el usuario no tiene hospital asignado ni su correo coincide con uno real, devuelve null
+    return null
   },
 }

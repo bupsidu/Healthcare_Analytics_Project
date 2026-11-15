@@ -98,19 +98,25 @@ export default function TriageSection({ establecimiento }) {
     return Object.keys(err).length === 0
   }
 
-  const handleRegistrar = async (e) => {
+    const handleRegistrar = async (e) => {
     e.preventDefault()
     setErrorServidor('')
     setMensajeExito(false)
 
     if (!validar()) return
 
+    // Validación estricta: No asumir IDs ficticios
+    if (!establecimiento?.id) {
+      setErrorServidor('No se puede registrar la atención: no hay un establecimiento de salud asociado en la base de datos.')
+      return
+    }
+
     setGuardando(true)
 
     try {
-      // 1. Guardar en PostgreSQL vía POST /api/ingresos
+      // 1. Guardar en PostgreSQL vía POST /api/ingresos con el ID real
       const nuevo = await intakeService.registrarIngreso({
-        establecimientoId: establecimiento?.id || 1,
+        establecimientoId: establecimiento.id,
         grupoEtario: grupoEtario,
         casos: 1,
       })
