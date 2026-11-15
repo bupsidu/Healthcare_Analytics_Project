@@ -6,7 +6,7 @@ from fastapi.routing import APIRoute
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, hospital_scope
 from app.db.session import get_db
 from app.models.establishment import Establishment
 from app.models.ml_data import StoredPrediction
@@ -75,6 +75,7 @@ def generar_prediccion(
     _: User = Depends(get_current_user),
     service: PredictionService = Depends(get_prediction_service),
     db: Session = Depends(get_db),
+    hospital: Establishment | None = Depends(hospital_scope),
 ):
     """Predice la demanda diaria de un establecimiento con el modelo v6.
 
@@ -85,12 +86,28 @@ def generar_prediccion(
     El endpoint no verifica por sí solo una anticipación de 96 horas y la alerta
     es demostrativa.
     """
+    # Un médico solo puede guardar predicciones de su propio hospital.
+    if (
+        hospital is not None
+        and datos.id_establecimiento is not None
+        and datos.id_establecimiento != hospital.id_establecimiento
+    ):
+        raise HTTPException(status_code=403, detail="Solo puede guardar predicciones de su propio hospital")
     if datos.id_establecimiento is not None:
-        existe = db.query(Establishment.id).filter(
+        catalogo = db.query(Establishment).filter(
             Establishment.id_establecimiento == datos.id_establecimiento
         ).first()
-        if existe is None:
+        if catalogo is None:
             raise HTTPException(status_code=404, detail="No existe un establecimiento con ese código DEIS")
+        # La región y el tipo son entradas del modelo: deben ser los del hospital, no los que
+        # alguien quiera enviar (si el catálogo aún no tiene tipo, solo se compara la región).
+        if datos.region.value != catalogo.region or (
+            catalogo.tipo is not None and datos.tipo_establecimiento.value != catalogo.tipo
+        ):
+            raise HTTPException(
+                status_code=422,
+                detail=f"La región y el tipo no coinciden con el catálogo ({catalogo.region}, {catalogo.tipo})",
+            )
     try:
         resultado = service.predict(datos)
         if datos.id_establecimiento is not None:

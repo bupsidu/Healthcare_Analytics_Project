@@ -3,6 +3,7 @@ import copy
 import json
 import unittest
 from datetime import datetime, timedelta
+from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 from urllib.error import HTTPError, URLError
 
@@ -123,10 +124,35 @@ class OpenMeteoTests(unittest.TestCase):
                         _get_json("https://example.test", {})
 
 
+class RegionClimateTests(unittest.TestCase):
+    def test_every_ml_region_has_a_query_point(self):
+        from app.schemas.prediction import MlRegion
+        from app.services.open_meteo import REGION_COORDS
+        self.assertEqual(set(REGION_COORDS), {region.value for region in MlRegion})
+        for lat, lon in REGION_COORDS.values():
+            self.assertTrue(-90 <= lat <= 90 and -180 <= lon <= 180)
+
+    def test_daily_summaries_skip_partial_days_and_never_invent_zeros(self):
+        from app.services.open_meteo import daily_summaries
+        weather, air = forecast_payloads()
+        with patch("app.services.open_meteo._get_json", side_effect=[weather, air]):
+            forecast = get_climate_forecast(-33.4489, -70.6693)
+        days = daily_summaries(forecast)
+        self.assertTrue(all(isinstance(d["fecha"], type(forecast.pronostico_horario[0].fecha_hora.date())) for d in days))
+        first_day = forecast.pronostico_horario[0].fecha_hora.date()
+        counts = {}
+        for hour in forecast.pronostico_horario:
+            counts[hour.fecha_hora.date()] = counts.get(hour.fecha_hora.date(), 0) + 1
+        self.assertEqual([d["fecha"] for d in days], [d for d, n in sorted(counts.items()) if n == 24])
+        forecast.pronostico_horario[next(i for i, h in enumerate(forecast.pronostico_horario) if h.fecha_hora.date() == days[0]["fecha"])].temperatura_c = None
+        broken = daily_summaries(forecast)[0]
+        self.assertEqual((broken["temp_min"], broken["temp_max"]), (None, None))
+
+
 class ClimateEndpointTests(unittest.TestCase):
     def setUp(self):
         self.previous_overrides = app.dependency_overrides.copy()
-        app.dependency_overrides[get_current_user] = lambda: object()
+        app.dependency_overrides[get_current_user] = lambda: SimpleNamespace(role="admin")  # /clima es solo admin
 
     def tearDown(self):
         app.dependency_overrides.clear()

@@ -46,7 +46,7 @@ class MLDataTests(unittest.TestCase):
 
         Base.metadata.create_all(self.engine)
         self.db = Session(self.engine)
-        self.user = User(email="test@example.invalid", hashed_password="test")
+        self.user = User(email="test@example.invalid", hashed_password="test", role="admin")
         self.db.add_all([
             self.user,
             Establishment(id=1, nombre="Prueba", comuna="Santiago", region="Metropolitana"),
@@ -126,21 +126,22 @@ class MLDataTests(unittest.TestCase):
 
     def test_climate_put_preserves_nulls_and_replaces(self):
         body = {"region": " Metropolitana ", "fecha": "2026-10-13", "temp_min": 1.5,
-                "temp_max": 14.2, "precipitacion_mm": None}
+                "temp_max": 14.2, "precipitacion_mm": None, "mp2_5": 12.5, "mp10": 30}
         status, data = self.call("/api/clima/diario", "PUT", body)
-        self.assertEqual(status, 201)
+        self.assertEqual((status, data["mp2_5"], data["mp10"]), (201, 12.5, 30))
         self.assertEqual(data["region"], "Metropolitana")
         self.assertIsNone(data["precipitacion_mm"])
         status, data = self.call("/api/clima/diario", "PUT", {"region": "Metropolitana", "fecha": "2026-10-13"})
         self.assertEqual(status, 200)
         self.assertIsNone(data["temp_min"])
+        self.assertIsNone(data["mp2_5"])
         self.assertEqual(self.db.query(DailyClimate).count(), 1)
         status, data = self.call("/api/clima/historial", query={"region": "Metropolitana"})
         self.assertEqual(data["total"], 1)
 
     def test_climate_validation(self):
         base = {"region": "Metropolitana", "fecha": "2026-10-13"}
-        for fields in ({"temp_min": 20, "temp_max": 1}, {"precipitacion_mm": -1}, {"region": " "}, {"mp2_5": 10},
+        for fields in ({"temp_min": 20, "temp_max": 1}, {"precipitacion_mm": -1}, {"region": " "}, {"mp2_5": -1}, {"mp10": -1}, {"extra": 1},
                        {"temp_min": float("nan")}, {"temp_max": float("inf")}):
             self.assertEqual(self.call("/api/clima/diario", "PUT", {**base, **fields})[0], 422)
 

@@ -10,6 +10,7 @@ from app.api.health import router as health_router
 from app.api.intakes import router as intakes_router
 from app.api.ml_data import router as ml_data_router
 from app.api.predictions import router as predictions_router
+from app.api.usuarios import router as usuarios_router
 from app.core.config import BASE_DIR, settings
 from app.db.session import Base, engine
 from app.services.ml_service import PredictionService
@@ -27,12 +28,21 @@ async def lifespan(application: FastAPI):
     yield
 
 
+def docs_urls(enabled: bool) -> dict:
+    """Rutas de Swagger/ReDoc/OpenAPI; con None FastAPI no las publica (responden 404)."""
+    return {
+        "docs_url": "/docs" if enabled else None,
+        "redoc_url": "/redoc" if enabled else None,
+        "openapi_url": f"{settings.API_V1_STR}/openapi.json" if enabled else None,
+    }
+
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     description="Backend API REST para el Sistema Hospitalario de Alerta Temprana",
     version="0.1.0",
-    openapi_url=f"{settings.API_V1_STR}/openapi.json",
     lifespan=lifespan,
+    **docs_urls(settings.ENABLE_DOCS),
 )
 
 artifacts_dir = settings.ML_ARTIFACTS_DIR
@@ -50,6 +60,7 @@ app.add_middleware(
 
 app.include_router(health_router, prefix=settings.API_V1_STR)
 app.include_router(auth_router, prefix=settings.API_V1_STR)
+app.include_router(usuarios_router, prefix=settings.API_V1_STR)
 app.include_router(intakes_router, prefix=settings.API_V1_STR)
 app.include_router(climate_router, prefix=settings.API_V1_STR)
 app.include_router(predictions_router, prefix=settings.API_V1_STR)
@@ -58,9 +69,7 @@ app.include_router(ml_data_router, prefix=settings.API_V1_STR)
 
 @app.get("/")
 def read_root():
-    return {
-        "status": "online",
-        "system": settings.PROJECT_NAME,
-        "version": "0.1.0",
-        "docs": "/docs",
-    }
+    info = {"status": "online", "system": settings.PROJECT_NAME, "version": "0.1.0"}
+    if settings.ENABLE_DOCS:
+        info["docs"] = "/docs"
+    return info

@@ -53,7 +53,7 @@ class IntakeAgeGroupTests(unittest.TestCase):
         )
         Base.metadata.create_all(self.engine)
         self.db = Session(self.engine)
-        self.user = User(id=1, email="test@example.invalid", hashed_password="test-hash")
+        self.user = User(id=1, email="test@example.invalid", hashed_password="test-hash", role="admin")
         self.db.add_all([
             self.user,
             Establishment(id=1, nombre="Prueba", comuna="Santiago", region="Metropolitana"),

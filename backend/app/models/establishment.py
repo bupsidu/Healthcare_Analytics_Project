@@ -6,6 +6,7 @@ class Establishment(Base):
     __tablename__ = "establecimientos"
     __table_args__ = (
         UniqueConstraint("id_establecimiento", name="uq_establecimientos_codigo_deis"),
+        UniqueConstraint("dominio_correo", name="uq_establecimientos_dominio_correo"),
         CheckConstraint("tipo IN ('CEAR', 'Hospital', 'SAPU', 'SAR', 'SUR')", name="ck_establecimientos_tipo"),
     )
 
@@ -18,5 +19,9 @@ class Establishment(Base):
     id_establecimiento = Column(Text, nullable=True)
     tipo = Column(Text, nullable=True)
     activo = Column(Boolean, nullable=False, server_default=true())
+    # Dominio de correo del hospital (ej. "sapuhospital.cl"): el @ de un usuario
+    # lo asocia a este establecimiento.
+    dominio_correo = Column(String(255), nullable=True)
 
     ingresos = relationship("DailyIntake", back_populates="establecimiento")
+    usuarios = relationship("User", back_populates="establecimiento")

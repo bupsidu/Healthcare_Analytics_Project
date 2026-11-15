@@ -5,6 +5,7 @@ import tempfile
 import unittest
 from datetime import date
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import joblib
@@ -92,7 +93,7 @@ class PredictionTests(unittest.TestCase):
                                   id_establecimiento="99-001", tipo="Hospital"))
         self.db.commit()
         self.previous_overrides = app.dependency_overrides.copy()
-        app.dependency_overrides[get_current_user] = lambda: object()
+        app.dependency_overrides[get_current_user] = lambda: SimpleNamespace(role="admin", establecimiento=None)
         app.dependency_overrides[get_prediction_service] = lambda: self.service
         app.dependency_overrides[get_db] = lambda: self.db
 
