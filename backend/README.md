@@ -38,10 +38,10 @@ existían; `scripts/seed_dev.py` sí las agrega. Tiene tres modos:
 Los dos primeros no crean hospitales: sin hospitales cargados por otro medio, un médico no
 tiene a dónde pertenecer y no hay dashboard por hospital. El tercero (completo) hace lo siguiente:
 
-Actualiza el esquema (incluidas las columnas `mp2_5` y `mp10` de `clima_diario`) y crea 6 hospitales (2 de prueba con código inventado `99-xxx` y 4
-reales que conoce el modelo v6, con su código DEIS), el administrador
-`adminbot@adminhospitalario.cl` (clave: `SEED_ADMIN_PASSWORD`) y un médico por
-hospital, `medico1@...` a `medico6@...` (clave de prueba `123456789`). Se puede repetir sin duplicar ni pisar lo
+Actualiza el esquema y crea 8 hospitales reales que conoce el modelo v6 (uno por región, con su código
+DEIS), el administrador `adminbot@adminhospitalario.cl` (clave: `SEED_ADMIN_PASSWORD`) y un
+médico por hospital (`medico3@hospitalhurtado.cl`, `medico4@...`, `medico6@...` a
+`medico11@...`; clave de prueba `123456789`). Se puede repetir sin duplicar ni pisar lo
 existente, y se niega a correr contra un servidor que no sea local (salvo
 `--force`). **No es para producción.**
 
@@ -53,7 +53,7 @@ Para llenar `clima_diario` con el pronóstico de Open-Meteo de las 8 regiones
 ```
 
 Para probar el dashboard sin datos reales, `scripts/seed_demo.py` inventa la demanda
-diaria y los casos por grupo etario de los últimos 5 días en esos 6 hospitales (cifras
+diaria y los casos por grupo etario de los últimos 5 días en esos 8 hospitales (cifras
 ficticias; no pisa lo existente). `--borrar` los elimina:
 
 ```powershell
@@ -119,12 +119,70 @@ probado todavía en un Mac; si algún paso falla, anote el error y avise.
    ```
 
    Compruebe `http://127.0.0.1:8000/api/healthcheck`. Para entrar: correo
-   `medico1@hospitalprueba.cl`, clave `123456789`.
+   `medico3@hospitalhurtado.cl`, clave `123456789`.
 7. **Levantar el front**, desde la carpeta `frontend`: `cp .env.example .env`, poner
    `VITE_API_URL=http://localhost:8000/api` (sin `/v1`), `npm install` y `npm run dev`
    (abre `http://localhost:5173`, el origen que la API permite por defecto).
 
 Esa base queda con hospitales, usuarios y clima; la demanda solo existe si corrió `seed_demo.py`.
+
+## Actualizar un proyecto ya instalado
+
+Después de un `git pull`, la base local puede no tener las columnas nuevas. `scripts/seed_dev.py`
+las agrega sin borrar datos (en Windows, `.\.venv\Scripts\python.exe` en lugar de `.venv/bin/python`).
+Desde la carpeta `backend`:
+
+1. Si falta, agregue `SEED_ADMIN_PASSWORD=` (8 o más caracteres) al `.env`. El `git pull` no lo toca.
+2. **Antes de levantar la API**, actualice la base:
+
+   ```bash
+   .venv/bin/python scripts/seed_dev.py
+   ```
+
+   Si solo quiere las tablas y columnas, sin hospitales ni usuarios de prueba, agregue `--solo-esquema`.
+3. Cargue el clima y, si quiere cifras de prueba, la demanda:
+
+   ```bash
+   .venv/bin/python scripts/load_climate.py
+   .venv/bin/python scripts/seed_demo.py
+   ```
+4. Reinicie la API. En `frontend/.env`, `VITE_API_URL` debe ser `http://localhost:8000/api` (sin `/v1`).
+
+El seed **agrega** lo que falte pero no borra hospitales ni usuarios de versiones anteriores: una base
+que ya tenía los de prueba antiguos (códigos `99-001`, `99-002` y `16-803`) los conserva junto a los reales.
+Para entrar con un médico de prueba, use por ejemplo `medico3@hospitalhurtado.cl` (clave `123456789`).
+
+## Quitar `mp2_5` y `mp10` de `clima_diario` (solo si ya las tiene)
+
+La contaminación (MP2.5 y MP10) **ya no se guarda en la base**: solo se muestra en la ruta de clima y en
+la proyección. Una versión anterior del seed agregaba esas dos columnas a `clima_diario`.
+
+- **Si nunca corrió esa versión del seed** (su `clima_diario` tiene solo `region`, `fecha`, `temp_min`,
+  `temp_max` y `precipitacion_mm`): no tiene que hacer nada. `seed_dev.py` ya no las agrega.
+- **Si ya las tiene:** dejarlas no rompe nada (la API las ignora), pero quedan obsoletas. Para quitarlas,
+  desde la carpeta `backend` y con la API apagada, el mismo comando sirve en cualquier equipo, porque usa
+  el Python del entorno virtual y no necesita `psql`. Se puede repetir sin riesgo:
+
+  Mac o Linux:
+
+  ```bash
+  .venv/bin/python -c "from sqlalchemy import text; from app.db.session import engine; c = engine.connect(); c.execute(text('ALTER TABLE clima_diario DROP COLUMN IF EXISTS mp2_5, DROP COLUMN IF EXISTS mp10')); c.commit()"
+  ```
+
+  Windows (PowerShell):
+
+  ```powershell
+  .\.venv\Scripts\python.exe -c "from sqlalchemy import text; from app.db.session import engine; c = engine.connect(); c.execute(text('ALTER TABLE clima_diario DROP COLUMN IF EXISTS mp2_5, DROP COLUMN IF EXISTS mp10')); c.commit()"
+  ```
+
+  Alternativa con `psql`, si lo tiene a mano. En Mac con Homebrew funciona directo; en Windows suele hacer
+  falta indicar la ruta de `psql.exe` y el usuario (`-U postgres`):
+
+  ```bash
+  psql hospital_db -c "ALTER TABLE clima_diario DROP COLUMN IF EXISTS mp2_5, DROP COLUMN IF EXISTS mp10;"
+  ```
+
+Esto borra solo valores de contaminación que se pueden volver a pedir a Open-Meteo.
 
 ## Endpoints principales
 
@@ -170,7 +228,7 @@ Salvo login, `/` y `/api/healthcheck`, las rutas requieren JWT.
   DEIS. Complete el catálogo con códigos y tipos reales.
 - Los `PUT` diarios reemplazan la fila, no suman valores. El PUT climático
   deja en `NULL` los valores omitidos. No hay carga automática desde DEIS.
-- El clima del modelo es regional. `GET /api/establecimientos/{id}/clima` consulta Open-Meteo en un punto fijo por región (su capital, `REGION_COORDS`) y guarda en `clima_diario` el resumen (mín, máx, lluvia, promedio de MP2.5 y MP10) de cada día completo del pronóstico, reemplazando lo que hubiera para ese día. Responde 409 si la región no tiene punto de consulta.
+- El clima del modelo es regional. `GET /api/establecimientos/{id}/clima` consulta Open-Meteo en un punto fijo por región (su capital, `REGION_COORDS`) y guarda en `clima_diario` el resumen (mín, máx y lluvia) de cada día completo del pronóstico, reemplazando lo que hubiera para ese día. La contaminación (MP2.5 y MP10) no se guarda: solo se muestra, en la ruta de clima y en la proyección. Responde 409 si la región no tiene punto de consulta.
 - `POST /api/predict` usa el modelo **v6 E2** (`modelo-v6-e2`, 27 variables).
   El backend deriva Pred_E1, estacionalidad, one-hot de región y tipo, y
   `Frio_Polar_Flag` (temp_min ≤ 2 °C). Quien consulta aporta `fecha`, `region`,

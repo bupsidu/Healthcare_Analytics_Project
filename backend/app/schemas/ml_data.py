@@ -89,8 +89,6 @@ class ClimateInput(BaseModel):
     temp_min: float | None = None
     temp_max: float | None = None
     precipitacion_mm: float | None = Field(default=None, ge=0)
-    mp2_5: float | None = Field(default=None, ge=0, description="Promedio diario de MP2.5 (µg/m³)")
-    mp10: float | None = Field(default=None, ge=0, description="Promedio diario de MP10 (µg/m³)")
 
     model_config = ConfigDict(extra="forbid", from_attributes=True, allow_inf_nan=False)
 

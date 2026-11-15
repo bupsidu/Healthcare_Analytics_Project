@@ -106,8 +106,8 @@ def store_daily_climate(db: Session, region: str, forecast: ClimateResponse) -> 
             if row is None:
                 row = DailyClimate(region=region, fecha=day["fecha"])
                 db.add(row)
-            for key, value in day.items():
-                setattr(row, key, value)
+            for key in ("temp_min", "temp_max", "precipitacion_mm"):  # la contaminación no se guarda
+                setattr(row, key, day[key])
         db.commit()
     except SQLAlchemyError:
         db.rollback()

@@ -194,7 +194,7 @@ class RolesTests(unittest.TestCase):
         self.assertEqual([(r.region, str(r.fecha)) for r in rows],
                          [("Metropolitana", "2026-11-16"), ("Metropolitana", "2026-11-17"), ("Metropolitana", "2026-11-18")])
         self.assertEqual((float(rows[0].temp_min), float(rows[0].temp_max), float(rows[0].precipitacion_mm)), (0.0, 23.0, 24.0))
-        self.assertEqual((float(rows[0].mp2_5), float(rows[0].mp10)), (1.0, 1.0))  # promedio diario de la contaminación
+        self.assertFalse(hasattr(DailyClimate, "mp2_5"))  # la contaminación no se guarda en la base
 
     def test_projection_predicts_provisionally_only_days_with_demand(self):
         seen = []

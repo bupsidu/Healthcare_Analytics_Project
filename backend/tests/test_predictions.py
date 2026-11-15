@@ -90,7 +90,7 @@ class PredictionTests(unittest.TestCase):
         Base.metadata.create_all(self.engine)
         self.db = Session(self.engine)
         self.db.add(Establishment(id=1, nombre="Prueba", comuna="Santiago", region="Metropolitana",
-                                  id_establecimiento="99-001", tipo="Hospital"))
+                                  id_establecimiento="14-103", tipo="Hospital"))
         self.db.commit()
         self.previous_overrides = app.dependency_overrides.copy()
         app.dependency_overrides[get_current_user] = lambda: SimpleNamespace(role="admin", establecimiento=None)
@@ -159,7 +159,7 @@ class PredictionTests(unittest.TestCase):
         self.assertEqual(status, 200)
         rows = self.db.query(StoredPrediction).all()
         self.assertEqual(len(rows), 1)
-        self.assertEqual((rows[0].id_establecimiento, rows[0].modelo_version), ("99-001", TEST_RELEASE))
+        self.assertEqual((rows[0].id_establecimiento, rows[0].modelo_version), ("14-103", TEST_RELEASE))
         self.assertEqual(rows[0].pacientes_predichos, 41)
 
     def test_prediction_without_establishment_code_is_not_saved(self):
