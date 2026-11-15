@@ -3,21 +3,28 @@ import React, { useState, useEffect } from 'react'
 import Navbar from './Navbar'
 import LiveStatusBar from './LiveStatusBar'
 import Footer from './Footer'
+import TriageSection from '../triage/TriageSection'
 import { establishmentService } from '../../services/establishmentService'
 
 export default function MainLayout({ usuario, onLogout, children }) {
-  const [periodo, setPeriodo] = useState('semanal')
   const [establecimiento, setEstablecimiento] = useState(null)
   const [cargandoCentro, setCargandoCentro] = useState(true)
+  const [fechaActual, setFechaActual] = useState(new Date())
 
-  // 1. Obtener fecha y hora real en vivo en formato chileno
-  const ahora = new Date()
-  const horaActual = ahora.toLocaleTimeString('es-CL', {
+  // Actualización automática del reloj en tiempo real cada 30 segundos
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setFechaActual(new Date())
+    }, 30000)
+    return () => clearInterval(timer)
+  }, [])
+
+  const horaActual = fechaActual.toLocaleTimeString('es-CL', {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
   })
-  const fechaTexto = ahora.toLocaleDateString('es-CL', {
+  const fechaTexto = fechaActual.toLocaleDateString('es-CL', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
@@ -49,11 +56,8 @@ export default function MainLayout({ usuario, onLogout, children }) {
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800">
       <Navbar usuario={usuario} establecimiento={establecimiento} onLogout={onLogout} />
       
-      {/* Pasa la hora calculada dinámicamente */}
       <LiveStatusBar
         establecimiento={establecimiento}
-        periodo={periodo}
-        onPeriodoChange={setPeriodo}
         ultimaActualizacion={horaActual}
       />
 
@@ -61,7 +65,8 @@ export default function MainLayout({ usuario, onLogout, children }) {
         {children ? (
           children
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-10">
+            {/* Espacio Superior Reservado para el Dashboard (Tareas 4.3 y 4.4) */}
             <section className="p-8 rounded-3xl bg-white border border-dashed border-slate-300 text-center">
               <span className="inline-block px-3 py-1 rounded-full bg-clinical-50 text-clinical-700 text-xs font-semibold mb-2">
                 Espacio Superior (Slide 15)
@@ -72,20 +77,12 @@ export default function MainLayout({ usuario, onLogout, children }) {
               </p>
             </section>
 
-            <section className="p-8 rounded-3xl bg-white border border-dashed border-slate-300 text-center">
-              <span className="inline-block px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold mb-2">
-                Espacio Inferior (Slide 16)
-              </span>
-              <h2 className="text-lg font-bold text-slate-800">Registro de Consulta / Triage</h2>
-              <p className="text-xs text-slate-500 mt-1 max-w-lg mx-auto">
-                Aquí vivirá el formulario clínico para registrar atenciones por rango etario y diagnóstico, junto a la tabla de atenciones del turno en tiempo real.
-              </p>
-            </section>
+            {/* SECCIÓN INFERIOR: Tarea 4.2 completada (Formulario de Triage + Tabla de Sesión) */}
+            <TriageSection establecimiento={establecimiento} />
           </div>
         )}
       </main>
 
-      {/* Pasa la fecha completa dinámica */}
       <Footer establecimiento={establecimiento} fechaDatos={fechaDatos} />
     </div>
   )

@@ -1,10 +1,9 @@
 // frontend/src/components/layout/LiveStatusBar.jsx
 import React from 'react'
+import { Calendar } from 'lucide-react'
 
 export default function LiveStatusBar({
   establecimiento,
-  periodo = 'semanal',
-  onPeriodoChange,
   ultimaActualizacion = '08:42',
 }) {
   return (
@@ -30,30 +29,10 @@ export default function LiveStatusBar({
           </p>
         </div>
 
-        {/* Toggle Semanal / Mensual */}
-        <div className="inline-flex self-start md:self-auto p-1 rounded-xl bg-slate-100 border border-slate-200/80">
-          <button
-            type="button"
-            onClick={() => onPeriodoChange && onPeriodoChange('semanal')}
-            className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
-              periodo === 'semanal'
-                ? 'bg-clinical-700 text-white shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Semanal
-          </button>
-          <button
-            type="button"
-            onClick={() => onPeriodoChange && onPeriodoChange('mensual')}
-            className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
-              periodo === 'mensual'
-                ? 'bg-clinical-700 text-white shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Mensual
-          </button>
+        {/* Indicador de Vista: Semanal (Fijo según regla de negocio, sin toggle mensual) */}
+        <div className="inline-flex items-center gap-2 self-start md:self-auto px-3.5 py-1.5 rounded-xl bg-slate-100 border border-slate-200/80 text-xs font-semibold text-slate-700 shadow-2xs">
+          <Calendar className="w-3.5 h-3.5 text-clinical-600" />
+          <span>Vista Semanal</span>
         </div>
 
       </div>
