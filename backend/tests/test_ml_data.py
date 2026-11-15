@@ -126,22 +126,21 @@ class MLDataTests(unittest.TestCase):
 
     def test_climate_put_preserves_nulls_and_replaces(self):
         body = {"region": " Metropolitana ", "fecha": "2026-10-13", "temp_min": 1.5,
-                "temp_max": 14.2, "precipitacion_mm": None, "mp2_5": 12.5, "mp10": 30}
+                "temp_max": 14.2, "precipitacion_mm": None}
         status, data = self.call("/api/clima/diario", "PUT", body)
-        self.assertEqual((status, data["mp2_5"], data["mp10"]), (201, 12.5, 30))
+        self.assertEqual(status, 201)
         self.assertEqual(data["region"], "Metropolitana")
         self.assertIsNone(data["precipitacion_mm"])
         status, data = self.call("/api/clima/diario", "PUT", {"region": "Metropolitana", "fecha": "2026-10-13"})
         self.assertEqual(status, 200)
         self.assertIsNone(data["temp_min"])
-        self.assertIsNone(data["mp2_5"])
         self.assertEqual(self.db.query(DailyClimate).count(), 1)
         status, data = self.call("/api/clima/historial", query={"region": "Metropolitana"})
         self.assertEqual(data["total"], 1)
 
     def test_climate_validation(self):
         base = {"region": "Metropolitana", "fecha": "2026-10-13"}
-        for fields in ({"temp_min": 20, "temp_max": 1}, {"precipitacion_mm": -1}, {"region": " "}, {"mp2_5": -1}, {"mp10": -1}, {"extra": 1},
+        for fields in ({"temp_min": 20, "temp_max": 1}, {"precipitacion_mm": -1}, {"region": " "}, {"mp2_5": 10}, {"extra": 1},  # la contaminación ya no es un campo
                        {"temp_min": float("nan")}, {"temp_max": float("inf")}):
             self.assertEqual(self.call("/api/clima/diario", "PUT", {**base, **fields})[0], 422)
 

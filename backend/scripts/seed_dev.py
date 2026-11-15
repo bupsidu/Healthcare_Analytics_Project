@@ -29,36 +29,47 @@ LOCAL_HOSTS = {"localhost", "127.0.0.1", "::1", "db"}
 ADMIN_EMAIL = "adminbot@adminhospitalario.cl"
 DOCTOR_PASSWORD = "123456789"  # solo desarrollo; los médicos de prueba no tienen poder de admin
 
-# Códigos 99-xxx: inventados, para que no choquen con códigos DEIS reales (regiones 01 a 16).
+# Un establecimiento REAL por región de las 8 que conoce el modelo v6 (código DEIS, región y tipo
+# tal como salen de Modelo/artifacts/cuotas_establecimiento_v5.csv y Modelo/data/sample; el nombre
+# es EXACTO al de la base del modelo, incluido el "(comuna)" final, a pedido de ML). Los
+# dominios de correo son de prueba. La capacidad de camas se deja vacía porque no la tenemos:
+# completarla con el catálogo oficial. Antofagasta y Atacama no figuran en el CSV de cuotas
+# (no tenían datos de 2024); el modelo las trata con una cuota de reemplazo.
 HOSPITALS = [
-    {"nombre": "Hospital de Prueba", "comuna": "Santiago", "region": "Metropolitana", "capacidad_camas": 100,
-     "id_establecimiento": "99-001", "tipo": "Hospital", "dominio_correo": "hospitalprueba.cl"},
-    {"nombre": "Hospital Demo", "comuna": "Santiago", "region": "Metropolitana", "capacidad_camas": 50,
-     "id_establecimiento": "99-002", "tipo": "Hospital", "dominio_correo": "hospitaldemo.cl"},
-    # Establecimientos REALES que el modelo v6 conoce (código DEIS, región y tipo tal como salen de
-    # Modelo/artifacts/cuotas_establecimiento_v5.csv y Modelo/data/sample). Los dominios de correo
-    # son de prueba. La capacidad de camas se deja vacía porque no la tenemos: completarla con el
-    # catálogo oficial.
-    {"nombre": "Hospital Padre Alberto Hurtado", "comuna": "San Ramón", "region": "Metropolitana",
+    {"nombre": "Hospital Padre Alberto Hurtado (San Ramón)", "comuna": "San Ramón", "region": "Metropolitana",
      "capacidad_camas": None, "id_establecimiento": "14-103", "tipo": "Hospital",
      "dominio_correo": "hospitalhurtado.cl"},
     {"nombre": "Hospital de Pichilemu", "comuna": "Pichilemu", "region": "O'Higgins",
      "capacidad_camas": None, "id_establecimiento": "15-112", "tipo": "Hospital",
      "dominio_correo": "hospitalpichilemu.cl"},
-    {"nombre": "SAPU Curicó Centro", "comuna": "Curicó", "region": "Maule",
-     "capacidad_camas": None, "id_establecimiento": "16-803", "tipo": "SAPU",
-     "dominio_correo": "sapucurico.cl"},
-    {"nombre": "Hospital Regional Dr. Juan Noé Crevani", "comuna": "Arica", "region": "Arica y Parinacota",
+    {"nombre": "Hospital Regional Dr. Juan Noé Crevani (Arica)", "comuna": "Arica", "region": "Arica y Parinacota",
      "capacidad_camas": None, "id_establecimiento": "01-100", "tipo": "Hospital",
      "dominio_correo": "hospitalarica.cl"},
+    {"nombre": "Hospital Dr. Carlos Cisternas (Calama)", "comuna": "Calama", "region": "Antofagasta",
+     "capacidad_camas": None, "id_establecimiento": "03-101", "tipo": "Hospital",
+     "dominio_correo": "hospitalcalama.cl"},
+    {"nombre": "Hospital Dr. Jerónimo Méndez Arancibia (Chañaral)", "comuna": "Chañaral", "region": "Atacama",
+     "capacidad_camas": None, "id_establecimiento": "04-101", "tipo": "Hospital",
+     "dominio_correo": "hospitalchanaral.cl"},
+    {"nombre": "Hospital San Pablo (Coquimbo)", "comuna": "Coquimbo", "region": "Coquimbo",
+     "capacidad_camas": None, "id_establecimiento": "05-101", "tipo": "Hospital",
+     "dominio_correo": "hospitalcoquimbo.cl"},
+    {"nombre": "Hospital Clínico de Magallanes Dr. Lautaro Navarro Avaria", "comuna": "Punta Arenas",
+     "region": "Magallanes", "capacidad_camas": None, "id_establecimiento": "26-100", "tipo": "Hospital",
+     "dominio_correo": "hospitalmagallanes.cl"},
+    {"nombre": "Hospital de Molina", "comuna": "Molina", "region": "Maule",
+     "capacidad_camas": None, "id_establecimiento": "16-102", "tipo": "Hospital",
+     "dominio_correo": "hospitalmolina.cl"},
 ]
 DOCTORS = [
-    ("medico1@hospitalprueba.cl", "Medico Uno", "99-001"),
-    ("medico2@hospitaldemo.cl", "Medico Dos", "99-002"),
     ("medico3@hospitalhurtado.cl", "Medico Tres", "14-103"),
     ("medico4@hospitalpichilemu.cl", "Medico Cuatro", "15-112"),
-    ("medico5@sapucurico.cl", "Medico Cinco", "16-803"),
     ("medico6@hospitalarica.cl", "Medico Seis", "01-100"),
+    ("medico7@hospitalcalama.cl", "Medico Siete", "03-101"),
+    ("medico8@hospitalchanaral.cl", "Medico Ocho", "04-101"),
+    ("medico9@hospitalcoquimbo.cl", "Medico Nueve", "05-101"),
+    ("medico10@hospitalmagallanes.cl", "Medico Diez", "26-100"),
+    ("medico11@hospitalmolina.cl", "Medico Once", "16-102"),
 ]
 
 
@@ -71,13 +82,10 @@ def ensure_schema(eng) -> list[str]:
     if eng.dialect.name != "postgresql":
         return []
     insp = inspect(eng)
-    columns = {t: {c["name"] for c in insp.get_columns(t)} for t in ("usuarios", "establecimientos", "clima_diario")}
+    columns = {t: {c["name"] for c in insp.get_columns(t)} for t in ("usuarios", "establecimientos")}
     with eng.begin() as conn:
         constraints = {row[0] for row in conn.execute(text("SELECT conname FROM pg_constraint"))}
         steps = []
-        for column in ("mp2_5", "mp10"):
-            if column not in columns["clima_diario"]:
-                steps.append(f"ALTER TABLE clima_diario ADD COLUMN {column} NUMERIC")
         if "dominio_correo" not in columns["establecimientos"]:
             steps.append("ALTER TABLE establecimientos ADD COLUMN dominio_correo VARCHAR(255)")
         if "uq_establecimientos_dominio_correo" not in constraints:

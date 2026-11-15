@@ -22,8 +22,6 @@ class DailyClimate(Base):
     temp_min = Column(Numeric, nullable=True)
     temp_max = Column(Numeric, nullable=True)
     precipitacion_mm = Column(Numeric, nullable=True)
-    mp2_5 = Column(Numeric, nullable=True)
-    mp10 = Column(Numeric, nullable=True)
 
 
 class StoredPrediction(Base):

@@ -30,9 +30,9 @@ class SeedTests(unittest.TestCase):
         admin = self.db.query(User).filter_by(email=ADMIN_EMAIL).one()
         self.assertEqual((admin.role, admin.establecimiento_id), ("admin", None))
         self.assertTrue(verify_password("ClaveAdmin1", admin.hashed_password))
-        doctor = self.db.query(User).filter_by(email="medico1@hospitalprueba.cl").one()
+        doctor = self.db.query(User).filter_by(email="medico3@hospitalhurtado.cl").one()
         self.assertEqual(doctor.role, "medico")
-        self.assertEqual(doctor.establecimiento.dominio_correo, "hospitalprueba.cl")
+        self.assertEqual(doctor.establecimiento.dominio_correo, "hospitalhurtado.cl")
         self.assertTrue(verify_password(DOCTOR_PASSWORD, doctor.hashed_password))
 
     def test_seed_can_run_twice_without_duplicates_or_overwriting(self):
@@ -53,13 +53,16 @@ class SeedTests(unittest.TestCase):
             with shares.open(encoding="utf-8") as f:
                 known = {row["IdEstablecimiento"].strip(): row["Region"] for row in csv.DictReader(f)}
         regions, types = {r.value for r in MlRegion}, {t.value for t in EstablishmentType}
+        no_quota_file = {"Antofagasta", "Atacama"}  # sin datos de 2024: no figuran en el CSV de cuotas
         for h in HOSPITALS:
             with self.subTest(hospital=h["id_establecimiento"]):
                 self.assertIn(h["region"], regions)
                 self.assertIn(h["tipo"], types)
-                if not h["id_establecimiento"].startswith("99-") and known:
+                if known and h["region"] not in no_quota_file:
                     self.assertEqual(known.get(h["id_establecimiento"]), h["region"])
-        self.assertGreaterEqual(len({h["id_establecimiento"] for h in HOSPITALS}), 3)
+        self.assertEqual({h["region"] for h in HOSPITALS}, regions)  # uno por cada región del modelo
+        self.assertEqual(len({h["id_establecimiento"] for h in HOSPITALS}), len(HOSPITALS))
+        self.assertEqual(len({h["dominio_correo"] for h in HOSPITALS}), len(HOSPITALS))
 
     def test_only_admin_creates_no_hospitals_or_doctors(self):
         self.assertEqual(seed(self.db, "ClaveAdmin1", only_admin=True), {"hospitales": 0, "usuarios": 1})

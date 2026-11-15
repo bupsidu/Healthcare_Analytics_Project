@@ -23,7 +23,7 @@ PREDICTION_EXAMPLE = {
     "fecha": "2025-07-15",
     "region": "Metropolitana",
     "tipo_establecimiento": "Hospital",
-    "id_establecimiento": "99-001",
+    "id_establecimiento": "14-103",
     "total_lag_4": 40,
     "share_trailing": 0.05,
     "pred_region": 800,
