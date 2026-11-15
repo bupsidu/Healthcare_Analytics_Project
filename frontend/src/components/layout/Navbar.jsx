@@ -25,24 +25,17 @@ export default function Navbar({ usuario, establecimiento, onLogout }) {
           </div>
         </div>
 
-        {/* Pestañas de Navegación Tipo Pastilla */}
+        {/* Pestañas de Navegación (Sin Configuración) */}
         <nav className="hidden md:flex items-center gap-1 bg-slate-50/80 p-1 rounded-xl border border-slate-200/60">
           <span className="px-4 py-1.5 text-xs font-semibold rounded-lg bg-clinical-100 text-clinical-800 shadow-2xs">
             Dashboard & Triage
           </span>
           <button
             type="button"
-            onClick={() => alert('Módulo de reportes epidemiológicos.')}
+            onClick={() => alert('Módulo de reportes epidemiológicos MINSAL.')}
             className="px-4 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-lg cursor-pointer transition"
           >
             Reportes
-          </button>
-          <button
-            type="button"
-            onClick={() => alert('Configuración general del centro de salud.')}
-            className="px-4 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-lg cursor-pointer transition"
-          >
-            Configuración
           </button>
         </nav>
 
