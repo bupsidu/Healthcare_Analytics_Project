@@ -16,6 +16,11 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 480
+    # Swagger (/docs) y el esquema OpenAPI. Encendido por defecto mientras se desarrolla;
+    # antes de publicar la API en internet, poner ENABLE_DOCS=false.
+    ENABLE_DOCS: bool = True
+    # Solo para scripts/seed_dev.py (base local de desarrollo); la API no lo usa.
+    SEED_ADMIN_PASSWORD: str | None = None
 
     # Configuración Base de Datos PostgreSQL
     POSTGRES_SERVER: str = "localhost"

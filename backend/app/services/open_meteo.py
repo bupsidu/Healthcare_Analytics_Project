@@ -29,6 +29,49 @@ AIR_FIELDS = {
 }
 
 
+# El clima del modelo es regional (tabla clima_diario: una fila por región y día), así que cada
+# región se consulta en un punto fijo: su capital regional (aproximado).
+REGION_COORDS = {
+    "Antofagasta": (-23.6509, -70.3975),
+    "Arica y Parinacota": (-18.4783, -70.3126),
+    "Atacama": (-27.3668, -70.3314),
+    "Coquimbo": (-29.9027, -71.2519),
+    "Magallanes": (-53.1638, -70.9171),
+    "Maule": (-35.4264, -71.6554),
+    "Metropolitana": (-33.4489, -70.6693),
+    "O'Higgins": (-34.1708, -70.7444),
+}
+
+
+def daily_summaries(forecast: ClimateResponse) -> list[dict[str, Any]]:
+    """Resume el pronóstico horario por día: temp. mínima, máxima, lluvia total y promedio de MP2.5 y MP10.
+
+    Solo incluye días completos (24 horas); un día cortado a medias daría mínimas y máximas falsas.
+    Si a un día le falta algún dato de un campo, ese campo queda en None (no se inventan ceros).
+    """
+    by_day: dict[Any, list] = {}
+    for hour in forecast.pronostico_horario:
+        by_day.setdefault(hour.fecha_hora.date(), []).append(hour)
+    summaries = []
+    for day, hours in sorted(by_day.items()):
+        if len(hours) != 24:
+            continue
+        temps = [h.temperatura_c for h in hours]
+        rain = [h.precipitacion_mm for h in hours]
+        pm25 = [h.pm2_5_ug_m3 for h in hours]
+        pm10 = [h.pm10_ug_m3 for h in hours]
+        complete = lambda values: None not in values  # noqa: E731
+        summaries.append({
+            "fecha": day,
+            "temp_min": min(temps) if complete(temps) else None,
+            "temp_max": max(temps) if complete(temps) else None,
+            "precipitacion_mm": round(sum(rain), 2) if complete(rain) else None,
+            "mp2_5": round(sum(pm25) / 24, 2) if complete(pm25) else None,
+            "mp10": round(sum(pm10) / 24, 2) if complete(pm10) else None,
+        })
+    return summaries
+
+
 class OpenMeteoError(Exception):
     """El proveedor no está disponible o devolvió datos inválidos."""
 

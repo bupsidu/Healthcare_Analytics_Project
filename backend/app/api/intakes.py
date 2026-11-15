@@ -2,7 +2,7 @@ from datetime import date
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, hospital_scope
 from app.db.session import get_db
 from app.models.establishment import Establishment
 from app.models.intake import DailyIntake
@@ -24,7 +24,14 @@ def registrar_ingreso_diario(
     intake_in: IntakeCreate,
     db: Session = Depends(get_db),
     usuario_actual: User = Depends(get_current_user),
+    hospital: Establishment | None = Depends(hospital_scope),
 ):
+    # Un médico solo puede registrar ingresos de su propio hospital.
+    if hospital is not None and intake_in.establecimiento_id != hospital.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Solo puede registrar ingresos de su propio hospital",
+        )
     establecimiento = (
         db.query(Establishment)
         .filter(Establishment.id == intake_in.establecimiento_id)
@@ -65,13 +72,21 @@ def listar_historial_ingresos(
     skip: int = Query(default=0, ge=0),
     limit: int = Query(default=50, ge=1, le=100),
     db: Session = Depends(get_db),
-    _: User = Depends(get_current_user),
+    hospital: Establishment | None = Depends(hospital_scope),
 ):
     if fecha_desde and fecha_hasta and fecha_desde > fecha_hasta:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="fecha_desde no puede ser posterior a fecha_hasta",
         )
+    # Un médico solo ve su hospital: se ignora cualquier otro que pida.
+    if hospital is not None:
+        if establecimiento_id is not None and establecimiento_id != hospital.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Solo puede consultar datos de su propio hospital",
+            )
+        establecimiento_id = hospital.id
 
     query = db.query(DailyIntake)
     if establecimiento_id is not None:
