@@ -5,6 +5,7 @@ import LiveStatusBar from './LiveStatusBar'
 import Footer from './Footer'
 import TriageSection from '../triage/TriageSection'
 import { establishmentService } from '../../services/establishmentService'
+import DashboardSection from '../dashboard/DashboardSection'
 
 export default function MainLayout({ usuario, onLogout, children }) {
   const [establecimiento, setEstablecimiento] = useState(null)
@@ -66,16 +67,8 @@ export default function MainLayout({ usuario, onLogout, children }) {
           children
         ) : (
           <div className="space-y-10">
-            {/* Espacio Superior Reservado para el Dashboard (Tareas 4.3 y 4.4) */}
-            <section className="p-8 rounded-3xl bg-white border border-dashed border-slate-300 text-center">
-              <span className="inline-block px-3 py-1 rounded-full bg-clinical-50 text-clinical-700 text-xs font-semibold mb-2">
-                Espacio Superior (Slide 15)
-              </span>
-              <h2 className="text-lg font-bold text-slate-800">Dashboard de Demanda 96h</h2>
-              <p className="text-xs text-slate-500 mt-1 max-w-lg mx-auto">
-                Aquí vivirán las 3 tarjetas KPI (Afluencia estimada hoy, Alerta climática e ICA) y el gráfico interactivo Recharts proyectando las próximas 96 horas.
-              </p>
-            </section>
+            {/* SECCIÓN SUPERIOR: Métricas Clave en Vivo (Tarea 4.3) */}
+            <DashboardSection establecimiento={establecimiento} />
 
             {/* SECCIÓN INFERIOR: Tarea 4.2 completada (Formulario de Triage + Tabla de Sesión) */}
             <TriageSection establecimiento={establecimiento} />

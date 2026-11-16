@@ -51,11 +51,9 @@ export default function TriageSection({ establecimiento }) {
   const [mensajeExito, setMensajeExito] = useState(false)
   const [errorServidor, setErrorServidor] = useState('')
 
-  // Historial real de atenciones en PostgreSQL
   const [registros, setRegistros] = useState([])
   const [cargandoHistorial, setCargandoHistorial] = useState(true)
 
-  // Cargar las atenciones reales desde PostgreSQL vía GET /api/ingresos
   const recargarHistorial = async () => {
     if (!establecimiento?.id) {
       setCargandoHistorial(false)
@@ -67,8 +65,6 @@ export default function TriageSection({ establecimiento }) {
       const formateados = (datos || []).map((item) => {
         const fechaStr = formatearFechaHora(item.fecha, item.created_at)
         const etiquetaGrupo = RANGOS_ETARIOS.find((r) => r.value === item.grupo_etario)?.label || item.grupo_etario
-
-        // Recuperar diagnóstico específico de la sesión si fue guardado en este navegador
         const causaGuardada = sessionStorage.getItem(`ingreso_causa_${item.id}`) || 'Patología Respiratoria'
 
         return {
@@ -80,7 +76,7 @@ export default function TriageSection({ establecimiento }) {
       })
       setRegistros(formateados)
     } catch (err) {
-      console.error('Error al sincronizar historial con PostgreSQL:', err)
+      console.error('Error al sincronizar historial:', err)
     } finally {
       setCargandoHistorial(false)
     }
@@ -98,44 +94,42 @@ export default function TriageSection({ establecimiento }) {
     return Object.keys(err).length === 0
   }
 
-    const handleRegistrar = async (e) => {
+  const handleRegistrar = async (e) => {
     e.preventDefault()
     setErrorServidor('')
     setMensajeExito(false)
 
     if (!validar()) return
 
-    // Validación estricta: No asumir IDs ficticios
     if (!establecimiento?.id) {
-      setErrorServidor('No se puede registrar la atención: no hay un establecimiento de salud asociado en la base de datos.')
+      setErrorServidor('No se puede registrar la atención: la cuenta no tiene un centro de salud asignado. Contacte a la administración.')
       return
     }
 
     setGuardando(true)
 
     try {
-      // 1. Guardar en PostgreSQL vía POST /api/ingresos con el ID real
       const nuevo = await intakeService.registrarIngreso({
         establecimientoId: establecimiento.id,
         grupoEtario: grupoEtario,
         casos: 1,
       })
 
-      // Guardar causa seleccionada para este ID en la sesión
       if (nuevo?.id) {
         sessionStorage.setItem(`ingreso_causa_${nuevo.id}`, causaConsulta)
       }
 
-      // 2. Recargar inmediatamente la lista desde PostgreSQL
       await recargarHistorial()
       setMensajeExito(true)
 
-      // 3. Limpiar formulario
       setGrupoEtario('')
       setCausaConsulta('')
       setTimeout(() => setMensajeExito(false), 3500)
     } catch (err) {
-      setErrorServidor(err.message || 'Error al conectar con la base de datos.')
+      const mensaje = err.message?.includes('fetch')
+        ? 'No se pudo conectar con el servidor central. Verifique su conexión de red.'
+        : err.message || 'No fue posible guardar la atención. Por favor intente nuevamente.'
+      setErrorServidor(mensaje)
     } finally {
       setGuardando(false)
     }
@@ -176,9 +170,9 @@ export default function TriageSection({ establecimiento }) {
             )}
 
             {mensajeExito && (
-              <div className="mb-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-center gap-2">
+              <div className="mb-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-center gap-2 animate-in fade-in">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>Consulta registrada y persistida en PostgreSQL exitosamente.</span>
+                <span>Atención clínica registrada exitosamente.</span>
               </div>
             )}
 
@@ -224,15 +218,15 @@ export default function TriageSection({ establecimiento }) {
           </Card>
         </div>
 
-        {/* Historial en Tiempo Real desde PostgreSQL (Columna Derecha) */}
+        {/* Historial en Tiempo Real (Columna Derecha) */}
         <div className="lg:col-span-7">
           <Card className="!p-6">
             
             <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
               <div>
-                <h3 className="text-sm font-bold text-slate-900">Registros de sesión</h3>
+                <h3 className="text-sm font-bold text-slate-900">Atenciones de la jornada</h3>
                 <p className="text-xs text-slate-500">
-                  Consultas almacenadas en PostgreSQL para este centro
+                  Historial de pacientes ingresados en este centro
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -240,7 +234,7 @@ export default function TriageSection({ establecimiento }) {
                   type="button"
                   onClick={recargarHistorial}
                   disabled={cargandoHistorial}
-                  title="Sincronizar con PostgreSQL"
+                  title="Actualizar lista de atenciones"
                   className="p-1 text-slate-400 hover:text-clinical-700 transition rounded-lg hover:bg-slate-100 disabled:opacity-50"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${cargandoHistorial ? 'animate-spin text-clinical-600' : ''}`} />
@@ -254,7 +248,7 @@ export default function TriageSection({ establecimiento }) {
             {cargandoHistorial && registros.length === 0 ? (
               <div className="py-10 text-center text-slate-400 text-xs flex flex-col items-center gap-2">
                 <div className="w-5 h-5 border-2 border-clinical-600 border-t-transparent rounded-full animate-spin" />
-                <span>Sincronizando registros con PostgreSQL...</span>
+                <span>Cargando atenciones registradas...</span>
               </div>
             ) : registros.length === 0 ? (
               <div className="py-10 text-center text-slate-400 text-xs flex flex-col items-center gap-2">
