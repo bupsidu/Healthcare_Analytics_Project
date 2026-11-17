@@ -52,6 +52,12 @@ Modelo/data/*.parquet
 Modelo/models/*.joblib
 Modelo/artifacts/model_rf_directo_v*.joblib
 
+# `Modelo/models/` es un espejo local de trabajo (copiado desde el workspace
+# de entrenamiento). TODO su contenido está ya versionado en `Modelo/artifacts/`
+# (metadata, cuotas, features) o se regenera con los scripts. Por eso se ignora
+# entero: evita (a) duplicar la metadata, (b) subir respaldos *.bak de 43 MB.
+Modelo/models/
+
 # Entornos y caché dentro de Modelo/
 Modelo/.venv/
 Modelo/**/__pycache__/
