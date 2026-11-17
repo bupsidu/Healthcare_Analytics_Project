@@ -1,4 +1,15 @@
-# Reporte del modelo — v6 (versión actual)
+# Reporte del modelo — v6 E2 (release publicado; **vigente: v11**)
+
+> **Actualización (2026-11-16):** la versión vigente es **v11** (modelo directo
+> con tendencia regional, patrón semanal y ventanas móviles del establecimiento),
+> con **MAE 6,7874 / RMSE 10,0102 / R2 0,8283 / sesgo +2,57%** en test 2025
+> (n = 226.003), sobre **16/16 regiones**. Ver `model_evolution.md` secciones
+> v8–v11 y `ENTREGA/EVOLUCION.md` para el relato completo.
+>
+> Este reporte describe el **v6 E2**, que sigue siendo el artefacto publicado en
+> el release `modelo-v6-e2`. Las cifras de v6 E2 (MAE 9,334) corresponden a
+> 8 regiones; desde v7 el dataset tiene cobertura completa y las métricas no son
+> directamente comparables entre sí.
 
 ## Objetivo
 Predecir la demanda diaria en urgencias respiratorias por establecimiento, con
@@ -7,8 +18,8 @@ Predecir la demanda diaria en urgencias respiratorias por establecimiento, con
 ## Datos
 - Entrenamiento: 2024
 - Prueba: 2025 (split temporal, nunca se mezclan años)
-- Regiones: 8
-- Establecimientos: 339
+- Regiones: 8 (en v6 E2; el dataset actual cubre 16/16)
+- Establecimientos: 339 (en v6 E2; actualmente 657)
 - Evaluación a nivel **establecimiento + día** (el dataset DEIS tiene ~4 filas
   por establecimiento+fecha, una por causa respiratoria; la demanda real es la
   suma).
@@ -47,12 +58,35 @@ el del tuner.
 | v5 (dos etapas, cuota fija) | 14.763 | 22.981 | 0.141 | +21.01% |
 | v6 E1 (dos etapas, cuota trailing) | 13.808 | 22.262 | 0.1939 | +21.73% |
 | Exploratoria post-hoc (sin contam. + `Anom_TempMin`) | 12.785 | 20.330 | 0.3277 | +11.32% |
-| **v6 E2 (modelo directo — actual)** | **9.334** | **13.048** | **0.7231** | **+9.77%** |
+| **v6 E2 (modelo directo — release publicado)** | **9.334** | **13.048** | **0.7231** | **+9.77%** |
+| v7 (fix de features climáticas, 8 reg.) | 9.301 | 13.010 | 0.7250 | +8.78% |
+| v7 con 16 regiones | 8.550 | 12.369 | 0.7378 | +5.69% |
+| v8 (+ tendencia regional) | 8.009 | 11.713 | 0.7648 | +4.17% |
+| v9 (+ patrón semanal) | 7.236 | 10.622 | 0.8066 | +4.25% |
+| v10 (+ feriados, rechazada) | 7.251 | 10.638 | 0.8060 | +4.54% |
+| **v11 (vigente)** | **6.787** | **10.010** | **0.8283** | **+2.57%** |
 
 E2 gana en las 4 métricas frente a v5 (MAE −36%, R² ×5.1) y también frente a
 la mejor exploratoria. Importancias top: `Pred_E1` 0.311, `Total_Lag_4` 0.304,
 `Share_Trailing` 0.113 — el modelo aprendió a **corregir** el sistema
 dos-etapas usando la demanda reciente.
+
+**Ablación sin persistencia — declaración honesta (v7-ab, 2026-11-15):**
+quitar las 4 features de persistencia (`Total_Lag_4`, `Share_Trailing`,
+`Pred_Region`, `Pred_E1`) del mismo v7 (mismo split, mismos hiperparámetros y
+semilla, n = 118.308) hace que el R² **caiga de 0,7250 a 0,4237** y el MAE
+suba de 9,3011 a 14,0248; quitando además la estacionalidad de calendario
+(`Doy`/`Doy_Sin`/`Doy_Cos`), el R² **cae hasta 0,4052** (MAE 14,3812).
+Declaración: el desempeño de v7 **requiere** la persistencia de la demanda —
+es la diferencia observable entre 0,7250 y 0,4237 en este test —, pero no lo
+explica solo: sin ella, clima + calendario + tipo aún sostienen R² 0,4237
+(por encima de v5, 0,1410), y la caída de apenas 0,0185 al quitar `Doy*`
+muestra que **la estacionalidad de calendario no es el motor** de ese resto —
+lo son el clima regional y el tipo de establecimiento. Estas son **caídas
+observadas**: el R² no es aditivo entre corridas, no corresponde fraccionarlo
+("X% del desempeño explicado por la persistencia"). Evidencia:
+`artifacts/model_metadata_v7_ab_sin_persistencia.json` y
+`artifacts/model_metadata_v7_ab_sin_persist_sin_doy.json`.
 
 **Por región (R²):** Maule 0.83 · Arica 0.81 · Metropolitana 0.70 ·
 Magallanes 0.66 · Antofagasta 0.63 · O'Higgins 0.54 · Coquimbo 0.48 ·
@@ -81,6 +115,10 @@ merece un análisis propio: ver `model_evolution.md`.
   validación externa.
 
 ## Evidencia incluida (`artifacts/`)
+- `model_metadata_v7_ab_sin_persistencia.json` ·
+  `model_metadata_v7_ab_sin_persist_sin_doy.json` — ablación sin persistencia
+  (v7-ab, corridas B/C): métricas test 2025, features usadas, hiperparámetros
+  congelados y comparación contra v7 (sin dumps de joblib).
 - `model_metadata_v6e2.json` — métricas, features, verificación anti-leakage,
   comparativa y limitaciones de E2.
 - `model_metadata_v6e1.json` — configuración de la cuota trailing, control que

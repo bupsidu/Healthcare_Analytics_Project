@@ -23,6 +23,7 @@ import json
 import logging
 import os
 import re
+import unicodedata
 from pathlib import Path
 from typing import Dict, Optional
 
@@ -111,6 +112,10 @@ def normalize_date(date_str: str) -> str:
     if not date_str or not date_str.strip():
         return ""
     date_str = str(date_str).strip()
+    # ISO con hora (ej: "2024-01-01 15:00" o "2024-01-01T15:00") → solo fecha
+    m = re.match(r"^(\d{4}-\d{2}-\d{2})[ T]\d{1,2}:\d{2}(:\d{2})?$", date_str)
+    if m:
+        return m.group(1)
     # Ya ISO
     if re.match(r"^\d{4}-\d{2}-\d{2}$", date_str):
         return date_str
@@ -134,10 +139,14 @@ def normalize_region_name(raw) -> str:
     - Prefijos del notebook: "De X", "Del X" → "X"
     - Variaciones de acentuación y casing
     - Nombres alternativos (ej: "Magallanes y de La Antártica Chilena" → "Magallanes")
+    - Normalización Unicode NFC (macOS entrega nombres de carpeta en NFD)
+
+    Nota: sin el paso NFC, "Valparaíso" en NFD no matchea la clave NFC del
+    alias_map y la región queda sin normalizar, rompiendo el merge de clima.
     """
     if not raw or (isinstance(raw, float) and pd.isna(raw)):
         return ""
-    cleaned = str(raw).strip()
+    cleaned = unicodedata.normalize("NFC", str(raw).strip())
 
     # Mapeo de alias → nombre canónico (lowercase para matching)
     alias_map = {
@@ -154,10 +163,13 @@ def normalize_region_name(raw) -> str:
         "del maule": "Maule",
         "de ñuble": "Ñuble",
         "del biobío": "Biobío", "del biobio": "Biobío",
+        "del bíobío": "Biobío", "del bío bío": "Biobío",
         "de la araucanía": "La Araucanía", "de la araucania": "La Araucanía",
         "de los ríos": "Los Ríos", "de los rios": "Los Ríos",
         "de los lagos": "Los Lagos",
         "de aysén": "Aysén", "de aysen": "Aysén",
+        "de aisén del gral. c. ibáñez del campo": "Aysén",
+        "de aisen del gral. c. ibanez del campo": "Aysén",
         "de magallanes y de la antártica chilena": "Magallanes",
         "metropolitana de santiago": "Metropolitana",
         # Sin prefijo
@@ -172,6 +184,7 @@ def normalize_region_name(raw) -> str:
         "maule": "Maule",
         "ñuble": "Ñuble", "nuble": "Ñuble",
         "biobío": "Biobío", "biobio": "Biobío",
+        "bíobío": "Biobío", "biobio ": "Biobío", "bio bio": "Biobío", "bío bío": "Biobío",
         "la araucanía": "La Araucanía", "araucania": "La Araucanía",
         "los ríos": "Los Ríos", "los rios": "Los Ríos",
         "los lagos": "Los Lagos",

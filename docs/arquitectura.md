@@ -87,11 +87,11 @@ flowchart LR
 
 | Componente | Tecnología | Estado |
 |---|---|---|
-| Ingesta de datos (salud, clima, contaminación) | Python / pandas | ✅ ~894.650 registros, 339 establecimientos, 8 regiones |
+| Ingesta de datos (salud, clima, contaminación) | Python / pandas | ✅ 889.524 registros, 339 establecimientos, 8 regiones |
 | Limpieza y procesamiento | Python | ✅ |
-| Feature Engineering | Python | ✅ lags de demanda (anti-leakage ≤ T−4), variables climáticas, causas, one-hot de establecimiento y edad |
-| Entrenamiento y selección de modelos | scikit-learn (RandomForest) | ✅ v1 → v6; modelo oficial v6 (modelo directo E2) |
-| Métricas (test 2025, nivel establecimiento + día) | — | ✅ MAE 9.33 · RMSE 13.05 · R² 0.72 · +9.77% vs. baseline |
+| Feature Engineering | Python | ✅ lags de demanda (anti-leakage ≤ T−4, semántica calendario), variables climáticas, causas, one-hot de establecimiento y edad |
+| Entrenamiento y selección de modelos | scikit-learn (RandomForest) | ✅ v1 → v7; modelo vigente v7 (fix de features climáticas); release publicado: v6 E2 |
+| Métricas (test 2025, nivel establecimiento + día) | — | ✅ v7: MAE 9.30 · RMSE 13.01 · R² 0.725 · sesgo +8.78% (v6-e2: 9.33 · 13.05 · 0.723 · sesgo +9.77%) |
 | Exportación del modelo | joblib + JSON | ✅ `model.joblib` + `model_metadata.json` (+ release enlazado en README) |
 
 **Detalles de diseño:**

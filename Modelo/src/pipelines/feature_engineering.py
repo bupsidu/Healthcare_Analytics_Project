@@ -3,11 +3,24 @@ Feature Engineering Biológico - Sistema MINSAL
 ==============================================
 
 Genera variables predictivas alineadas con el esquema del PROJECT_CONTEXT.md:
-  - TempMin_Lag_4D (shift(4)): incubación viral post-frente frío polar
-  - MP2_5_Lag_2D (shift(2)): efecto acumulado de smog/humo de leña
+  - TempMin_Lag_4D: temperatura mínima de T-4 días de CALENDARIO
+    (incubación viral post-frente frío polar)
+  - MP2_5_Lag_2D: PM2.5 de T-2 días de CALENDARIO
+    (efecto acumulado de smog/humo de leña)
   - Frio_Polar_Flag: booleano si TempMin ≤ 2°C
-  - Lluvia_Intensa_Flag: booleano si Precipitacion > percentil 90
+  - Lluvia_Intensa_Flag: booleano si Precipitacion > percentil 90 regional,
+    con el umbral calculado SOLO sobre el período de train (Fecha < 2025-01-01)
   - Alerta_MP25_Flag: booleano si MP2_5 > umbral WHO (15 μg/m³)
+
+NOTA DE SEMÁNTICA (fix de bugs climáticos)
+------------------------------------------
+El dataset de entrada tiene ~152 filas por (Región, Fecha) (una por causa
+DEIS/establecimiento), así que las operaciones de lag y rolling se calculan
+sobre una SERIE CALENDARIO DEDUPLICADA (1 fila por Región+Fecha, ordenada
+cronológicamente) y luego se hace merge de vuelta al df multi-fila. Un
+shift/rolling sobre FILAS retrocedería ~152 filas/día y mediría fracciones
+de día, no días. Los umbrales aprendidos de datos (percentil de lluvia) se
+calculan solo con Fecha < TRAIN_END para no contaminar el test 2025.
 
 Input:  data/interim/df_unificado.parquet
 Output: data/processed/df_modelo.parquet (dataset listo para ML)
@@ -54,6 +67,12 @@ PRECIP_INTENSIVE_PERCENTILE: float = 0.90  # Lluvia_Intensa_Flag
 WHO_PM25_THRESHOLD: float = 15.0           # μg/m³ — Alerta_MP25_Flag
 FRIOPOLAR_TEMP_THRESHOLD: float = 2.0     # °C — frentes fríos polares
 
+# Protocolo de split temporal: train = 2024, test = 2025.
+# Los umbrales aprendidos de datos (p.ej. percentil 90 de precipitación)
+# se calculan SOLO con Fecha < TRAIN_END y se congelan para todas las
+# filas: incluir el test 2025 en el umbral sería transductivo (data snooping).
+TRAIN_END = pd.Timestamp("2025-01-01")
+
 # Regiones prioritarias (zona centro-sur con mayor saturación según notebook)
 REGIONES_OBJETIVO = [
     "Arica y Parinacota", "Tarapacá", "Antofagasta", "Atacama", "Coquimbo",
@@ -71,15 +90,38 @@ TIPOS_ESTABLECIMIENTO = [
 # ---------------------------------------------------------------------------
 # Feature Engineering
 # ---------------------------------------------------------------------------
+def _serie_calendario(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
+    """Serie calendario deduplicada: 1 fila por (Región, Fecha).
+
+    El df de entrada tiene ~152 filas por (Región, Fecha) (una por causa
+    DEIS); lag/rolling deben operar sobre una fila por fecha, no sobre
+    filas. Devuelve el frame con la columna `_fecha_key` (datetime) para
+    calcular desplazamientos de días calendario y mergear de vuelta al df
+    multi-fila por (Región, Fecha).
+    """
+    cal = df[["Region", "Fecha", *cols]].drop_duplicates(subset=["Region", "Fecha"]).copy()
+    cal["_fecha_key"] = pd.to_datetime(cal["Fecha"])
+    return cal.sort_values(["Region", "_fecha_key"]).reset_index(drop=True)
+
+
 def create_lag_features(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Crea variables de retardo (lags) a nivel región.
+    Crea variables de retardo (lags) a nivel región sobre el CALENDARIO.
 
-    - TempMin_Lag_4D: temperatura mínima 4 días atrás (incubación viral polar)
-    - MP2_5_Lag_2D: PM2.5 2 días atrás (acumulación humo de leña)
+    - TempMin_Lag_4D: temperatura mínima de T-4 días de calendario
+      (incubación viral polar)
+    - MP2_5_Lag_2D: PM2.5 de T-2 días de calendario (humo de leña)
 
-    Los lags se calculan por región (no por establecimiento) ya que los
-    datos climáticos son a nivel regional.
+    El df tiene ~152 filas por (Región, Fecha): un `shift(n)` sobre FILAS
+    retrocede ~n filas ≈ la MISMA fecha (bug corregido). Los lags se
+    calculan sobre la serie calendario deduplicada (1 fila por Región+Fecha,
+    ordenada cronológicamente) restando n días a la FECHA (T-n) y luego se
+    hace merge de vuelta por (Región, Fecha).
+
+    Anti-fuga: solo se usa información de T-n (estrictamente pasado). Si una
+    región no tiene datos en T-n, el lag queda NaN (esas filas — p.ej. los
+    primeros 4 días calendario por región — las elimina después
+    `filter_and_clean` vía `dropna(subset=["TempMin_Lag_4D"])`).
 
     Args:
         df: DataFrame unificado con columnas mínimas:
@@ -88,28 +130,35 @@ def create_lag_features(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         DataFrame con columnas de lag agregadas.
     """
-    logger.info("Creando variables de retardo (lags)...")
+    logger.info("Creando variables de retardo (lags) sobre el calendario...")
 
     # Asegurar orden cronológico por región
     df = df.sort_values(["Region", "Fecha"]).reset_index(drop=True)
 
-    # TempMin_Lag_4D
-    if "TempMin" in df.columns:
-        df["TempMin_Lag_4D"] = (
-            df.groupby("Region")["TempMin"]
-            .shift(LAG_TEMP_MIN_DAYS)
-        )
-        logger.info("  → TempMin_Lag_4D creado (shift=%d)", LAG_TEMP_MIN_DAYS)
+    # Serie calendario: 1 fila por (Región, Fecha) con clave datetime
+    cols = [c for c in ("TempMin", "MP2_5") if c in df.columns]
+    cal = _serie_calendario(df, cols)
+    df["_fecha_key"] = pd.to_datetime(df["Fecha"])
 
-    # MP2_5_Lag_2D
-    if "MP2_5" in df.columns:
-        df["MP2_5_Lag_2D"] = (
-            df.groupby("Region")["MP2_5"]
-            .shift(LAG_MP25_DAYS)
+    for col, n_dias, salida in [
+        ("TempMin", LAG_TEMP_MIN_DAYS, "TempMin_Lag_4D"),
+        ("MP2_5", LAG_MP25_DAYS, "MP2_5_Lag_2D"),
+    ]:
+        if col not in df.columns:
+            continue
+        # La clave AVANZA n días: la fila de ref (d, valor(d)) se publica con
+        # clave d+n, de modo que al mergear la fecha T toma valor(T-n).
+        ref = cal[["Region", "_fecha_key", col]].copy()
+        ref["_fecha_key"] = ref["_fecha_key"] + pd.Timedelta(days=n_dias)
+        ref = ref.rename(columns={col: salida})
+        df = df.drop(columns=[salida], errors="ignore").merge(
+            ref, on=["Region", "_fecha_key"], how="left",
         )
-        logger.info("  → MP2_5_Lag_2D creado (shift=%d)", LAG_MP25_DAYS)
+        logger.info(
+            "  → %s creado (lag calendárico de %d días)", salida, n_dias
+        )
 
-    return df
+    return df.drop(columns=["_fecha_key"])
 
 
 def create_binary_flags(df: pd.DataFrame) -> pd.DataFrame:
@@ -117,7 +166,14 @@ def create_binary_flags(df: pd.DataFrame) -> pd.DataFrame:
     Crea variables binarias de alerta basadas en umbrales biológicos.
 
     - Frio_Polar_Flag: 1 si TempMin ≤ 2°C (frente frío polar)
-    - Lluvia_Intensa_Flag: 1 si precipitación > percentil 90 regional
+    - Lluvia_Intensa_Flag: 1 si precipitación > percentil 90 regional,
+      con el umbral por región calculado SOLO sobre el período de train
+      (Fecha < TRAIN_END = 2025-01-01; protocolo train 2024 / test 2025)
+      y congelado para aplicarlo a todas las filas. Calcular el percentil
+      sobre TODO el df incluiría el test 2025 en el umbral (transductivo,
+      data snooping). Si una región no tiene valores de precipitación en
+      train, su umbral queda NaN y el flag es 0 (sin evidencia de lluvia
+      intensa).
     - Alerta_MP25_Flag: 1 si MP2.5 > 15 μg/m³ (OMS)
 
     Args:
@@ -142,17 +198,28 @@ def create_binary_flags(df: pd.DataFrame) -> pd.DataFrame:
         ).astype(int)
         logger.info("  → Alerta_MP25_Flag creado (umbral > %.1f μg/m³)", WHO_PM25_THRESHOLD)
 
-    # Lluvia_Intensa_Flag (percentil regional)
+    # Lluvia_Intensa_Flag (percentil regional — umbral train-only)
     if "Precipitacion_mm" in df.columns:
-        # Calcular percentil 90 dentro de cada región
-        regional_threshold = (
-            df.groupby("Region")["Precipitacion_mm"]
-            .transform(lambda x: x.quantile(PRECIP_INTENSIVE_PERCENTILE))
+        # Umbral = q90 por región calculado SOLO con Fecha < TRAIN_END
+        # (train 2024); se congelan los umbrales y se aplican a todas las
+        # filas (train + test). NaN del umbral → flag 0 (comparación con
+        # NaN da False, sin relleno: rellenar con -1 marcaría como "intensa"
+        # cualquier lluvia de regiones sin datos de train).
+        es_train = pd.to_datetime(df["Fecha"]) < TRAIN_END
+        umbrales_train = (
+            df.loc[es_train]
+            .groupby("Region")["Precipitacion_mm"]
+            .quantile(PRECIP_INTENSIVE_PERCENTILE)
         )
+        umbral = df["Region"].map(umbrales_train)
         df["Lluvia_Intensa_Flag"] = (
-            df["Precipitacion_mm"].fillna(-1) > regional_threshold.fillna(-1)
+            df["Precipitacion_mm"].fillna(-1) > umbral
         ).astype(int)
-        logger.info("  → Lluvia_Intensa_Flag creado (percentil=%.0f)", PRECIP_INTENSIVE_PERCENTILE * 100)
+        logger.info(
+            "  → Lluvia_Intensa_Flag creado (percentil=%.0f, umbral train-only < %s)",
+            PRECIP_INTENSIVE_PERCENTILE * 100,
+            TRAIN_END.date(),
+        )
 
     return df
 
@@ -195,10 +262,18 @@ def discretize_temperature(df: pd.DataFrame) -> pd.DataFrame:
 
 def add_regional_aggregates(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Agrega features estadísticos a nivel regional (rolling window).
+    Agrega features estadísticos a nivel regional (ventana calendario 7d).
 
-    - Region_Media_7d_TempMin: media 7-días móvil de TempMin por región
-    - Region_Media_7d_MP25: media 7-días móvil de MP2.5 por región
+    - Region_Media_7d_TempMin: media móvil de 7 DÍAS de CALENDARIO de
+      TempMin por región (ventana [T-6..T], INCLUYE el día T)
+    - Region_Media_7d_MP25: idem para MP2.5
+
+    El df tiene ~152 filas por (Región, Fecha): un `rolling(7)` sobre FILAS
+    cubre <1 día (bug corregido). Se calcula sobre la serie calendario
+    deduplicada (1 fila por Región+Fecha), reindexada al calendario diario
+    completo de cada región para ser robusta ante fechas faltantes
+    (`min_periods=1` promedia los valores observados dentro de la ventana),
+    y luego se hace merge de vuelta por (Región, Fecha).
 
     Args:
         df: DataFrame con lags.
@@ -206,29 +281,49 @@ def add_regional_aggregates(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         DataFrame con columnas de ventana móvil.
     """
-    logger.info("Calculando estadísticos regionales (rolling 7d)...")
+    logger.info("Calculando estadísticos regionales (rolling 7d calendario)...")
 
     df = df.sort_values(["Region", "Fecha"]).reset_index(drop=True)
+    df["_fecha_key"] = pd.to_datetime(df["Fecha"])
 
-    for col, new_col in [
+    pares = [
         ("TempMin", "Region_Media_7d_TempMin"),
         ("MP2_5", "Region_Media_7d_MP25"),
-    ]:
-        if col in df.columns:
-            df[new_col] = (
-                df.groupby("Region")[col]
-                .transform(lambda x: x.rolling(window=7, min_periods=1).mean())
-            )
-            logger.info("  → %s creado", new_col)
+    ]
+    cols = [c for c, _ in pares if c in df.columns]
+    cal = _serie_calendario(df, cols)
 
-    return df
+    for col, new_col in pares:
+        if col not in df.columns:
+            continue
+        partes = []
+        for region, g in cal.groupby("Region", sort=False):
+            g = g.set_index("_fecha_key").sort_index()
+            # Calendario diario completo de la región (robusto ante huecos)
+            completo = pd.date_range(g.index.min(), g.index.max(), freq="D")
+            serie = g[col].reindex(completo)
+            roll = serie.rolling(window=7, min_periods=1).mean()
+            partes.append(pd.DataFrame({
+                "Region": region,
+                "_fecha_key": roll.index,
+                new_col: roll.to_numpy(),
+            }))
+        ref = pd.concat(partes, ignore_index=True)
+        df = df.drop(columns=[new_col], errors="ignore").merge(
+            ref, on=["Region", "_fecha_key"], how="left",
+        )
+        logger.info("  → %s creado (ventana calendario [T-6..T])", new_col)
+
+    return df.drop(columns=["_fecha_key"])
 
 
 def filter_and_clean(df: pd.DataFrame) -> pd.DataFrame:
     """
     Filtra filas con datos suficientes para modelado y limpia nulos.
 
-    - Elimina filas sin TempMin_Lag_4D (necesario para el lag)
+    - Elimina filas sin TempMin_Lag_4D (necesario para el lag): con el lag
+      calendárico esto incluye los primeros 4 días de calendario por región
+      (no tienen T-4) y los días cuyo T-4 no tiene TempMin
     - Elimina regiones con pocos datos
     - Limpia establecimientos sin nombre
 
@@ -273,10 +368,11 @@ def build_modeling_dataset(
     Pipeline completo de feature engineering.
 
     Lee el dataset unificado y aplica:
-    1. Lags (TempMin_Lag_4D, MP2_5_Lag_2D)
-    2. Flags binarios (Frio_Polar_Flag, Lluvia_Intensa_Flag, Alerta_MP25_Flag)
+    1. Lags calendario (TempMin_Lag_4D, MP2_5_Lag_2D) sobre serie deduplicada
+    2. Flags binarios (Frio_Polar_Flag, Lluvia_Intensa_Flag train-only,
+       Alerta_MP25_Flag)
     3. Discretización de temperatura
-    4. Estadísticos regionales (rolling 7d)
+    4. Estadísticos regionales (rolling 7d de calendario)
     5. Filtrado y limpieza
 
     Args:

@@ -14,7 +14,9 @@
 * **Integrante a cargo (ML Lead):** Ignacio Fernández (Nafery).
 * **Datasets Primarios (4 Fuentes Unificadas):**
   1. *Salud (DEIS/MINSAL):* Atenciones de urgencia respiratoria anonimizadas por establecimiento, fecha y grupo etario (`<1`, `1-4`, `5-14`, `15-64`, `65+`).
-  2. *Temperatura (DMC/CR2):* Mínimas y máximas diarias por región.
+  2. *Temperatura (DMC/CR2/SENAMHI):* Mínimas y máximas diarias por región
+     (16/16 regiones con cobertura válida en 2024 y 2025; las estaciones que
+     faltaban se consolidaron desde registros horarios a resumen diario).
   3. *Precipitaciones (Open-Meteo):* Agua caída acumulada diaria en mm.
   4. *Contaminación Atmosférica (SINCA/Open-Meteo Air Quality):* Concentración diaria de MP2.5 y MP10 en $\mu g/m^3$.
 * **Feature Engineering Biológico (Lags):**
@@ -31,16 +33,16 @@
 ## 🏛️ 3. Arquitectura del Sistema (3 Capas Desacoplada + MLOps)
 ```
 [Frontend: React + Tailwind CSS] ──(JSON via Axios)──> [Backend: FastAPI + Pydantic + httpx]
-                                                              │
-                       ┌──────────────────────────────────────┴──────────────────────────────────────┐
-                       ▼                                                                             ▼
-           [APIs Clima/Aire: Open-Meteo]                                             [Persistencia: PostgreSQL + SQLAlchemy]
-                                                                                                     │
-                                                                                                     ▼
-                                                                                    [MLOps: Script Re-entrenamiento]
-                                                                                                     │
-                                                                                                     ▼
-                                                                                    [Motor IA: model_rf.joblib]
+                                                             │
+                      ┌──────────────────────────────────────┴──────────────────────────────────────┐
+                      ▼                                                                             ▼
+          [APIs Clima/Aire: Open-Meteo]                                             [Persistencia: PostgreSQL + SQLAlchemy]
+                                                                                                    │
+                                                                                                    ▼
+                                                                                   [MLOps: Script Re-entrenamiento]
+                                                                                                    │
+                                                                                                    ▼
+                                                                                   [Motor IA: model_rf.joblib]
 ```
 
 ---
@@ -60,18 +62,32 @@
 
 ---
 
-## 🚀 6. Hoja de Ruta — Mejoras Futuras
+## 🚀 6. Hoja de Ruta — Estado Actual y Mejoras Futuras
 
-### Estado actual: modelo v6 (directo a nivel establecimiento)
-- Predicción del **total** de atenciones respiratorias a 96 horas con **un solo
-  `RandomForest` a nivel establecimiento** (27 features: demanda reciente
-  `Total_Lag_4`, cuota trailing, predicción regional, one-hot tipo/región,
-  estacionalidad y clima regional sin contaminación). Reemplaza a la v5 de dos
-  etapas: MAE **9.334** / R² **0.7231** / sesgo +9.77% vs 14.763 / 0.141 de v5
-  (test 2025, nivel establecimiento+día).
-- El proceso de iteración v1→v6, sus problemas y correcciones, está documentado
-  en [`model_evolution.md`](model_evolution.md); el detalle técnico de la v6
-  está en [`model_report.md`](model_report.md).
+### Estado actual: modelo v11 (directo + ventanas del establecimiento, 16 regiones)
+- Predicción del **total** de atenciones respiratorias por establecimiento a 96
+  horas con **un solo `RandomForest` a nivel establecimiento** (60 features:
+  ventana móvil del establecimiento `L4..L10`/`W7_*`/`W28_*`, patrón semanal
+  `DOW_Esperado`, cuota trailing, predicción regional, nivel/tendencia
+  regional, one-hot tipo/región, estacionalidad y clima regional sin
+  contaminación).
+- **Trayectoria**: v8 agregó nivel/tendencia regional (8.009), v9 el patrón
+  semanal (7.236), v11 las ventanas móviles del establecimiento.
+  Resultado en test 2025:
+  **MAE 6.787 / RMSE 10.010 / R2 0.8283 / sesgo +2.57%** (n = 226.003).
+- **Cobertura regional completa**: en la versión previa del dataset solo 8
+  regiones llegaban al modelo. Antofagasta, Atacama, Los Lagos y Tarapacá
+  quedaban fuera porque sus CSV de temperatura 2024 eran inválidos (archivos de
+  precipitación horaria mal nombrados, estación sin registros o archivo
+  ausente), además de cuatro bugs de normalización en el pipeline
+  (NFD/NFC en nombres de carpeta, alias DEIS faltantes, fechas con hora).
+  Corregido: hoy las **16 regiones** tienen observaciones de temperatura en
+  2024 y 2025 y participan tanto de entrenamiento como de prueba.
+- **Snapshots de trazabilidad**: v7 (8.550), v8 (8.009), v9 (7.236), v10
+  (7.251, hipótesis de feriados rechazada y conservada como evidencia).
+- **Impacto medido del cambio**: v6 E2 (8 regiones) → v11: MAE 9.334 → 6.787
+  (−27.3%), R2 0.7231 → 0.8283, sesgo +9.77% → +2.57%, con un set de prueba que
+  más que duplicó su tamaño (118.308 → 226.003 filas).
 
 ### Mejora 1 — Multi-target por rango etario
 - Predecir la demanda por grupo etario (`<1`, `1-4`, `5-14`, `15-64`, `65+`).
@@ -90,3 +106,14 @@
 ### Habilitador de precisión (futuro)
 - Incorporar datos históricos de urgencias DEIS de **2022 y 2023** para ampliar la serie
   de entrenamiento y mejorar la precisión de las mejoras 1-3.
+
+### Deuda técnica conocida
+- **Regresión a la media**: el modelo sobreestima los días de demanda muy baja
+  (+121.7% en el quintil inferior) y subestima los picos (−9.2% en el quintil
+  superior). Es estructural del RandomForest con MSE; v11 la redujo pero no la
+  eliminó. Los feriados NO son el problema (sesgo +0.28% en feriados).
+- **Sesgo regional residual**: Atacama +8.0%, O'Higgins +9.5%, Ñuble +6.0%
+  (bajaron fuerte desde +28.4/+26.6/+24.9 en v7).
+- **Datos fuente anómalos**: el CSV de O'Higgins 2025 contiene dos días
+  corruptos (−49.1 °C el 19-feb-2025 y −32.0 °C el 12-ago-2025) que afectan a
+  348 filas (0.02% del dataset).

@@ -15,7 +15,7 @@ flowchart TD
     WX --> FEAT
     AQ --> FEAT
     ENC --> FEAT
-    FEAT --> MODEL[model_rf_respiratorio_v1.joblib]
+    FEAT --> MODEL[model_rf_directo_v11.joblib]
     MODEL -->|pacientes predichos| API
     API -->|JSON| FE
     API -->|guarda predicción| DB[(PostgreSQL: predicciones)]
@@ -52,8 +52,8 @@ Replicar en el backend la misma lógica del pipeline (`src/pipelines/feature_eng
 - Encodings de región, tipo de establecimiento y categoría de temperatura.
 
 ### 5. Inferencia
-- Cargar `model_rf_respiratorio_v1.joblib` una sola vez al arrancar el servicio.
-- Ordenar las columnas EXACTAMENTE como `features.json`.
+- Cargar el modelo `.joblib` (el vigente es `model_rf_directo_v11.joblib`) una sola vez al arrancar el servicio.
+- Ordenar las columnas EXACTAMENTE como `features` en `artifacts/model_metadata_v11.json` (el `features.json` suelto corresponde a v1).
 - Llamar `model.predict(X)` y devolver el resultado redondeado a entero.
 
 ### 6. Salida
@@ -87,10 +87,17 @@ CREATE TABLE predicciones (
 
 ## Encoders (exportados en `encoders.joblib`)
 
+> ⚠️ **Desactualizado respecto al modelo vigente (v11).** Este documento
+> describe los encoders de v2/v3. Desde v6 el modelo es un único RandomForest
+> directo que usa **one-hot** de `Region` y `TipoEstablecimiento`, no
+> `LabelEncoder`, y `Cat_TempMin` ya no se usa (la temperatura entra en valor
+> absoluto). Estos encoders solo aplican si se sirve un modelo v2/v3. Para el
+> modelo vigente ver `model_evolution.md` sección v11.
+
 El diccionario de traducción texto → número está en `Modelo/artifacts/encoders.joblib`:
 
-- `temp_order`: mapeo ordinal de `Cat_TempMin` (Muy Frío=0 … Caluroso=4).
-- `le_region`: `LabelEncoder` de las 8 regiones del modelo.
+- `temp_order`: mapeo ordinal de `Cat_TempMin` (Muy Frío=0 ... Caluroso=4). **No usado desde v6.**
+- `le_region`: `LabelEncoder` de las regiones del modelo v2/v3 (**8 regiones** en esa época; el dataset actual cubre 16).
 - `le_tipo`: `LabelEncoder` de los 5 tipos de establecimiento (CEAR, Hospital, SAPU, SAR, SUR).
 
 Uso en el backend:

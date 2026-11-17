@@ -1,0 +1,34 @@
+=== CONSOLIDACIÓN DE TEMPERATURA HORARIA → DIARIA ===
+Fecha de ejecución: 2026-11-16 22:36
+Script: src/pipelines/consolidar_temperatura_horaria.py
+Nota: los nombres de carpeta se resuelven con normalización NFC (macOS los entrega en NFD).
+
+Región                 2024 (filas/válidos)     2025 (filas/válidos)
+Antofagasta              366f / 366 válidos       365f / 365 válidos
+Atacama                  366f / 366 válidos       365f / 365 válidos
+Los Lagos                366f / 366 válidos       365f / 365 válidos
+Tarapacá                 366f / 366 válidos       365f / 364 válidos
+Valparaíso                            FALTA                    FALTA
+Ñuble                    366f / 366 válidos       365f / 364 válidos
+La Araucanía                          FALTA                    FALTA
+Los Ríos                 366f / 365 válidos       365f / 364 válidos
+Biobío                                FALTA                    FALTA
+Aysén                                 FALTA                    FALTA
+Arica y Parinacota                    FALTA                    FALTA
+Coquimbo                 365f / 365 válidos       365f / 361 válidos
+Magallanes               366f / 366 válidos       365f / 365 válidos
+Maule                    366f / 366 válidos       365f / 364 válidos
+Metropolitana                         FALTA                    FALTA
+O'Higgins                355f / 353 válidos       365f / 324 válidos
+
+Archivos horarios originales preservados (data/raw/_hourly_sources/):
+   200006_2024_Temperatura_Tarapaca.csv
+   220002_2024_Temperatura_Antofagasta.csv
+   270008_2024_Temperatura_Atacama.csv
+   400009_2024_Temperatura_LosLagos.csv
+   400009_2025_Temperatura_LosLagos.csv
+
+Archivos inválidos apartados (data/raw/_replaced_invalid/):
+   Temperatura Atacama 2024.csv.invalid
+   Temperatura Los Lagos 2024.csv.invalid
+   Temperatura Los Lagos 2025.csv.invalid

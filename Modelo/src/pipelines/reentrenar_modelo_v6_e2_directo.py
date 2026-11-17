@@ -714,10 +714,13 @@ def main() -> None:
             "La exploratoria post-hoc (12.784 / 0.3277) es EXPLORATORIA "
             "(seleccionada con el test a la vista): superarla no equivale a "
             "una mejora validada.",
-            "Regiones nuevas en test (Antofagasta, Atacama) no existen en "
-            "train 2024 (bug CSV SENAMHI): sus one-hot están en 100% cero y "
-            "sus Total_Lag_4/Share_Trailing solo se apoyan en su historia "
-            "de 2025 (≤ T-4).",
+            "Cobertura regional COMPLETA: las 16 regiones tienen observaciones "
+            "de temperatura en 2024 y 2025 y participan de train y test. Hasta "
+            "la versión anterior del dataset, Antofagasta, Atacama, Los Lagos "
+            "y Tarapacá carecían de CSV de temperatura válido para 2024 (y Los "
+            "Lagos también para 2025), por lo que: (a) sus one-hot quedaban en "
+            "100% cero en train y (b) su Total_Lag_4/Share_Trailing solo se "
+            "apoyaban en su historia de 2025. Esa limitación ya NO aplica.",
             "Se entrenó con los MISMOS hiperparámetros del v5 "
             "(n_estimators=200, max_depth=15, min_samples_split=50, "
             "min_samples_leaf=20, max_features='sqrt', random_state=42, "
