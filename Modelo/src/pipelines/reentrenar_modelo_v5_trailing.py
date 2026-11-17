@@ -146,7 +146,7 @@ from sklearn.model_selection import TimeSeriesSplit, cross_val_score
 # ---------------------------------------------------------------------------
 # Configuración
 # ---------------------------------------------------------------------------
-BASE_DIR = Path("/Users/naferyh/Desktop/Proyectos/Proyecto de título")
+BASE_DIR = Path(__file__).resolve().parents[2]
 PROCESSED = BASE_DIR / "data" / "processed" / "df_modelo.parquet"
 MODELS_DIR = BASE_DIR / "models"
 

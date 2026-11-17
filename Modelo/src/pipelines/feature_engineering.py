@@ -54,7 +54,7 @@ logger = logging.getLogger("feature_engineering")
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
-BASE_DIR = Path("/Users/naferyh/Desktop/Proyectos/Proyecto de título")
+BASE_DIR = Path(__file__).resolve().parents[2]
 INTERIM_DIR = BASE_DIR / "data" / "interim"
 PROCESSED_DIR = BASE_DIR / "data" / "processed"
 

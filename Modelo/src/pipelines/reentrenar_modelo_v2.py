@@ -41,7 +41,7 @@ from sklearn.preprocessing import LabelEncoder
 # ---------------------------------------------------------------------------
 # Configuración
 # ---------------------------------------------------------------------------
-BASE_DIR = Path("/Users/naferyh/Desktop/Proyectos/Proyecto de título")
+BASE_DIR = Path(__file__).resolve().parents[2]
 PROCESSED = BASE_DIR / "data" / "processed" / "df_modelo.parquet"
 MODELS_DIR = BASE_DIR / "models"
 
