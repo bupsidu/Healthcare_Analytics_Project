@@ -1,0 +1,414 @@
+{
+  "release": "modelo-v8-tendencia",
+  "experimento": "v8 — v7 + 5 features de nivel/tendencia regional para corregir la inercia del modelo al nivel de demanda de train 2024",
+  "descripcion": "Diagnóstico previo: el sesgo por región de v7 correlaciona −0.66 con el cambio real de volumen 2024→2025 (Atacama −17.3% real → +28.4% sesgo; O'Higgins −23.8% → +26.6%; Los Lagos +3.4% → −10.1%). Ninguna feature de v7 reflejaba el nivel regional reciente, así que el modelo anclaba su predicción al nivel 2024. v8 agrega features de nivel/tendencia regional con ventanas que terminan en T−4.",
+  "features_nuevas": {
+    "Region_Total_Lag_4": "total diario regional en T−4",
+    "Region_Media_28d_lag4": "media 4 semanas ([T−31..T−4]) del total regional",
+    "Region_Trend_Ratio": "media reciente / media de las 4 semanas previas (clip [0.25,4], fallback 1.0)",
+    "Region_Level_vs_Train": "media reciente regional / media regional de TRAIN 2024 (constante train-only)",
+    "Estab_Media_28d_lag4": "media 4 semanas del propio establecimiento"
+  },
+  "justificacion_diagnostica": {
+    "correlacion_sesgo_vs_cambio_real_2024_2025": -0.662,
+    "correlacion_sesgo_vs_pct_ceros": 0.011,
+    "correlacion_r2_vs_pct_ceros": 0.561,
+    "estabs_nuevos_en_regiones_mas_sesgadas": "Atacama y O'Higgins: 0 establecimientos nuevos; la caída real ocurre íntegramente en establecimientos comunes → no es un artefacto de rotación de establecimientos."
+  },
+  "anti_leakage": {
+    "ventanas_terminan_en": "T−4",
+    "region_level_vs_train_es_constante_train_only": true,
+    "verificacion": {
+      "target_no_es_feature": true,
+      "total_lag_4_coincide_con_T_menos_4": 435327,
+      "total_lag_4_filas_con_historial_comparable": 435327,
+      "total_lag_4_igual_al_mismo_dia": 35724,
+      "lectura": "Total_Lag_4 se construye con shift(4) sobre el calendario ANTES de unir con el target: por construcción no lee Total(e, T). El contador de igualdad con el mismo día solo puede ser > 0 por coincidencia exacta de valor (demanda estable), no por fuga.",
+      "correlacion_total_lag_4_vs_total": 0.802,
+      "correlacion_sospechosa": false,
+      "pred_region_es_feature": true,
+      "pred_e1_es_feature": true
+    },
+    "correlaciones_train_nuevas_features": {
+      "Region_Total_Lag_4": 0.3533,
+      "Region_Media_28d_lag4": 0.3148,
+      "Region_Trend_Ratio": 0.1916,
+      "Region_Level_vs_Train": 0.2734,
+      "Estab_Media_28d_lag4": 0.822
+    }
+  },
+  "features_totales": [
+    "Total_Lag_4",
+    "Share_Trailing",
+    "Pred_Region",
+    "Pred_E1",
+    "Region_Total_Lag_4",
+    "Region_Media_28d_lag4",
+    "Region_Trend_Ratio",
+    "Region_Level_vs_Train",
+    "Estab_Media_28d_lag4",
+    "Tipo_CEAR",
+    "Tipo_Hospital",
+    "Tipo_SAPU",
+    "Tipo_SAR",
+    "Tipo_SUR",
+    "Region_Antofagasta",
+    "Region_Arica y Parinacota",
+    "Region_Atacama",
+    "Region_Aysén",
+    "Region_Biobío",
+    "Region_Coquimbo",
+    "Region_La Araucanía",
+    "Region_Los Lagos",
+    "Region_Los Ríos",
+    "Region_Magallanes",
+    "Region_Maule",
+    "Region_Metropolitana",
+    "Region_O'Higgins",
+    "Region_Tarapacá",
+    "Region_Valparaíso",
+    "Region_Ñuble",
+    "Doy",
+    "Doy_Sin",
+    "Doy_Cos",
+    "TempMin",
+    "TempMax",
+    "Precipitacion_mm",
+    "TempMin_Lag_4D",
+    "Region_Media_7d_TempMin",
+    "Frio_Polar_Flag",
+    "Lluvia_Intensa_Flag"
+  ],
+  "n_features": 40,
+  "n_features_v7": 35,
+  "configuracion": {
+    "target": "Total (nivel, sin transformar)",
+    "filas": "una por (establecimiento, fecha)",
+    "split": "train = 2024, test = 2025",
+    "horizonte_horas": 96,
+    "lag_dias": 4,
+    "ventana_reciente_dias": 28,
+    "ventana_previa_dias": 28,
+    "semilla": 42,
+    "hiperparametros": {
+      "n_estimators": 200,
+      "max_depth": 15,
+      "min_samples_split": 50,
+      "min_samples_leaf": 20,
+      "max_features": "sqrt",
+      "random_state": 42
+    }
+  },
+  "metricas_establecimiento": {
+    "n": 226003,
+    "MAE": 8.0093,
+    "RMSE": 11.7133,
+    "R2": 0.7648,
+    "sesgo_pct": 4.17
+  },
+  "metricas_por_region": {
+    "Antofagasta": {
+      "n": 7490,
+      "MAE": 7.1795,
+      "RMSE": 10.4565,
+      "R2": 0.7325,
+      "sesgo_pct": 3.01
+    },
+    "Arica y Parinacota": {
+      "n": 1674,
+      "MAE": 10.4386,
+      "RMSE": 15.4552,
+      "R2": 0.8429,
+      "sesgo_pct": 6.25
+    },
+    "Atacama": {
+      "n": 5474,
+      "MAE": 7.8726,
+      "RMSE": 11.2707,
+      "R2": 0.6214,
+      "sesgo_pct": 16.34
+    },
+    "Aysén": {
+      "n": 2091,
+      "MAE": 8.0515,
+      "RMSE": 13.4616,
+      "R2": 0.773,
+      "sesgo_pct": 1.77
+    },
+    "Biobío": {
+      "n": 24629,
+      "MAE": 8.9332,
+      "RMSE": 12.8746,
+      "R2": 0.7682,
+      "sesgo_pct": 4.47
+    },
+    "Coquimbo": {
+      "n": 10669,
+      "MAE": 7.1687,
+      "RMSE": 10.3013,
+      "R2": 0.5812,
+      "sesgo_pct": 12.07
+    },
+    "La Araucanía": {
+      "n": 15191,
+      "MAE": 7.7196,
+      "RMSE": 12.9626,
+      "R2": 0.5915,
+      "sesgo_pct": 1.56
+    },
+    "Los Lagos": {
+      "n": 15192,
+      "MAE": 7.3426,
+      "RMSE": 11.493,
+      "R2": 0.7806,
+      "sesgo_pct": -6.17
+    },
+    "Los Ríos": {
+      "n": 9774,
+      "MAE": 6.68,
+      "RMSE": 9.4462,
+      "R2": 0.7403,
+      "sesgo_pct": 5.57
+    },
+    "Magallanes": {
+      "n": 3279,
+      "MAE": 6.7549,
+      "RMSE": 9.4348,
+      "R2": 0.709,
+      "sesgo_pct": 6.39
+    },
+    "Maule": {
+      "n": 21454,
+      "MAE": 7.6919,
+      "RMSE": 11.3959,
+      "R2": 0.8395,
+      "sesgo_pct": 4.86
+    },
+    "Metropolitana": {
+      "n": 54326,
+      "MAE": 9.3925,
+      "RMSE": 13.0612,
+      "R2": 0.7358,
+      "sesgo_pct": 1.65
+    },
+    "O'Higgins": {
+      "n": 14084,
+      "MAE": 7.236,
+      "RMSE": 9.6065,
+      "R2": 0.6015,
+      "sesgo_pct": 17.06
+    },
+    "Tarapacá": {
+      "n": 6535,
+      "MAE": 6.8861,
+      "RMSE": 10.633,
+      "R2": 0.8284,
+      "sesgo_pct": 2.38
+    },
+    "Valparaíso": {
+      "n": 23911,
+      "MAE": 7.2645,
+      "RMSE": 10.461,
+      "R2": 0.724,
+      "sesgo_pct": 5.24
+    },
+    "Ñuble": {
+      "n": 10230,
+      "MAE": 6.8718,
+      "RMSE": 10.217,
+      "R2": 0.7629,
+      "sesgo_pct": 14.45
+    }
+  },
+  "sesgo_por_region_vs_v7": {
+    "Antofagasta": {
+      "v7": 5.14,
+      "v8": 3.01,
+      "delta_pp": -2.13
+    },
+    "Arica y Parinacota": {
+      "v7": 11.52,
+      "v8": 6.25,
+      "delta_pp": -5.27
+    },
+    "Atacama": {
+      "v7": 28.37,
+      "v8": 16.34,
+      "delta_pp": -12.03
+    },
+    "Aysén": {
+      "v7": 4.21,
+      "v8": 1.77,
+      "delta_pp": -2.44
+    },
+    "Biobío": {
+      "v7": 3.35,
+      "v8": 4.47,
+      "delta_pp": 1.12
+    },
+    "Coquimbo": {
+      "v7": 22.23,
+      "v8": 12.07,
+      "delta_pp": -10.16
+    },
+    "La Araucanía": {
+      "v7": 2.97,
+      "v8": 1.56,
+      "delta_pp": -1.41
+    },
+    "Los Lagos": {
+      "v7": -10.06,
+      "v8": -6.17,
+      "delta_pp": 3.89
+    },
+    "Los Ríos": {
+      "v7": 7.71,
+      "v8": 5.57,
+      "delta_pp": -2.14
+    },
+    "Magallanes": {
+      "v7": 11.71,
+      "v8": 6.39,
+      "delta_pp": -5.32
+    },
+    "Maule": {
+      "v7": 4.9,
+      "v8": 4.86,
+      "delta_pp": -0.04
+    },
+    "Metropolitana": {
+      "v7": 1.63,
+      "v8": 1.65,
+      "delta_pp": 0.02
+    },
+    "O'Higgins": {
+      "v7": 26.59,
+      "v8": 17.06,
+      "delta_pp": -9.53
+    },
+    "Tarapacá": {
+      "v7": 6.47,
+      "v8": 2.38,
+      "delta_pp": -4.09
+    },
+    "Valparaíso": {
+      "v7": 6.37,
+      "v8": 5.24,
+      "delta_pp": -1.13
+    },
+    "Ñuble": {
+      "v7": 24.85,
+      "v8": 14.45,
+      "delta_pp": -10.4
+    }
+  },
+  "comparativa": {
+    "v7": {
+      "MAE": 8.5502,
+      "RMSE": 12.3686,
+      "R2": 0.7378,
+      "sesgo_pct": 5.69,
+      "n": 226003
+    },
+    "v8": {
+      "n": 226003,
+      "MAE": 8.0093,
+      "RMSE": 11.7133,
+      "R2": 0.7648,
+      "sesgo_pct": 4.17
+    }
+  },
+  "importancia_features": [
+    {
+      "feature": "Pred_E1",
+      "importance": 0.2799687529333106
+    },
+    {
+      "feature": "Estab_Media_28d_lag4",
+      "importance": 0.2141843898818181
+    },
+    {
+      "feature": "Total_Lag_4",
+      "importance": 0.1825457159039879
+    },
+    {
+      "feature": "Share_Trailing",
+      "importance": 0.062648049045077
+    },
+    {
+      "feature": "Tipo_SUR",
+      "importance": 0.033254886966833125
+    },
+    {
+      "feature": "Pred_Region",
+      "importance": 0.03078623931251168
+    },
+    {
+      "feature": "Region_Total_Lag_4",
+      "importance": 0.029703493515779437
+    },
+    {
+      "feature": "Doy",
+      "importance": 0.02445118576935365
+    },
+    {
+      "feature": "Tipo_SAR",
+      "importance": 0.022747801109836728
+    },
+    {
+      "feature": "Region_Media_28d_lag4",
+      "importance": 0.021277920764707997
+    },
+    {
+      "feature": "Doy_Cos",
+      "importance": 0.01685897485827208
+    },
+    {
+      "feature": "Doy_Sin",
+      "importance": 0.01682333817748583
+    },
+    {
+      "feature": "Region_Level_vs_Train",
+      "importance": 0.013755487787966411
+    },
+    {
+      "feature": "Region_Trend_Ratio",
+      "importance": 0.012578837751136593
+    },
+    {
+      "feature": "Region_Media_7d_TempMin",
+      "importance": 0.006246546118067377
+    },
+    {
+      "feature": "Tipo_SAPU",
+      "importance": 0.004473581094502588
+    },
+    {
+      "feature": "TempMax",
+      "importance": 0.003941618632448584
+    },
+    {
+      "feature": "Region_Metropolitana",
+      "importance": 0.0036594316828494344
+    },
+    {
+      "feature": "TempMin",
+      "importance": 0.003621871145770585
+    },
+    {
+      "feature": "Tipo_Hospital",
+      "importance": 0.003283797734495763
+    }
+  ],
+  "sanity_check": {
+    "r2_mayor_a_0_9_sospechoso": false,
+    "r2_observado": 0.7648
+  },
+  "tiempo_entrenamiento_segundos": 5.6,
+  "tiempo_total_segundos": 8.8,
+  "limitaciones": [
+    "Sigue siendo un split temporal de 2 años: la corrección de inercia se valida en 2025; con un solo año de test no se puede distinguir si la tendencia captura un cambio estructural real o el ruido de un año.",
+    "Region_Level_vs_Train usa la media de train 2024 como referencia: en producción habría que recalcularla con la ventana móvil de 2024 más reciente disponible.",
+    "La tendencia usa reporte efectivo por región: si la cobertura de establecimientos cambia dentro del año, la serie de nivel refleja ese cambio además de la demanda real."
+  ]
+}

@@ -1,0 +1,201 @@
+2026-09-30 11:38:34,127 - feature_engineering - INFO - ============================================================
+2026-09-30 11:38:34,127 - feature_engineering - INFO - INICIANDO FEATURE ENGINEERING
+2026-09-30 11:38:34,127 - feature_engineering - INFO - ============================================================
+2026-09-30 11:38:34,127 - feature_engineering - INFO - Cargando datos unificados...
+2026-09-30 11:38:34,351 - feature_engineering - INFO - Datos cargados: 1809733 filas, 19 columnas
+2026-09-30 11:38:34,351 - feature_engineering - INFO - Creando variables de retardo (lags)...
+2026-09-30 11:38:34,657 - feature_engineering - INFO -   → TempMin_Lag_4D creado (shift=4)
+2026-09-30 11:38:34,696 - feature_engineering - INFO -   → MP2_5_Lag_2D creado (shift=2)
+2026-09-30 11:38:34,718 - feature_engineering - INFO - Creando flags binarias de alerta...
+2026-09-30 11:38:34,721 - feature_engineering - INFO -   → Frio_Polar_Flag creado (umbral ≤ 2.0°C)
+2026-09-30 11:38:34,726 - feature_engineering - INFO -   → Alerta_MP25_Flag creado (umbral > 15.0 μg/m³)
+2026-09-30 11:38:34,789 - feature_engineering - INFO -   → Lluvia_Intensa_Flag creado (percentil=90)
+2026-09-30 11:38:34,789 - feature_engineering - INFO - Discretizando temperaturas...
+2026-09-30 11:38:34,895 - feature_engineering - INFO -   → Cat_TempMin creado con bins: ['Muy Frío', 'Frío', 'Templado', 'Cálido', 'Caluroso']
+2026-09-30 11:38:34,895 - feature_engineering - INFO - Calculando estadísticos regionales (rolling 7d)...
+2026-09-30 11:38:35,340 - feature_engineering - INFO -   → Region_Media_7d_TempMin creado
+2026-09-30 11:38:35,398 - feature_engineering - INFO -   → Region_Media_7d_MP25 creado
+2026-09-30 11:38:35,423 - feature_engineering - INFO - Filtrando y limpiando datos...
+2026-09-30 11:38:35,437 - feature_engineering - INFO -   → Filas: 1809733 → 0 (eliminadas 1809733)
+2026-09-30 11:38:35,469 - feature_engineering - INFO - ============================================================
+2026-09-30 11:38:35,470 - feature_engineering - INFO - FEATURE ENGINEERING COMPLETADO
+2026-09-30 11:38:35,470 - feature_engineering - INFO - Archivo: /Users/naferyh/Desktop/Proyectos/Proyecto de título/data/processed/df_modelo.parquet
+2026-09-30 11:38:35,470 - feature_engineering - INFO - Rows: 0, Cols: 27
+2026-09-30 11:38:35,470 - feature_engineering - INFO - ============================================================
+2026-09-30 11:42:07,350 - feature_engineering - INFO - ============================================================
+2026-09-30 11:42:07,351 - feature_engineering - INFO - INICIANDO FEATURE ENGINEERING
+2026-09-30 11:42:07,351 - feature_engineering - INFO - ============================================================
+2026-09-30 11:42:07,351 - feature_engineering - INFO - Cargando datos unificados...
+2026-09-30 11:42:07,499 - feature_engineering - INFO - Datos cargados: 1809733 filas, 19 columnas
+2026-09-30 11:42:07,499 - feature_engineering - INFO - Creando variables de retardo (lags)...
+2026-09-30 11:42:07,754 - feature_engineering - INFO -   → TempMin_Lag_4D creado (shift=4)
+2026-09-30 11:42:07,787 - feature_engineering - INFO -   → MP2_5_Lag_2D creado (shift=2)
+2026-09-30 11:42:07,809 - feature_engineering - INFO - Creando flags binarias de alerta...
+2026-09-30 11:42:07,812 - feature_engineering - INFO -   → Frio_Polar_Flag creado (umbral ≤ 2.0°C)
+2026-09-30 11:42:07,816 - feature_engineering - INFO -   → Alerta_MP25_Flag creado (umbral > 15.0 μg/m³)
+2026-09-30 11:42:07,873 - feature_engineering - INFO -   → Lluvia_Intensa_Flag creado (percentil=90)
+2026-09-30 11:42:07,873 - feature_engineering - INFO - Discretizando temperaturas...
+2026-09-30 11:42:07,967 - feature_engineering - INFO -   → Cat_TempMin creado con bins: ['Muy Frío', 'Frío', 'Templado', 'Cálido', 'Caluroso']
+2026-09-30 11:42:07,967 - feature_engineering - INFO - Calculando estadísticos regionales (rolling 7d)...
+2026-09-30 11:42:08,335 - feature_engineering - INFO -   → Region_Media_7d_TempMin creado
+2026-09-30 11:42:08,389 - feature_engineering - INFO -   → Region_Media_7d_MP25 creado
+2026-09-30 11:42:08,415 - feature_engineering - INFO - Filtrando y limpiando datos...
+2026-09-30 11:42:08,671 - feature_engineering - INFO -   → Filas: 1809733 → 0 (eliminadas 1809733)
+2026-09-30 11:42:08,704 - feature_engineering - INFO - ============================================================
+2026-09-30 11:42:08,704 - feature_engineering - INFO - FEATURE ENGINEERING COMPLETADO
+2026-09-30 11:42:08,704 - feature_engineering - INFO - Archivo: /Users/naferyh/Desktop/Proyectos/Proyecto de título/data/processed/df_modelo.parquet
+2026-09-30 11:42:08,704 - feature_engineering - INFO - Rows: 0, Cols: 27
+2026-09-30 11:42:08,704 - feature_engineering - INFO - ============================================================
+2026-09-30 11:46:14,609 - feature_engineering - INFO - ============================================================
+2026-09-30 11:46:14,610 - feature_engineering - INFO - INICIANDO FEATURE ENGINEERING
+2026-09-30 11:46:14,610 - feature_engineering - INFO - ============================================================
+2026-09-30 11:46:14,610 - feature_engineering - INFO - Cargando datos unificados...
+2026-09-30 11:46:14,757 - feature_engineering - INFO - Datos cargados: 1809733 filas, 19 columnas
+2026-09-30 11:46:14,757 - feature_engineering - INFO - Creando variables de retardo (lags)...
+2026-09-30 11:46:15,013 - feature_engineering - INFO -   → TempMin_Lag_4D creado (shift=4)
+2026-09-30 11:46:15,045 - feature_engineering - INFO -   → MP2_5_Lag_2D creado (shift=2)
+2026-09-30 11:46:15,067 - feature_engineering - INFO - Creando flags binarias de alerta...
+2026-09-30 11:46:15,070 - feature_engineering - INFO -   → Frio_Polar_Flag creado (umbral ≤ 2.0°C)
+2026-09-30 11:46:15,074 - feature_engineering - INFO -   → Alerta_MP25_Flag creado (umbral > 15.0 μg/m³)
+2026-09-30 11:46:15,129 - feature_engineering - INFO -   → Lluvia_Intensa_Flag creado (percentil=90)
+2026-09-30 11:46:15,130 - feature_engineering - INFO - Discretizando temperaturas...
+2026-09-30 11:46:15,222 - feature_engineering - INFO -   → Cat_TempMin creado con bins: ['Muy Frío', 'Frío', 'Templado', 'Cálido', 'Caluroso']
+2026-09-30 11:46:15,222 - feature_engineering - INFO - Calculando estadísticos regionales (rolling 7d)...
+2026-09-30 11:46:15,592 - feature_engineering - INFO -   → Region_Media_7d_TempMin creado
+2026-09-30 11:46:15,645 - feature_engineering - INFO -   → Region_Media_7d_MP25 creado
+2026-09-30 11:46:15,671 - feature_engineering - INFO - Filtrando y limpiando datos...
+2026-09-30 11:46:15,896 - feature_engineering - INFO -   → Filas: 1809733 → 0 (eliminadas 1809733)
+2026-09-30 11:46:15,930 - feature_engineering - INFO - ============================================================
+2026-09-30 11:46:15,930 - feature_engineering - INFO - FEATURE ENGINEERING COMPLETADO
+2026-09-30 11:46:15,930 - feature_engineering - INFO - Archivo: /Users/naferyh/Desktop/Proyectos/Proyecto de título/data/processed/df_modelo.parquet
+2026-09-30 11:46:15,930 - feature_engineering - INFO - Rows: 0, Cols: 27
+2026-09-30 11:46:15,930 - feature_engineering - INFO - ============================================================
+2026-09-30 11:51:17,063 - feature_engineering - INFO - ============================================================
+2026-09-30 11:51:17,063 - feature_engineering - INFO - INICIANDO FEATURE ENGINEERING
+2026-09-30 11:51:17,063 - feature_engineering - INFO - ============================================================
+2026-09-30 11:51:17,063 - feature_engineering - INFO - Cargando datos unificados...
+2026-09-30 11:51:17,209 - feature_engineering - INFO - Datos cargados: 1809733 filas, 19 columnas
+2026-09-30 11:51:17,209 - feature_engineering - INFO - Creando variables de retardo (lags)...
+2026-09-30 11:51:17,471 - feature_engineering - INFO -   → TempMin_Lag_4D creado (shift=4)
+2026-09-30 11:51:17,504 - feature_engineering - INFO -   → MP2_5_Lag_2D creado (shift=2)
+2026-09-30 11:51:17,525 - feature_engineering - INFO - Creando flags binarias de alerta...
+2026-09-30 11:51:17,528 - feature_engineering - INFO -   → Frio_Polar_Flag creado (umbral ≤ 2.0°C)
+2026-09-30 11:51:17,532 - feature_engineering - INFO -   → Alerta_MP25_Flag creado (umbral > 15.0 μg/m³)
+2026-09-30 11:51:17,591 - feature_engineering - INFO -   → Lluvia_Intensa_Flag creado (percentil=90)
+2026-09-30 11:51:17,591 - feature_engineering - INFO - Discretizando temperaturas...
+2026-09-30 11:51:17,685 - feature_engineering - INFO -   → Cat_TempMin creado con bins: ['Muy Frío', 'Frío', 'Templado', 'Cálido', 'Caluroso']
+2026-09-30 11:51:17,685 - feature_engineering - INFO - Calculando estadísticos regionales (rolling 7d)...
+2026-09-30 11:51:18,058 - feature_engineering - INFO -   → Region_Media_7d_TempMin creado
+2026-09-30 11:51:18,114 - feature_engineering - INFO -   → Region_Media_7d_MP25 creado
+2026-09-30 11:51:18,138 - feature_engineering - INFO - Filtrando y limpiando datos...
+2026-09-30 11:51:18,617 - feature_engineering - INFO -   → Filas: 1809733 → 894652 (eliminadas 915081)
+2026-09-30 11:51:19,080 - feature_engineering - INFO - ============================================================
+2026-09-30 11:51:19,080 - feature_engineering - INFO - FEATURE ENGINEERING COMPLETADO
+2026-09-30 11:51:19,080 - feature_engineering - INFO - Archivo: /Users/naferyh/Desktop/Proyectos/Proyecto de título/data/processed/df_modelo.parquet
+2026-09-30 11:51:19,080 - feature_engineering - INFO - Rows: 894652, Cols: 27
+2026-09-30 11:51:19,080 - feature_engineering - INFO - ============================================================
+2026-11-15 21:54:44,883 - feature_engineering - INFO - ============================================================
+2026-11-15 21:54:44,883 - feature_engineering - INFO - INICIANDO FEATURE ENGINEERING
+2026-11-15 21:54:44,883 - feature_engineering - INFO - ============================================================
+2026-11-15 21:54:44,883 - feature_engineering - INFO - Cargando datos unificados...
+2026-11-15 21:54:45,018 - feature_engineering - INFO - Datos cargados: 1809733 filas, 19 columnas
+2026-11-15 21:54:45,018 - feature_engineering - INFO - Creando variables de retardo (lags) sobre el calendario...
+2026-11-15 21:54:45,666 - feature_engineering - INFO -   → TempMin_Lag_4D creado (lag calendárico de 4 días)
+2026-11-15 21:54:45,897 - feature_engineering - INFO -   → MP2_5_Lag_2D creado (lag calendárico de 2 días)
+2026-11-15 21:54:45,998 - feature_engineering - INFO - Creando flags binarias de alerta...
+2026-11-15 21:54:46,002 - feature_engineering - INFO -   → Frio_Polar_Flag creado (umbral ≤ 2.0°C)
+2026-11-15 21:54:46,005 - feature_engineering - INFO -   → Alerta_MP25_Flag creado (umbral > 15.0 μg/m³)
+2026-11-15 21:54:46,160 - feature_engineering - INFO -   → Lluvia_Intensa_Flag creado (percentil=90, umbral train-only < 2025-01-01)
+2026-11-15 21:54:46,160 - feature_engineering - INFO - Discretizando temperaturas...
+2026-11-15 21:54:46,238 - feature_engineering - INFO -   → Cat_TempMin creado con bins: ['Muy Frío', 'Frío', 'Templado', 'Cálido', 'Caluroso']
+2026-11-15 21:54:46,239 - feature_engineering - INFO - Calculando estadísticos regionales (rolling 7d calendario)...
+2026-11-15 21:54:46,958 - feature_engineering - INFO -   → Region_Media_7d_TempMin creado (ventana calendario [T-6..T])
+2026-11-15 21:54:47,214 - feature_engineering - INFO -   → Region_Media_7d_MP25 creado (ventana calendario [T-6..T])
+2026-11-15 21:54:47,328 - feature_engineering - INFO - Filtrando y limpiando datos...
+2026-11-15 21:54:47,758 - feature_engineering - INFO -   → Filas: 1809733 → 889976 (eliminadas 919757)
+2026-11-15 21:54:48,183 - feature_engineering - INFO - ============================================================
+2026-11-15 21:54:48,183 - feature_engineering - INFO - FEATURE ENGINEERING COMPLETADO
+2026-11-15 21:54:48,183 - feature_engineering - INFO - Archivo: /Users/naferyh/Desktop/Proyectos/Proyecto de título/data/processed/df_modelo.parquet
+2026-11-15 21:54:48,183 - feature_engineering - INFO - Rows: 889976, Cols: 27
+2026-11-15 21:54:48,183 - feature_engineering - INFO - ============================================================
+2026-11-15 21:56:14,064 - feature_engineering - INFO - Creando variables de retardo (lags) sobre el calendario...
+2026-11-15 21:56:14,722 - feature_engineering - INFO -   → TempMin_Lag_4D creado (lag calendárico de 4 días)
+2026-11-15 21:56:14,960 - feature_engineering - INFO -   → MP2_5_Lag_2D creado (lag calendárico de 2 días)
+2026-11-15 21:57:36,202 - feature_engineering - INFO - Creando variables de retardo (lags) sobre el calendario...
+2026-11-15 21:57:36,747 - feature_engineering - INFO -   → TempMin_Lag_4D creado (lag calendárico de 4 días)
+2026-11-15 21:57:36,929 - feature_engineering - INFO -   → MP2_5_Lag_2D creado (lag calendárico de 2 días)
+2026-11-15 21:57:54,700 - feature_engineering - INFO - Creando variables de retardo (lags) sobre el calendario...
+2026-11-15 21:57:55,248 - feature_engineering - INFO -   → TempMin_Lag_4D creado (lag calendárico de 4 días)
+2026-11-15 21:57:55,433 - feature_engineering - INFO -   → MP2_5_Lag_2D creado (lag calendárico de 2 días)
+2026-11-15 21:58:11,794 - feature_engineering - INFO - ============================================================
+2026-11-15 21:58:11,794 - feature_engineering - INFO - INICIANDO FEATURE ENGINEERING
+2026-11-15 21:58:11,794 - feature_engineering - INFO - ============================================================
+2026-11-15 21:58:11,794 - feature_engineering - INFO - Cargando datos unificados...
+2026-11-15 21:58:11,927 - feature_engineering - INFO - Datos cargados: 1809733 filas, 19 columnas
+2026-11-15 21:58:11,927 - feature_engineering - INFO - Creando variables de retardo (lags) sobre el calendario...
+2026-11-15 21:58:12,470 - feature_engineering - INFO -   → TempMin_Lag_4D creado (lag calendárico de 4 días)
+2026-11-15 21:58:12,655 - feature_engineering - INFO -   → MP2_5_Lag_2D creado (lag calendárico de 2 días)
+2026-11-15 21:58:12,749 - feature_engineering - INFO - Creando flags binarias de alerta...
+2026-11-15 21:58:12,752 - feature_engineering - INFO -   → Frio_Polar_Flag creado (umbral ≤ 2.0°C)
+2026-11-15 21:58:12,755 - feature_engineering - INFO -   → Alerta_MP25_Flag creado (umbral > 15.0 μg/m³)
+2026-11-15 21:58:12,914 - feature_engineering - INFO -   → Lluvia_Intensa_Flag creado (percentil=90, umbral train-only < 2025-01-01)
+2026-11-15 21:58:12,914 - feature_engineering - INFO - Discretizando temperaturas...
+2026-11-15 21:58:12,993 - feature_engineering - INFO -   → Cat_TempMin creado con bins: ['Muy Frío', 'Frío', 'Templado', 'Cálido', 'Caluroso']
+2026-11-15 21:58:12,993 - feature_engineering - INFO - Calculando estadísticos regionales (rolling 7d calendario)...
+2026-11-15 21:58:13,732 - feature_engineering - INFO -   → Region_Media_7d_TempMin creado (ventana calendario [T-6..T])
+2026-11-15 21:58:13,994 - feature_engineering - INFO -   → Region_Media_7d_MP25 creado (ventana calendario [T-6..T])
+2026-11-15 21:58:14,111 - feature_engineering - INFO - Filtrando y limpiando datos...
+2026-11-15 21:58:14,564 - feature_engineering - INFO -   → Filas: 1809733 → 889524 (eliminadas 920209)
+2026-11-15 21:58:14,989 - feature_engineering - INFO - ============================================================
+2026-11-15 21:58:14,990 - feature_engineering - INFO - FEATURE ENGINEERING COMPLETADO
+2026-11-15 21:58:14,990 - feature_engineering - INFO - Archivo: /Users/naferyh/Desktop/Proyectos/Proyecto de título/data/processed/df_modelo.parquet
+2026-11-15 21:58:14,990 - feature_engineering - INFO - Rows: 889524, Cols: 27
+2026-11-15 21:58:14,990 - feature_engineering - INFO - ============================================================
+2026-11-16 21:51:11,783 - feature_engineering - INFO - ============================================================
+2026-11-16 21:51:11,784 - feature_engineering - INFO - INICIANDO FEATURE ENGINEERING
+2026-11-16 21:51:11,784 - feature_engineering - INFO - ============================================================
+2026-11-16 21:51:11,784 - feature_engineering - INFO - Cargando datos unificados...
+2026-11-16 21:51:11,913 - feature_engineering - INFO - Datos cargados: 1809733 filas, 19 columnas
+2026-11-16 21:51:11,913 - feature_engineering - INFO - Creando variables de retardo (lags) sobre el calendario...
+2026-11-16 21:51:12,480 - feature_engineering - INFO -   → TempMin_Lag_4D creado (lag calendárico de 4 días)
+2026-11-16 21:51:12,690 - feature_engineering - INFO -   → MP2_5_Lag_2D creado (lag calendárico de 2 días)
+2026-11-16 21:51:12,799 - feature_engineering - INFO - Creando flags binarias de alerta...
+2026-11-16 21:51:12,803 - feature_engineering - INFO -   → Frio_Polar_Flag creado (umbral ≤ 2.0°C)
+2026-11-16 21:51:12,805 - feature_engineering - INFO -   → Alerta_MP25_Flag creado (umbral > 15.0 μg/m³)
+2026-11-16 21:51:12,967 - feature_engineering - INFO -   → Lluvia_Intensa_Flag creado (percentil=90, umbral train-only < 2025-01-01)
+2026-11-16 21:51:12,967 - feature_engineering - INFO - Discretizando temperaturas...
+2026-11-16 21:51:13,047 - feature_engineering - INFO -   → Cat_TempMin creado con bins: ['Muy Frío', 'Frío', 'Templado', 'Cálido', 'Caluroso']
+2026-11-16 21:51:13,047 - feature_engineering - INFO - Calculando estadísticos regionales (rolling 7d calendario)...
+2026-11-16 21:51:13,743 - feature_engineering - INFO -   → Region_Media_7d_TempMin creado (ventana calendario [T-6..T])
+2026-11-16 21:51:13,983 - feature_engineering - INFO -   → Region_Media_7d_MP25 creado (ventana calendario [T-6..T])
+2026-11-16 21:51:14,103 - feature_engineering - INFO - Filtrando y limpiando datos...
+2026-11-16 21:51:14,700 - feature_engineering - INFO -   → Filas: 1809733 → 1572021 (eliminadas 237712)
+2026-11-16 21:51:15,411 - feature_engineering - INFO - ============================================================
+2026-11-16 21:51:15,411 - feature_engineering - INFO - FEATURE ENGINEERING COMPLETADO
+2026-11-16 21:51:15,411 - feature_engineering - INFO - Archivo: /Users/naferyh/Desktop/Proyectos/Proyecto de título/data/processed/df_modelo.parquet
+2026-11-16 21:51:15,411 - feature_engineering - INFO - Rows: 1572021, Cols: 27
+2026-11-16 21:51:15,411 - feature_engineering - INFO - ============================================================
+2026-11-16 22:17:53,570 - feature_engineering - INFO - ============================================================
+2026-11-16 22:17:53,570 - feature_engineering - INFO - INICIANDO FEATURE ENGINEERING
+2026-11-16 22:17:53,570 - feature_engineering - INFO - ============================================================
+2026-11-16 22:17:53,570 - feature_engineering - INFO - Cargando datos unificados...
+2026-11-16 22:17:53,790 - feature_engineering - INFO - Datos cargados: 1809733 filas, 19 columnas
+2026-11-16 22:17:53,790 - feature_engineering - INFO - Creando variables de retardo (lags) sobre el calendario...
+2026-11-16 22:17:54,383 - feature_engineering - INFO -   → TempMin_Lag_4D creado (lag calendárico de 4 días)
+2026-11-16 22:17:54,606 - feature_engineering - INFO -   → MP2_5_Lag_2D creado (lag calendárico de 2 días)
+2026-11-16 22:17:54,719 - feature_engineering - INFO - Creando flags binarias de alerta...
+2026-11-16 22:17:54,722 - feature_engineering - INFO -   → Frio_Polar_Flag creado (umbral ≤ 2.0°C)
+2026-11-16 22:17:54,725 - feature_engineering - INFO -   → Alerta_MP25_Flag creado (umbral > 15.0 μg/m³)
+2026-11-16 22:17:54,898 - feature_engineering - INFO -   → Lluvia_Intensa_Flag creado (percentil=90, umbral train-only < 2025-01-01)
+2026-11-16 22:17:54,899 - feature_engineering - INFO - Discretizando temperaturas...
+2026-11-16 22:17:54,986 - feature_engineering - INFO -   → Cat_TempMin creado con bins: ['Muy Frío', 'Frío', 'Templado', 'Cálido', 'Caluroso']
+2026-11-16 22:17:54,986 - feature_engineering - INFO - Calculando estadísticos regionales (rolling 7d calendario)...
+2026-11-16 22:17:55,756 - feature_engineering - INFO -   → Region_Media_7d_TempMin creado (ventana calendario [T-6..T])
+2026-11-16 22:17:56,009 - feature_engineering - INFO -   → Region_Media_7d_MP25 creado (ventana calendario [T-6..T])
+2026-11-16 22:17:56,140 - feature_engineering - INFO - Filtrando y limpiando datos...
+2026-11-16 22:17:56,824 - feature_engineering - INFO -   → Filas: 1809733 → 1770357 (eliminadas 39376)
+2026-11-16 22:17:57,645 - feature_engineering - INFO - ============================================================
+2026-11-16 22:17:57,645 - feature_engineering - INFO - FEATURE ENGINEERING COMPLETADO
+2026-11-16 22:17:57,645 - feature_engineering - INFO - Archivo: /Users/naferyh/Desktop/Proyectos/Proyecto de título/data/processed/df_modelo.parquet
+2026-11-16 22:17:57,645 - feature_engineering - INFO - Rows: 1770357, Cols: 27
+2026-11-16 22:17:57,645 - feature_engineering - INFO - ============================================================

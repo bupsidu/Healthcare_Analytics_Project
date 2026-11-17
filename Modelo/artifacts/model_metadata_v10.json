@@ -1,0 +1,499 @@
+{
+  "release": "modelo-v10-feriados",
+  "experimento": "v10 — v9 + calendario de feriados nacionales de Chile",
+  "descripcion": "Los feriados mueven la demanda +11-12% de forma estable entre años (2024 ratio 1.106, 2025 ratio 1.124) y varios de los días de mayor demanda relativa del año son feriados. v9 no los modelaba: un feriado que cae lunes se trataba como lunes normal. v10 agrega Es_Feriado, Es_Feriado_Largo, Dias_Al_Feriado (víspera/resaca) y Feriado_Irrumpido (puentes).",
+  "justificacion_diagnostica": {
+    "ratio_demanda_feriado_vs_no_feriado": {
+      "2024": 1.106,
+      "2025": 1.124
+    },
+    "dias_top_demanda_relativa_2025": {
+      "2025-05-21": {
+        "rel": 1.62,
+        "feriado": true
+      },
+      "2025-08-15": {
+        "rel": 1.46,
+        "feriado": true
+      },
+      "2025-06-20": {
+        "rel": 1.4,
+        "feriado": true
+      }
+    }
+  },
+  "fuente_calendario": "Ley 19.973 y Ley 20.215. Feriados nacionales declarados en el módulo, sin dependencias externas, para reproducibilidad auditable. Excluye feriados regionales (no distinguibles por comuna en el dataset).",
+  "features_nuevas": {
+    "Es_Feriado": "la fecha es feriado nacional",
+    "Es_Feriado_Largo": "feriado cae lunes o viernes",
+    "Dias_Al_Feriado": "distancia con signo al feriado más cercano, clip ±7",
+    "Feriado_Irrumpido": "día hábil con feriado a ≤2 días (puente)"
+  },
+  "anti_leakage": {
+    "calendario_publico_conocido_de_antemano": true,
+    "correlaciones_train": {
+      "Es_Feriado": 0.0249,
+      "Es_Feriado_Largo": 0.0067,
+      "Dias_Al_Feriado": 0.039,
+      "Feriado_Irrumpido": 0.0062
+    },
+    "verificacion": {
+      "target_no_es_feature": true,
+      "total_lag_4_coincide_con_T_menos_4": 435327,
+      "total_lag_4_filas_con_historial_comparable": 435327,
+      "total_lag_4_igual_al_mismo_dia": 35724,
+      "lectura": "Total_Lag_4 se construye con shift(4) sobre el calendario ANTES de unir con el target: por construcción no lee Total(e, T). El contador de igualdad con el mismo día solo puede ser > 0 por coincidencia exacta de valor (demanda estable), no por fuga.",
+      "correlacion_total_lag_4_vs_total": 0.802,
+      "correlacion_sospechosa": false,
+      "pred_region_es_feature": true,
+      "pred_e1_es_feature": true
+    }
+  },
+  "features_totales": [
+    "Total_Lag_4",
+    "Share_Trailing",
+    "Pred_Region",
+    "Pred_E1",
+    "Region_Total_Lag_4",
+    "Region_Media_28d_lag4",
+    "Region_Trend_Ratio",
+    "Region_Level_vs_Train",
+    "Estab_Media_28d_lag4",
+    "DOW",
+    "DOW_Sin",
+    "DOW_Cos",
+    "Es_Finde",
+    "DOW_Esperado",
+    "Es_Feriado",
+    "Es_Feriado_Largo",
+    "Dias_Al_Feriado",
+    "Feriado_Irrumpido",
+    "Tipo_CEAR",
+    "Tipo_Hospital",
+    "Tipo_SAPU",
+    "Tipo_SAR",
+    "Tipo_SUR",
+    "Region_Antofagasta",
+    "Region_Arica y Parinacota",
+    "Region_Atacama",
+    "Region_Aysén",
+    "Region_Biobío",
+    "Region_Coquimbo",
+    "Region_La Araucanía",
+    "Region_Los Lagos",
+    "Region_Los Ríos",
+    "Region_Magallanes",
+    "Region_Maule",
+    "Region_Metropolitana",
+    "Region_O'Higgins",
+    "Region_Tarapacá",
+    "Region_Valparaíso",
+    "Region_Ñuble",
+    "Doy",
+    "Doy_Sin",
+    "Doy_Cos",
+    "TempMin",
+    "TempMax",
+    "Precipitacion_mm",
+    "TempMin_Lag_4D",
+    "Region_Media_7d_TempMin",
+    "Frio_Polar_Flag",
+    "Lluvia_Intensa_Flag"
+  ],
+  "n_features": 49,
+  "n_features_v9": 45,
+  "configuracion": {
+    "target": "Total (nivel, sin transformar)",
+    "filas": "una por (establecimiento, fecha)",
+    "split": "train = 2024, test = 2025",
+    "horizonte_horas": 96,
+    "semilla": 42,
+    "hiperparametros": {
+      "n_estimators": 200,
+      "max_depth": 15,
+      "min_samples_split": 50,
+      "min_samples_leaf": 20,
+      "max_features": "sqrt",
+      "random_state": 42
+    }
+  },
+  "metricas_establecimiento": {
+    "n": 226003,
+    "MAE": 7.2514,
+    "RMSE": 10.6382,
+    "R2": 0.806,
+    "sesgo_pct": 4.54
+  },
+  "metricas_por_region": {
+    "Antofagasta": {
+      "n": 7490,
+      "MAE": 6.5198,
+      "RMSE": 9.5366,
+      "R2": 0.7775,
+      "sesgo_pct": 3.34
+    },
+    "Arica y Parinacota": {
+      "n": 1674,
+      "MAE": 9.5137,
+      "RMSE": 13.8993,
+      "R2": 0.8729,
+      "sesgo_pct": 9.14
+    },
+    "Atacama": {
+      "n": 5474,
+      "MAE": 7.0536,
+      "RMSE": 10.2252,
+      "R2": 0.6884,
+      "sesgo_pct": 14.19
+    },
+    "Aysén": {
+      "n": 2091,
+      "MAE": 7.3132,
+      "RMSE": 12.4764,
+      "R2": 0.805,
+      "sesgo_pct": -2.64
+    },
+    "Biobío": {
+      "n": 24629,
+      "MAE": 8.1584,
+      "RMSE": 11.6874,
+      "R2": 0.809,
+      "sesgo_pct": 5.83
+    },
+    "Coquimbo": {
+      "n": 10669,
+      "MAE": 6.2215,
+      "RMSE": 9.0662,
+      "R2": 0.6756,
+      "sesgo_pct": 9.14
+    },
+    "La Araucanía": {
+      "n": 15191,
+      "MAE": 7.1605,
+      "RMSE": 12.4058,
+      "R2": 0.6259,
+      "sesgo_pct": 0.86
+    },
+    "Los Lagos": {
+      "n": 15192,
+      "MAE": 6.7237,
+      "RMSE": 10.4002,
+      "R2": 0.8203,
+      "sesgo_pct": -4.36
+    },
+    "Los Ríos": {
+      "n": 9774,
+      "MAE": 6.0004,
+      "RMSE": 8.4472,
+      "R2": 0.7923,
+      "sesgo_pct": 3.46
+    },
+    "Magallanes": {
+      "n": 3279,
+      "MAE": 6.3594,
+      "RMSE": 9.0433,
+      "R2": 0.7326,
+      "sesgo_pct": 5.61
+    },
+    "Maule": {
+      "n": 21454,
+      "MAE": 6.9841,
+      "RMSE": 10.5657,
+      "R2": 0.8621,
+      "sesgo_pct": 4.26
+    },
+    "Metropolitana": {
+      "n": 54326,
+      "MAE": 8.517,
+      "RMSE": 11.7844,
+      "R2": 0.7849,
+      "sesgo_pct": 3.07
+    },
+    "O'Higgins": {
+      "n": 14084,
+      "MAE": 6.5089,
+      "RMSE": 8.6067,
+      "R2": 0.6801,
+      "sesgo_pct": 14.23
+    },
+    "Tarapacá": {
+      "n": 6535,
+      "MAE": 6.3285,
+      "RMSE": 9.8517,
+      "R2": 0.8527,
+      "sesgo_pct": 5.24
+    },
+    "Valparaíso": {
+      "n": 23911,
+      "MAE": 6.5351,
+      "RMSE": 9.2753,
+      "R2": 0.783,
+      "sesgo_pct": 5.95
+    },
+    "Ñuble": {
+      "n": 10230,
+      "MAE": 5.9268,
+      "RMSE": 8.9146,
+      "R2": 0.8195,
+      "sesgo_pct": 12.3
+    }
+  },
+  "metricas_por_dia_semana": {
+    "Lun": {
+      "n": 32129,
+      "MAE": 7.5234,
+      "RMSE": 11.2817,
+      "R2": 0.8225,
+      "sesgo_pct": -1.95
+    },
+    "Mar": {
+      "n": 32257,
+      "MAE": 7.0152,
+      "RMSE": 10.7139,
+      "R2": 0.8245,
+      "sesgo_pct": 2.02
+    },
+    "Mié": {
+      "n": 32935,
+      "MAE": 7.1901,
+      "RMSE": 10.6117,
+      "R2": 0.7968,
+      "sesgo_pct": 6.92
+    },
+    "Jue": {
+      "n": 32144,
+      "MAE": 6.888,
+      "RMSE": 9.8105,
+      "R2": 0.7969,
+      "sesgo_pct": 9.76
+    },
+    "Vie": {
+      "n": 32181,
+      "MAE": 6.9457,
+      "RMSE": 10.0168,
+      "R2": 0.7751,
+      "sesgo_pct": 11.0
+    },
+    "Sáb": {
+      "n": 32187,
+      "MAE": 7.3585,
+      "RMSE": 10.5709,
+      "R2": 0.7942,
+      "sesgo_pct": 4.98
+    },
+    "Dom": {
+      "n": 32170,
+      "MAE": 7.8413,
+      "RMSE": 11.3676,
+      "R2": 0.8045,
+      "sesgo_pct": 1.51
+    }
+  },
+  "metricas_feriado_vs_no_feriado": {
+    "Feriado": {
+      "n": 10536,
+      "MAE": 8.6091,
+      "RMSE": 12.2932,
+      "R2": 0.7572,
+      "sesgo_pct": 0.28
+    },
+    "No feriado": {
+      "n": 215467,
+      "MAE": 7.185,
+      "RMSE": 10.5507,
+      "R2": 0.8084,
+      "sesgo_pct": 4.77
+    }
+  },
+  "sesgo_por_region_vs_v9": {
+    "Antofagasta": {
+      "v9": 3.02,
+      "v10": 3.34,
+      "delta_pp": 0.32
+    },
+    "Arica y Parinacota": {
+      "v9": 9.29,
+      "v10": 9.14,
+      "delta_pp": -0.15
+    },
+    "Atacama": {
+      "v9": 14.01,
+      "v10": 14.19,
+      "delta_pp": 0.18
+    },
+    "Aysén": {
+      "v9": -2.31,
+      "v10": -2.64,
+      "delta_pp": -0.33
+    },
+    "Biobío": {
+      "v9": 5.49,
+      "v10": 5.83,
+      "delta_pp": 0.34
+    },
+    "Coquimbo": {
+      "v9": 8.74,
+      "v10": 9.14,
+      "delta_pp": 0.4
+    },
+    "La Araucanía": {
+      "v9": 0.78,
+      "v10": 0.86,
+      "delta_pp": 0.08
+    },
+    "Los Lagos": {
+      "v9": -4.79,
+      "v10": -4.36,
+      "delta_pp": 0.43
+    },
+    "Los Ríos": {
+      "v9": 3.41,
+      "v10": 3.46,
+      "delta_pp": 0.05
+    },
+    "Magallanes": {
+      "v9": 5.54,
+      "v10": 5.61,
+      "delta_pp": 0.07
+    },
+    "Maule": {
+      "v9": 4.12,
+      "v10": 4.26,
+      "delta_pp": 0.14
+    },
+    "Metropolitana": {
+      "v9": 2.6,
+      "v10": 3.07,
+      "delta_pp": 0.47
+    },
+    "O'Higgins": {
+      "v9": 14.24,
+      "v10": 14.23,
+      "delta_pp": -0.01
+    },
+    "Tarapacá": {
+      "v9": 5.1,
+      "v10": 5.24,
+      "delta_pp": 0.14
+    },
+    "Valparaíso": {
+      "v9": 5.62,
+      "v10": 5.95,
+      "delta_pp": 0.33
+    },
+    "Ñuble": {
+      "v9": 12.38,
+      "v10": 12.3,
+      "delta_pp": -0.08
+    }
+  },
+  "comparativa": {
+    "v9": {
+      "MAE": 7.2358,
+      "RMSE": 10.6217,
+      "R2": 0.8066,
+      "sesgo_pct": 4.25,
+      "n": 226003
+    },
+    "v10": {
+      "n": 226003,
+      "MAE": 7.2514,
+      "RMSE": 10.6382,
+      "R2": 0.806,
+      "sesgo_pct": 4.54
+    }
+  },
+  "importancia_features": [
+    {
+      "feature": "Pred_E1",
+      "importance": 0.20806297583515873
+    },
+    {
+      "feature": "Estab_Media_28d_lag4",
+      "importance": 0.19760903674970476
+    },
+    {
+      "feature": "DOW_Esperado",
+      "importance": 0.18414935114435615
+    },
+    {
+      "feature": "Total_Lag_4",
+      "importance": 0.13949457935470957
+    },
+    {
+      "feature": "Share_Trailing",
+      "importance": 0.04191995312924551
+    },
+    {
+      "feature": "Tipo_SUR",
+      "importance": 0.02536102205338424
+    },
+    {
+      "feature": "Pred_Region",
+      "importance": 0.024286891795342543
+    },
+    {
+      "feature": "Doy",
+      "importance": 0.023628647480010274
+    },
+    {
+      "feature": "Region_Total_Lag_4",
+      "importance": 0.020784848770768957
+    },
+    {
+      "feature": "Doy_Sin",
+      "importance": 0.01820345334497332
+    },
+    {
+      "feature": "Tipo_SAR",
+      "importance": 0.016542720477079373
+    },
+    {
+      "feature": "Doy_Cos",
+      "importance": 0.016403981618694014
+    },
+    {
+      "feature": "Region_Trend_Ratio",
+      "importance": 0.015338917031122872
+    },
+    {
+      "feature": "Region_Media_28d_lag4",
+      "importance": 0.014538972147574951
+    },
+    {
+      "feature": "Region_Level_vs_Train",
+      "importance": 0.012705845377339223
+    },
+    {
+      "feature": "Region_Media_7d_TempMin",
+      "importance": 0.005250334421922807
+    },
+    {
+      "feature": "TempMax",
+      "importance": 0.004112020992238374
+    },
+    {
+      "feature": "DOW_Cos",
+      "importance": 0.003272737426319128
+    },
+    {
+      "feature": "TempMin",
+      "importance": 0.003209659807317313
+    },
+    {
+      "feature": "TempMin_Lag_4D",
+      "importance": 0.0031861887319538863
+    }
+  ],
+  "sanity_check": {
+    "r2_mayor_a_0_9_sospechoso": false,
+    "r2_observado": 0.806
+  },
+  "tiempo_entrenamiento_segundos": 7.8,
+  "tiempo_total_segundos": 11.3,
+  "limitaciones": [
+    "Split de 2 años: el efecto feriado se valida en 2025, sin posibilidad de probar estabilidad más allá.",
+    "Los feriados regionales (20-sep en Coquimbo, 21-may en Iquique, etc.) no se modelan porque el dataset no distingue comuna.",
+    "El calendario está hardcodeado para 2024-2025; para producción hay que extenderlo o instalar `holidays`."
+  ]
+}

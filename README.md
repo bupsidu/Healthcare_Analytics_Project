@@ -105,11 +105,24 @@ Los artefactos grandes de manejan de la siguiente manera:
 
 - Datos completos: se comparten por el medio interno del equipo.
 - Modelo entrenado: se publica como evidencia versionada en GitHub Releases.
-- Release actual del modelo: `modelo-v6-e2` (RandomForest directo, MAE 9.33 / R² 0.72 en test 2025; ver `Modelo/docs/model_evolution.md` para la evolución v1→v6).
+- Release actual del modelo: `modelo-v6-e2` (RandomForest directo, MAE 9.33 / R² 0.72 en test 2025; ver `Modelo/docs/model_evolution.md` para la evolución v1→v11).
 
 Enlace del release:
 
 `https://github.com/bupsidu/Healthcare_Analytics_Project/releases/tag/modelo-v6-e2`
+
+> La versión **entrenada más reciente** es **v11** (modelo directo con tendencia
+> regional, patrón semanal y ventanas móviles del establecimiento):
+> **MAE 6.787 / RMSE 10.010 / R2 0.8283 / sesgo +2.57%** en test 2025, sobre
+> **16/16 regiones** y 226.003 filas de establecimiento-día.
+> Todavía **no tiene release publicado**: hasta que se publique, el release
+> vigente sigue siendo `modelo-v6-e2`.
+>
+> Evolución resumida del MAE: v5 14.763 → v6 E2 9.334 → v7 8.550 (16 regiones)
+> → v8 8.009 → v9 7.236 → v11 **6.787** (−54% desde v5).
+>
+> Ver `Modelo/docs/model_evolution.md` (detalle técnico) y
+> `Modelo/ENTREGA/EVOLUCION.md` (relato simple).
 
 ## Reproducción del proyecto
 

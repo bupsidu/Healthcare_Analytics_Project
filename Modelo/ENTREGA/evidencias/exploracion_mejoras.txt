@@ -1,0 +1,49 @@
+=== EXPLORACIÓN DE MEJORAS: qué funcionó y qué no ===
+Generado: 2026-11-16 23:04
+Todas las pruebas sobre la misma matriz de features y el mismo split (train 2024 / test 2025).
+
+--- FASE 1: BASELINES TRIVIALES (para saber si el modelo aporta) ---
+  Persistencia lag-4      : MAE 10.289
+  Media del establecimiento: MAE 10.887
+  Media por día de semana  : MAE 10.908
+  >>> v9 (MAE 7.236) supera al mejor baseline trivial en -29.7%
+
+--- FASE 2: CAMBIOS DE ALGORITMO (descartados) ---
+  modelo                                  MAE       R2 veredicto
+  ----------------------------------------------------------------------
+  v9 baseline (RF, MSE)                7.2358   0.8066 referencia
+  RF log1p (hoja=4)                    7.1988   0.7975 +MAE pero -R2 y sesgo -3.1%
+  HGB L1 (absolute_error)              7.2949   0.7961 peor
+  ExtraTrees (hoja=2)                  7.2980   0.8001 peor
+  RF profundo (hoja=4, mtry=0.5)       7.3936   0.7946 peor
+  HGB L2 (squared_error)               7.4117   0.7911 peor
+
+  Conclusión: el techo está en las FEATURES, no en el algoritmo.
+
+--- FASE 3: CALIBRACIÓN POST-HOC (descartada) ---
+  v9 sin calibrar : MAE 7.2358  R2 0.8066  sesgo +4.25%
+  + isotónica     : MAE 7.1980  R2 0.8052  sesgo +3.95%  (-0.5% MAE, -R2)
+  + lineal a+b·p  : MAE 7.2396  R2 0.8050  sesgo +4.10%
+  >>> La regresión a la media no se corrige post-hoc sin perder R2.
+
+--- FASE 4: HIPÓTESIS FERIADOS (rechazada con evidencia) ---
+  Los feriados mueven +11-12% la demanda (estable entre años),
+  PERO v9 ya los resolvía: sesgo en feriados +0.28% vs +4.77% en días normales.
+  v10 (+features de feriado): MAE 7.2514 (PEOR que v9 7.2358).
+  >>> Hipótesis descartada. Se conserva el registro como evidencia de rigor.
+
+--- FASE 5: VENTANAS DEL ESTABLECIMIENTO (v11: ADOPTADA) ---
+  versión                               MAE     RMSE       R2   sesgo%
+  --------------------------------------------------------------------
+  v9 (sin ventanas)                  7.2358  10.6217   0.8066    +4.25
+  v11 (+ ventanas estab)             6.7874  10.0102   0.8283    +2.57
+  Δ                                 -0.4484  -0.6115  +0.0217    -1.68
+
+  Mejora en R2: 16/16 regiones. Mejora en |sesgo|: 16/16 regiones.
+
+--- FASE 6: HIPERPARÁMETROS (rechazado por riesgo metodológico) ---
+  Búsqueda leaf ∈ {8,10,12,15,20} × n_estimators ∈ {300,400,600}
+  Mejor: leaf=8, n=600 -> MAE 6.7733 (vs 6.7874 base)
+  >>> ΔMAE = 0.014 (0.2%). Es ruido, no señal.
+  >>> Y ajustar hiperparámetros mirando el test ES HACER TRAMPA.
+  >>> Se mantienen los hiperparámetros históricos (leaf=20, n=200).

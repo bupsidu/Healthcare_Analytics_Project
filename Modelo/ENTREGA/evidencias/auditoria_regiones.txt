@@ -1,0 +1,27 @@
+=== COBERTURA DE TEMPERATURA POR REGIÓN Y AÑO (16/16) ===
+Fecha: 2026-11-16 22:36
+Las carpetas de macOS vienen en NFD; el pipeline normaliza a NFC.
+Las carpetas 'RM' y 'Bio Bio' son los nombres canónicos de Metropolitana y Biobío.
+
+Región               carpeta                        2024                   2025  Estado
+--------------------------------------------------------------------------------------------
+Arica y Parinacota   Arica y Parinacota     366f / 366 válidos     365f / 365 válidos  OK
+Tarapacá             Tarapacá        366f / 366 válidos     365f / 364 válidos  OK
+Antofagasta          Antofagasta      366f / 366 válidos     365f / 365 válidos  OK
+Atacama              Atacama          366f / 366 válidos     365f / 365 válidos  OK
+Coquimbo             Coquimbo         365f / 365 válidos     365f / 361 válidos  OK
+Valparaíso           Valparaíso      366f / 366 válidos     365f / 365 válidos  OK
+Metropolitana        RM               366f / 366 válidos     365f / 365 válidos  OK
+O'Higgins            O'Higgins        355f / 353 válidos     365f / 324 válidos  OK
+Maule                Maule            366f / 366 válidos     365f / 364 válidos  OK
+Ñuble                Ñuble           366f / 366 válidos     365f / 364 válidos  OK
+Biobío               Bio Bio          338f / 300 válidos     365f / 364 válidos  OK
+La Araucanía         La Araucanía     366f / 366 válidos     365f / 365 válidos  OK
+Los Ríos             Los Ríos        366f / 365 válidos     365f / 364 válidos  OK
+Los Lagos            Los Lagos        366f / 366 válidos     365f / 365 válidos  OK
+Aysén                Aysén           364f / 359 válidos     365f / 365 válidos  OK
+Magallanes           Magallanes       366f / 366 válidos     365f / 365 válidos  OK
+
+RESULTADO: 16/16 regiones con temperatura válida (>=300 días) en 2024 y 2025.
+RESUELTAS EN ESTA ITERACIÓN: Antofagasta 2024, Atacama 2024, Los Lagos 2024,
+Los Lagos 2025 y Tarapacá 2024 (registros horarios consolidados a diario).

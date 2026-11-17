@@ -1,0 +1,157 @@
+{
+  "release": "modelo-v7-ab-sin-persistencia",
+  "experimento": "Corrida B — ablación sin persistencia: mismo pipeline/RF de v7 quitando las 4 features de persistencia (Pred_E1, Total_Lag_4, Share_Trailing, Pred_Region) antes de ajustar",
+  "descripcion": "v7-ab B = matriz de v7 (27 features) menos las 4 codificaciones de la señal de persistencia → 23 features (one-hot tipo/región, Doy/Doy_Sin/Doy_Cos, 7 climáticas regionales). Responde a la P0 de la defensa: cuánto del desempeño de v7 requiere historia de la demanda. Mismo parquet, mismo split 2024/2025, mismos hiperparámetros y semilla que v7 (sin tuning), misma Etapa 1 regional (se ejecuta para construir la matriz y luego se quita).",
+  "base_declarada": {
+    "modelo_base": "v7 (modelo-v7-features-fix, E2 directo)",
+    "parquet": "data/processed/df_modelo.parquet (base declarada: v7 / 2026-11-15)",
+    "script_base": "src/pipelines/reentrenar_modelo_v7_features_fix.py",
+    "script_ablacion": "src/pipelines/reentrenar_v7_ablation.py",
+    "motivo": "Directiva T2: las 3 codificaciones de persistencia (Pred_E1 0,311 + Total_Lag_4 0,304 + Share_Trailing 0,113) suman 0,728 de la importancia total de v7; sin esta ablación no se puede atribuir el desempeño a clima/calendario vs autocorrelación."
+  },
+  "features": [
+    "Tipo_CEAR",
+    "Tipo_Hospital",
+    "Tipo_SAPU",
+    "Tipo_SAR",
+    "Tipo_SUR",
+    "Region_Antofagasta",
+    "Region_Arica y Parinacota",
+    "Region_Atacama",
+    "Region_Coquimbo",
+    "Region_Magallanes",
+    "Region_Maule",
+    "Region_Metropolitana",
+    "Region_O'Higgins",
+    "Doy",
+    "Doy_Sin",
+    "Doy_Cos",
+    "TempMin",
+    "TempMax",
+    "Precipitacion_mm",
+    "TempMin_Lag_4D",
+    "Region_Media_7d_TempMin",
+    "Frio_Polar_Flag",
+    "Lluvia_Intensa_Flag"
+  ],
+  "n_features": 23,
+  "features_quitadas": [
+    "Pred_E1",
+    "Total_Lag_4",
+    "Share_Trailing",
+    "Pred_Region"
+  ],
+  "configuracion": {
+    "target": "Total (nivel, sin transformar)",
+    "filas": "una por (establecimiento, fecha)",
+    "split": "train = 2024, test = 2025 (idéntico a v7)",
+    "modelo": "RandomForestRegressor (hiperparámetros del v5, SIN tuning)",
+    "semilla": 42,
+    "hiperparametros": {
+      "n_estimators": 200,
+      "max_depth": 15,
+      "min_samples_split": 50,
+      "min_samples_leaf": 20,
+      "max_features": "sqrt",
+      "random_state": 42
+    },
+    "hiperparametros_identicos_a_v7": true,
+    "horizonte_horas": 96,
+    "lag_dias": 4,
+    "features_detalle": {
+      "one_hot_tipo_establecimiento": [
+        "Tipo_CEAR",
+        "Tipo_Hospital",
+        "Tipo_SAPU",
+        "Tipo_SAR",
+        "Tipo_SUR"
+      ],
+      "one_hot_region": [
+        "Region_Antofagasta",
+        "Region_Arica y Parinacota",
+        "Region_Atacama",
+        "Region_Coquimbo",
+        "Region_Magallanes",
+        "Region_Maule",
+        "Region_Metropolitana",
+        "Region_O'Higgins"
+      ],
+      "estacionalidad": [
+        "Doy",
+        "Doy_Sin",
+        "Doy_Cos"
+      ],
+      "clima_regional_dia_T": [
+        "TempMin",
+        "TempMax",
+        "Precipitacion_mm",
+        "TempMin_Lag_4D",
+        "Region_Media_7d_TempMin",
+        "Frio_Polar_Flag",
+        "Lluvia_Intensa_Flag"
+      ]
+    }
+  },
+  "metricas_establecimiento": {
+    "n": 118308,
+    "MAE": 14.0248,
+    "RMSE": 18.833,
+    "R2": 0.4237,
+    "sesgo_pct": 8.2
+  },
+  "comparativa_contra_base_A": {
+    "base_A_v7": {
+      "n": 118308,
+      "MAE": 9.3011,
+      "RMSE": 13.0099,
+      "R2": 0.725,
+      "sesgo_pct": 8.78
+    },
+    "fuente_base_A": "models/model_metadata_v7.json",
+    "caidas_observadas": {
+      "MAE": 4.7237,
+      "RMSE": 5.8231,
+      "R2": 0.3013,
+      "sesgo_pct_pts": -0.58
+    },
+    "nota_redaccion": "R² NO es aditivo: 'caidas_observadas' son diferencias observadas en el mismo split (de 0,7250 a 0.4237), NO fracciones del desempeño explicadas por las features quitadas."
+  },
+  "identidad_pipeline_vs_v7": {
+    "mismo_parquet": true,
+    "mismo_split": true,
+    "mismos_hiperparametros_semilla": true,
+    "etapa_1_identica_a_v5": false,
+    "etapa_1_metrics_test_2025": {
+      "MAE": 459.626,
+      "RMSE": 676.5582,
+      "R2": 0.861
+    },
+    "matriz_base_A_verificada_anti_leakage": {
+      "target_no_es_feature": true,
+      "total_lag_4_coincide_con_T_menos_4": 218777,
+      "total_lag_4_filas_con_historial_comparable": 218777,
+      "total_lag_4_igual_al_mismo_dia": 16331,
+      "lectura": "Total_Lag_4 se construye con shift(4) sobre el calendario ANTES de unir con el target: por construcción no lee Total(e, T). El contador de igualdad con el mismo día solo puede ser > 0 por coincidencia exacta de valor (demanda estable), no por fuga.",
+      "correlacion_total_lag_4_vs_total": 0.8015,
+      "correlacion_sospechosa": false,
+      "pred_region_es_feature": true,
+      "pred_e1_es_feature": true
+    },
+    "nota": "La matriz completa A (27 features) se construye con las mismas funciones del módulo v7 y se verifica anti-leakage ANTES de recortar; B/C son subconjuntos de esa misma matriz imputada con medianas de solo train."
+  },
+  "sanity_check": {
+    "r2_mayor_a_0_9_sospechoso_de_fuga": false,
+    "predicciones_nan": false,
+    "r2_mayor_que_base_A": false
+  },
+  "interpretacion_preregistrada": {
+    "B_cerca_de_0_2": "el sistema vive de la persistencia",
+    "B_cerca_de_0_5": "el resto (clima+calendario+tipo) aporta sustantivamente",
+    "C_mmu_b": "parte del aporte de B era estacionalidad de calendario",
+    "advertencia": "R² no es aditivo entre corridas."
+  },
+  "sin_joblib": "No se vuelca ningún modelo RF (los dumps de ~44 MB no aportan a la defensa T2); este JSON es el artefacto de evidencia.",
+  "salida": "models/model_metadata_v7_ab_sin_persistencia.json",
+  "tiempo_entrenamiento_segundos": 0.9,
+  "tiempo_total_script_segundos": 3.4
+}
