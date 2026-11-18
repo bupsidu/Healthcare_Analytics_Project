@@ -57,7 +57,7 @@ export const authClient = {
         throw new Error('No se pudo obtener el perfil del usuario desde la base de datos.')
       }
 
-      const userData = await meResponse.json()
+            const userData = await meResponse.json()
 
       const session = {
         token: tokenData.access_token,
@@ -67,6 +67,8 @@ export const authClient = {
           email: userData.email,
           nombre: userData.full_name || 'Personal Médico',
           rol: userData.role || 'medico',
+          // Guardar el establecimiento real que entrega Matías desde PostgreSQL
+          establecimiento: userData.establecimiento || null,
         },
       }
 

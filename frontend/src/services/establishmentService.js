@@ -26,29 +26,37 @@ export const establishmentService = {
    * 2. Prioridad 2: Cruza el dominio del correo (@...) con los centros de la base de datos.
    * 3. Prioridad 3 (Cuentas de prueba): Toma el primer centro disponible en la base de datos.
    */
+   /**
+   * Resuelve dinámicamente el establecimiento del usuario autenticado.
+   */
   async resolverEstablecimiento(usuario) {
-    // 1. Si el backend ya le asignó un hospital en la base de datos
+    // 1. Si el usuario ya trae su hospital en memoria
     if (usuario?.establecimiento) {
       return usuario.establecimiento
     }
 
-    // 2. Consultar los establecimientos reales guardados en PostgreSQL
-    const lista = await this.getEstablecimientos()
-
-    if (lista.length > 0) {
-      const email = usuario?.email?.toLowerCase() || ''
-      const dominio = email.split('@')[1] || ''
-      // Buscar coincidencia real entre el dominio del correo y el nombre o comuna del centro
-      const coincidencia = lista.find((est) => {
-        const nombreLimpio = est.nombre.toLowerCase()
-        const comunaLimpia = est.comuna.toLowerCase()
-        return dominio.includes(nombreLimpio) || dominio.includes(comunaLimpia)
-      })
-      if (coincidencia) {
-        return coincidencia
+    // 2. Si no lo tiene en memoria, consultarlo directamente al endpoint /api/auth/me
+    try {
+      const token = authClient.getToken()
+      if (token) {
+        const resp = await fetch(`${API_BASE_URL}/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        if (resp.ok) {
+          const userData = await resp.json()
+          if (userData.establecimiento) {
+            // Actualizar la sesión guardada en localStorage
+            const sesionLocal = JSON.parse(localStorage.getItem('hospital_user') || '{}')
+            sesionLocal.establecimiento = userData.establecimiento
+            localStorage.setItem('hospital_user', JSON.stringify(sesionLocal))
+            return userData.establecimiento
+          }
+        }
       }
+    } catch (err) {
+      console.warn('No fue posible obtener el establecimiento desde el backend:', err)
     }
-    // Si el usuario no tiene hospital asignado ni su correo coincide con uno real, devuelve null
+
     return null
-  },
+  }
 }

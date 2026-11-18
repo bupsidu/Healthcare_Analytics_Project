@@ -107,17 +107,17 @@ class ProjectionDay(BaseModel):
     mp2_5: float | None
     mp10: float | None
     total_lag_4: int | None = Field(description="Demanda del hospital 4 días antes; null si no se cargó")
-    pacientes_predichos: int | None = Field(default=None, description="null si falta la demanda de hace 4 días")
+    pacientes_predichos: int | None = Field(default=None, description="Predicción guardada o respaldo provisional; null si ninguno está disponible")
     nivel_alerta: str | None = None
     color_semaforo: str | None = None
 
 
 class Projection(BaseModel):
-    """Proyección de 96 h de un hospital: clima y contaminación por día, más la predicción provisoria."""
+    """Proyección diaria con predicciones guardadas y respaldo provisional cuando falten."""
 
     establecimiento: EstablishmentSummary
     prediccion_disponible: bool = Field(description="true si al menos un día tiene pacientes_predichos")
-    prediccion_provisoria: bool = Field(description="true: calculada con entradas provisorias, no validada")
+    prediccion_provisoria: bool = Field(description="true si al menos un resultado procede del respaldo provisional")
     nota: str
     dias: list[ProjectionDay]
 

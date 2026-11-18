@@ -1,4 +1,4 @@
-"""Carga explícita y consulta de datos. No ejecuta ni prepara el modelo ML."""
+"""Catálogo, datos diarios y proyección con predicciones almacenadas o respaldo provisional."""
 
 import logging
 from datetime import date, timedelta
@@ -15,6 +15,7 @@ from app.db.session import get_db
 from app.models.establishment import Establishment
 from app.models.ml_data import DailyClimate, DailyDemand, StoredPrediction
 from app.schemas.climate import ClimateResponse
+from app.schemas.prediction import AlertColor, AlertLevel
 from app.services.open_meteo import REGION_COORDS, daily_summaries
 from app.services.provisional_inputs import provisional_prediction
 from app.schemas.ml_data import (
@@ -137,6 +138,15 @@ def hospital_climate(id: int, db: Session = Depends(get_db), hospital=Depends(ho
     return fetch_hospital_forecast(id, db, hospital)[1]
 
 
+def _nivel_desde_pacientes(pacientes: int) -> tuple[str, str]:
+    """Semáforo demostrativo, con los mismos umbrales que ml_service."""
+    if pacientes >= 30:
+        return AlertLevel.CRITICAL.value, AlertColor.RED.value
+    if pacientes >= 15:
+        return AlertLevel.MODERATE.value, AlertColor.YELLOW.value
+    return AlertLevel.NORMAL.value, AlertColor.GREEN.value
+
+
 @router.get("/predict/proyeccion-96h", response_model=Projection)
 def projection_96h(
     establecimiento_id: int | None = None,
@@ -146,8 +156,9 @@ def projection_96h(
 ):
     """Proyección de 96 h del hospital. El médico no envía nada (se usa su hospital); el admin indica `establecimiento_id`.
 
-    Entrega clima y contaminación por día, la demanda de hace 4 días y pacientes predichos con el modelo v6
-    usando entradas PROVISORIAS (ver app/services/provisional_inputs.py). No se guarda en `predicciones`."""
+    Prioriza la predicción almacenada más reciente de cada fecha y establecimiento.
+    Si no existe, utiliza el modelo v6 con entradas PROVISORIAS. Esta consulta no guarda
+    nuevas predicciones."""
     if establecimiento_id is None:
         if hospital is None:
             raise HTTPException(422, "Indique establecimiento_id")
@@ -163,22 +174,41 @@ def projection_96h(
                 DailyDemand.fecha.in_([day["fecha"] - timedelta(days=4) for day in days]),
             )
         }
+    guardadas = {}
+    if row.id_establecimiento is not None:
+        for p in db.query(StoredPrediction).filter(
+            StoredPrediction.id_establecimiento == row.id_establecimiento,
+            StoredPrediction.fecha.in_([d["fecha"] for d in days]),
+        ).order_by(StoredPrediction.fecha_hora_prediccion.desc()):
+            guardadas.setdefault(p.fecha, p)
+
     result_days = []
     for day in days:
         lag = lags.get(day["fecha"] - timedelta(days=4))
-        prediction = provisional_prediction(service, row, day, lag)
+        guardada = guardadas.get(day["fecha"])
+        if guardada is not None:
+            pacientes = guardada.pacientes_predichos
+            nivel, color = _nivel_desde_pacientes(pacientes)
+        else:
+            prediction = provisional_prediction(service, row, day, lag)
+            pacientes = prediction.pacientes_predichos if prediction else None
+            nivel = prediction.nivel_alerta.value if prediction else None
+            color = prediction.color_semaforo.value if prediction else None
         result_days.append({
             **day, "total_lag_4": lag,
-            "pacientes_predichos": prediction.pacientes_predichos if prediction else None,
-            "nivel_alerta": prediction.nivel_alerta.value if prediction else None,
-            "color_semaforo": prediction.color_semaforo.value if prediction else None,
+            "pacientes_predichos": pacientes,
+            "nivel_alerta": nivel,
+            "color_semaforo": color,
         })
     return {
         "establecimiento": row,
         "prediccion_disponible": any(d["pacientes_predichos"] is not None for d in result_days),
-        "prediccion_provisoria": True,
-        "nota": "Estimación provisoria: usa entradas de reemplazo (cuota fija, sin modelo regional) hasta que ML defina las reales. "
-                "Un día sin demanda cargada 4 días antes no tiene predicción.",
+        "prediccion_provisoria": any(
+            d["pacientes_predichos"] is not None and d["fecha"] not in guardadas for d in result_days
+        ),
+        "nota": "Se prioriza la última predicción guardada de cada día y hospital. Si no existe, se intenta "
+                "una estimación provisoria con entradas de reemplazo; si tampoco está disponible, queda en null. "
+                "El semáforo utiliza umbrales de demostración.",
         "dias": result_days,
     }
 
