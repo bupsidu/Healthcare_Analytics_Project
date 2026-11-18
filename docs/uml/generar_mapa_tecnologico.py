@@ -14,7 +14,7 @@ Cada conexión corresponde a código o configuración real del repositorio:
   Pipeline     → PostgreSQL   : carga de demanda histórica por SQL
 
 Uso:
-    python3 ENTREGA/diagramas/generar_mapa_tecnologico.py
+    python3 docs/uml/generar_mapa_tecnologico.py
 """
 
 from __future__ import annotations

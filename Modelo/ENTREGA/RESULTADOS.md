@@ -1,6 +1,6 @@
 # RESULTADOS — Métricas y análisis
 
-**Modelo vigente:** v12 · **Evaluación:** test 2026 (199.155 filas de
+**Modelo vigente:** v11 · **Evaluación:** test 2025 (226.003 filas de
 establecimiento-día) · **Semilla:** 42
 
 > Si querés el relato simple de cómo se llegó acá (sin métricas ni jerga),
@@ -12,14 +12,14 @@ establecimiento-día) · **Semilla:** 42
 
 | Métrica | Valor | Cómo leerlo |
 |---|---|---|
-| **MAE** | **6.827** | error promedio de ~7 atenciones por establecimiento-día |
-| **RMSE** | 10.411 | penaliza más los errores grandes |
-| **R2** | 0.8056 | explica el 80.6% de la varianza |
-| **Sesgo** | +0.45% | prácticamente insesgado a nivel agregado |
-| **n** | 199.155 | filas de test 2026 (estab-día, causas sumadas) |
+| **MAE** | **6.787** | error promedio de ~7 atenciones por establecimiento-día |
+| **RMSE** | 10.010 | penaliza más los errores grandes |
+| **R2** | 0.8283 | explica el 82.8% de la varianza |
+| **Sesgo** | +2.57% | sobreestima levemente el total agregado |
+| **n** | 226.003 | filas de test (estab-día, causas sumadas) |
 
 Para referencia: la demanda media por establecimiento-día es ~25 atenciones,
-así que un MAE de 6.83 representa ~27% del nivel típico.
+así que un MAE de 6.79 representa ~27% del nivel típico.
 
 **Baselines triviales de comparación** (mismo split):
 
@@ -243,7 +243,7 @@ históricos.
 | `artifacts/model_metadata_v11.json` | Métricas, features, verificación, limitaciones | ✅ versionado |
 | `artifacts/model_rf_region_v7.joblib` | Etapa 1 regional (proveedor de `Pred_Region`) | ✅ versionado (1.3 MB) |
 | `artifacts/model_metadata_v8/v9/v10.json` | Metadata de versiones previas | ✅ versionado |
-| `../Modelo/models/model_rf_directo_v12.joblib` | Modelo vigente (60 features, 200 árboles) | ❌ 90 MB — se regenera |
+| `../models/model_rf_directo_v11.joblib` | Modelo vigente (60 features, 200 árboles) | ❌ 90 MB — se regenera |
 | `data/processed/df_modelo.parquet` | Dataset de modelado (1.77M filas) | ❌ — se regenera |
 
 **Sobre los modelos `.joblib`:** los modelos directos pesan entre 45 y 90 MB y el
