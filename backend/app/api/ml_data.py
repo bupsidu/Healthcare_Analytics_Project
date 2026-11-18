@@ -167,13 +167,28 @@ def projection_96h(
     first_day = forecast.pronostico_horario[0].fecha_hora.date()
     days = [day for day in daily_summaries(forecast) if day["fecha"] > first_day]  # de mañana en adelante: días completos
     lags = {}
+    ultima_demanda = None  # (fecha, total) del registro más reciente disponible
     if row.id_establecimiento is not None:
+        fechas_lag = [day["fecha"] - timedelta(days=4) for day in days]
         lags = {
             d.fecha: d.total for d in db.query(DailyDemand).filter(
                 DailyDemand.id_establecimiento == row.id_establecimiento,
-                DailyDemand.fecha.in_([day["fecha"] - timedelta(days=4) for day in days]),
+                DailyDemand.fecha.in_(fechas_lag),
             )
         }
+        # Fallback: si el DEIS aún no publicó el día T-4 exacto (rezago habitual
+        # de ~5 días), se usa la demanda observada más reciente del hospital.
+        # El modelo se entrenó con T-4 exacto; usar un lag mayor introduce
+        # degradación, que se reporta en `antiguedad_lag_dias`.
+        if any(f not in lags for f in fechas_lag):
+            ultima = (
+                db.query(DailyDemand)
+                .filter(DailyDemand.id_establecimiento == row.id_establecimiento)
+                .order_by(DailyDemand.fecha.desc())
+                .first()
+            )
+            if ultima is not None:
+                ultima_demanda = (ultima.fecha, ultima.total)
     guardadas = {}
     if row.id_establecimiento is not None:
         for p in db.query(StoredPrediction).filter(
@@ -184,7 +199,12 @@ def projection_96h(
 
     result_days = []
     for day in days:
-        lag = lags.get(day["fecha"] - timedelta(days=4))
+        fecha_lag = day["fecha"] - timedelta(days=4)
+        lag = lags.get(fecha_lag)
+        antiguedad = 4
+        if lag is None and ultima_demanda is not None:
+            lag = ultima_demanda[1]
+            antiguedad = (day["fecha"] - ultima_demanda[0]).days
         guardada = guardadas.get(day["fecha"])
         if guardada is not None:
             pacientes = guardada.pacientes_predichos
@@ -196,6 +216,7 @@ def projection_96h(
             color = prediction.color_semaforo.value if prediction else None
         result_days.append({
             **day, "total_lag_4": lag,
+            "antiguedad_lag_dias": antiguedad,
             "pacientes_predichos": pacientes,
             "nivel_alerta": nivel,
             "color_semaforo": color,
@@ -207,8 +228,9 @@ def projection_96h(
             d["pacientes_predichos"] is not None and d["fecha"] not in guardadas for d in result_days
         ),
         "nota": "Se prioriza la última predicción guardada de cada día y hospital. Si no existe, se intenta "
-                "una estimación provisoria con entradas de reemplazo; si tampoco está disponible, queda en null. "
-                "El semáforo utiliza umbrales de demostración.",
+                "una estimación provisoria. Cuando el DEIS aún no publicó la demanda del día T-4 exacto "
+                "(rezago habitual de ~5 días), se usa la observación más reciente del hospital y se informa "
+                "su antigüedad en `antiguedad_lag_dias`. El semáforo utiliza umbrales de demostración.",
         "dias": result_days,
     }
 

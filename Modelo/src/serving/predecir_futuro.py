@@ -155,11 +155,20 @@ def main() -> None:
             s_reg = s_reg.reindex(pd.date_range(s_reg.index.min(), f, freq="D")).ffill()
 
             def lag(s, k):
-                v = s.shift(k).iloc[-1] if len(s) > k else np.nan
-                return float(v) if pd.notna(v) else np.nan
+                """Lag de k días; si no existe (rezago del DEIS), usa el dato más
+                reciente. Devuelve (valor, antiguedad_real_en_dias)."""
+                if len(s) > k and pd.notna(s.shift(k).iloc[-1]):
+                    return float(s.shift(k).iloc[-1]), k
+                # Fallback: observación más reciente disponible
+                obs = s.dropna()
+                if obs.empty:
+                    return np.nan, None
+                antig = (f - obs.index[-1]).days
+                return float(obs.iloc[-1]), max(antig, 0)
 
-            lag4 = lag(s_est, 4)
-            lags = {f"L{k}": lag(s_est, k) for k in range(4, 11)}
+            lag4_raw, lag4_antig = lag(s_est, 4)
+            lag4 = lag4_raw
+            lags = {f"L{k}": lag(s_est, k)[0] for k in range(4, 11)}
             w7 = pd.Series(list(lags.values()), dtype=float)
             w28 = s_est.shift(4).rolling(28, min_periods=7)
 
@@ -181,9 +190,9 @@ def main() -> None:
             filas.append({
                 "id_establecimiento": code, "nombre": nombre, "region": region,
                 "tipo": tipo, "fecha": f,
-                "Total_Lag_4": lag4, "Share_Trailing": share,
+                "Total_Lag_4": lag4, "lag4_antiguedad_dias": lag4_antig, "Share_Trailing": share,
                 "Pred_Region": pred_r, "Pred_E1": share * pred_r,
-                "Region_Total_Lag_4": lag(s_reg, 4),
+                "Region_Total_Lag_4": lag(s_reg, 4)[0],
                 "Region_Media_28d_lag4": float(rec28.iloc[-1]),
                 "Region_Trend_Ratio": float(rec28.iloc[-1] / prev28.iloc[-1])
                     if pd.notna(prev28.iloc[-1]) and prev28.iloc[-1] else 1.0,
@@ -197,7 +206,7 @@ def main() -> None:
                 "W7_min": float(w7.min()), "W7_max": float(w7.max()),
                 "W28_std": float(w28.std().iloc[-1]) if pd.notna(w28.std().iloc[-1]) else np.nan,
                 "W28_max": float(w28.max().iloc[-1]) if pd.notna(w28.max().iloc[-1]) else np.nan,
-                "L4_over_L10": float(lag4 / lag(s_est, 10)) if lag(s_est, 10) else 1.0,
+                "L4_over_L10": float(lag4 / lag(s_est, 10)[0]) if lag(s_est, 10)[0] else 1.0,
                 "W7_vs_W28": float(w7.mean() / rec28.iloc[-1]) if rec28.iloc[-1] else 1.0,
                 "Doy": doy, "Doy_Sin": float(np.sin(2*np.pi*doy/365.25)),
                 "Doy_Cos": float(np.cos(2*np.pi*doy/365.25)),
