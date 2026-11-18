@@ -425,7 +425,7 @@ El mapa con logos está renderizado como PNG en `png/mapa_tecnologico.png`
 (2512×1988 px). Para regenerarlo tras cambiar logos o tecnologías:
 
 ```bash
-python3 docs/uml/generar_mapa_tecnologico.py
+python3 ENTREGA/diagramas/generar_mapa_tecnologico.py
 ```
 
 El script lee los SVG de `logos/` y compone la imagen por capas.
