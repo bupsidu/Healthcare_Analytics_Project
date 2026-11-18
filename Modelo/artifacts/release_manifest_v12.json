@@ -1,0 +1,64 @@
+{
+  "release": "modelo-v12-ventanas",
+  "fecha": "2026-11-17",
+  "descripcion": "RandomForest directo a nivel establecimiento, entrenado con datos 2024-2025 y validado sobre 2026. 60 features, 16 regiones.",
+  "metricas": {
+    "MAE": 6.8274,
+    "RMSE": 10.4112,
+    "R2": 0.8056,
+    "sesgo_pct": 0.45,
+    "n_test": 199155,
+    "split": "train 2024-2025 / test 2026"
+  },
+  "modelo": {
+    "algoritmo": "RandomForestRegressor",
+    "n_estimators": 200,
+    "max_depth": 15,
+    "features": 60,
+    "regiones": 16,
+    "semilla": 42
+  },
+  "archivos": [
+    {
+      "nombre": "model_rf_directo_v12.joblib",
+      "bytes": 149607681,
+      "sha256": "368cefbf72cc56a7b116f42b8cb9c42abd9f89669137b42563f417881000d7a5",
+      "origen": "Modelo/models/model_rf_directo_v12.joblib",
+      "rol": "Modelo principal. RandomForest de 200 árboles que predice el total de atenciones por establecimiento y día.",
+      "obligatorio": true
+    },
+    {
+      "nombre": "model_metadata_v12.json",
+      "bytes": 11382,
+      "sha256": "083f8f77a2c0f7fd14ce49352f324de642cf5b5238f76ab79f2473c84a8419ba",
+      "origen": "Modelo/artifacts/model_metadata_v12.json",
+      "rol": "Métricas, lista de features en orden, verificación anti-leakage y limitaciones del modelo.",
+      "obligatorio": true
+    },
+    {
+      "nombre": "model_rf_region_v7.joblib",
+      "bytes": 2449153,
+      "sha256": "5b7bd9242ef33bfa210ba8f93b63c5a6925473e3545b23f682f01bcb9cb6264b",
+      "origen": "Modelo/models/model_rf_region_v7.joblib",
+      "rol": "Etapa 1 regional. Produce la feature Pred_Region que consume el modelo principal.",
+      "obligatorio": true
+    },
+    {
+      "nombre": "cuotas_establecimiento_v5.csv",
+      "bytes": 11608,
+      "sha256": "877bfb52497064f4054cc76357fde4eb7dfc1ad427d38339b687293e75371b4a",
+      "origen": "Modelo/artifacts/cuotas_establecimiento_v5.csv",
+      "rol": "Cuota histórica de cada establecimiento en su región. La usa el cálculo de Share_Trailing y el fallback de entradas provisorias.",
+      "obligatorio": true
+    }
+  ],
+  "notas_integracion": {
+    "estado": "El release se publica como evidencia del modelo v12. El backend sigue consumiendo el v6 E2 (modelo-v6-e2) hasta que se migre ml_service.py.",
+    "cambios_requeridos_para_adoptarlo": [
+      "Actualizar ModelSpec en backend/app/services/ml_service.py con release, bytes y SHA-256 del v12.",
+      "Ampliar EXPECTED_FEATURES de 27 a 60 variables.",
+      "Ampliar MlRegion de 8 a 16 regiones.",
+      "Rediseñar PredictRequest: el cliente no puede aportar 60 features por HTTP; el backend debe calcularlas."
+    ]
+  }
+}

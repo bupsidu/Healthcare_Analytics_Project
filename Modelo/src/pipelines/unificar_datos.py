@@ -56,7 +56,7 @@ PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 # ---------------------------------------------------------------------------
 # Constantes
 # ---------------------------------------------------------------------------
-YEARS = ["2024", "2025"]
+YEARS = ["2024", "2025", "2026"]
 REGIONS_COORDS = {
     "Arica y Parinacota": {"lat": -18.47, "lon": -70.31},
     "Tarapacá": {"lat": -20.21, "lon": -70.15},
@@ -403,7 +403,9 @@ def load_pollution_data() -> pd.DataFrame:
     Returns:
         DataFrame con columnas: [Fecha, MP2_5, MP10, Region]
     """
-    file_path = RAW_DIR / "Contaminacion 2024 y 2025.csv"
+    file_path = RAW_DIR / "Contaminacion 2024-2026.csv"
+    if not file_path.exists():
+        file_path = RAW_DIR / "Contaminacion 2024 y 2025.csv"
     if not file_path.exists():
         logger.warning("No se encontró archivo de contaminación")
         return pd.DataFrame()
@@ -422,7 +424,9 @@ def load_pollution_data() -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 def load_precipitation_data() -> pd.DataFrame:
     """Carga datos de precipitación consolidados por región."""
-    file_path = RAW_DIR / "Precipitaciones 2024 y 2025.csv"
+    file_path = RAW_DIR / "Precipitaciones 2024-2026.csv"
+    if not file_path.exists():
+        file_path = RAW_DIR / "Precipitaciones 2024 y 2025.csv"
     if not file_path.exists():
         logger.info("No se encontró archivo de precipitaciones consolidado")
         return pd.DataFrame()
@@ -454,11 +458,18 @@ def unify_all_data() -> pd.DataFrame:
     logger.info("INICIANDO PIPELINE DE UNIFICACIÓN DE DATOS")
     logger.info("=" * 60)
 
-    # 1. Salud
-    health_2024 = load_health_data("2024")
-    health_2025 = load_health_data("2025")
-    health_df = pd.concat([health_2024, health_2025], ignore_index=True)
-    logger.info("Datos salud integrados: %d filas", len(health_df))
+    # 1. Salud — carga todos los años de YEARS que tengan archivo disponible
+    partes_salud = []
+    for year in YEARS:
+        ruta = RAW_DIR / f"AtencionesUrgencia{year}.csv"
+        if not ruta.exists():
+            logger.warning("Sin archivo de atenciones para %s (%s); se omite", year, ruta.name)
+            continue
+        partes_salud.append(load_health_data(year))
+    if not partes_salud:
+        raise FileNotFoundError("No hay archivos de atenciones de urgencia en data/raw/")
+    health_df = pd.concat(partes_salud, ignore_index=True)
+    logger.info("Datos salud integrados: %d filas (%s)", len(health_df), ", ".join(YEARS))
 
     # 2. Clima (temp + precipitaciones)
     climate_df = load_climate_data()

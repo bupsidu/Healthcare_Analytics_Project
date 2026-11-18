@@ -67,9 +67,15 @@ import numpy as np
 import pandas as pd
 
 BASE_DIR = Path(__file__).resolve().parents[2]
+
+# Años de train/test. Se pueden sobreescribir por entorno para entrenar v12
+# (train 2024-2025 / test 2026) sin modificar el script de v11.
+import os as _os
+_TRAIN_OVERRIDE = _os.environ.get("TRAIN_YEARS")   # ej: "2024,2025"
+_TEST_OVERRIDE = _os.environ.get("TEST_YEAR")      # ej: "2026"
 RUTA_DATOS = BASE_DIR / "data" / "processed" / "df_modelo.parquet"
-RUTA_MODELO_OUT = BASE_DIR / "models" / "model_rf_directo_v11.joblib"
-RUTA_SALIDA = BASE_DIR / "models" / "model_metadata_v11.json"
+RUTA_MODELO_OUT = BASE_DIR / "models" / f"model_rf_directo_{_os.environ.get('MODEL_TAG', 'v11')}.joblib"
+RUTA_SALIDA = BASE_DIR / "models" / f"model_metadata_{_os.environ.get('MODEL_TAG', 'v11')}.json"
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import reentrenar_modelo_v8_tendencia as v8  # noqa: E402
@@ -134,8 +140,10 @@ def main() -> None:
     df = pd.read_parquet(RUTA_DATOS)
     df["Fecha"] = pd.to_datetime(df["Fecha"])
     df["Año"] = df["Fecha"].dt.year
-    train_raw = df[df["Año"] == v5.TRAIN_YEAR].copy()
-    test_raw = df[df["Año"] == v5.TEST_YEAR].copy()
+    train_years = [int(y) for y in (_TRAIN_OVERRIDE or str(v5.TRAIN_YEAR)).split(",")]
+    test_years = [int(y) for y in (_TEST_OVERRIDE or str(v5.TEST_YEAR)).split(",")]
+    train_raw = df[df["Año"].isin(train_years)].copy()
+    test_raw = df[df["Año"].isin(test_years)].copy()
     panel = v7.cargar_panel(df)
     print(f"  Panel estab+fecha: {len(panel):,}")
 
@@ -186,8 +194,8 @@ def main() -> None:
     base["Doy_Cos"] = np.cos(2 * np.pi * doy / 365.25)
     base["Año"] = base["Fecha"].dt.year
 
-    dtr = base[base["Año"] == v5.TRAIN_YEAR].copy()
-    dte = base[base["Año"] == v5.TEST_YEAR].copy()
+    dtr = base[base["Año"].isin(train_years)].copy()
+    dte = base[base["Año"].isin(test_years)].copy()
 
     print("\n--- Patrón semanal (v9) ---")
     a, b, info_dow = v9.construir_dow_esperado(dtr, dte)
