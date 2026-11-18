@@ -1,6 +1,7 @@
 // frontend/src/components/dashboard/DashboardSection.jsx
 import React, { useState, useEffect } from 'react'
 import KpiCards from './KpiCards'
+import DemandChart from './DemandChart'
 import Card from '../ui/Card'
 import Button from '../ui/Button'
 import { dashboardService } from '../../services/dashboardService'
@@ -49,7 +50,13 @@ export default function DashboardSection({ establecimiento }) {
             <p className="font-semibold text-rose-900">Aviso del panel de control:</p>
             <p>{error}</p>
             <div>
-              <Button type="button" variant="outline" onClick={cargarDatos} icon={RefreshCw} className="!w-auto !py-1.5 !px-3 !text-xs !bg-white">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={cargarDatos}
+                icon={RefreshCw}
+                className="!w-auto !py-1.5 !px-3 !text-xs !bg-white"
+              >
                 Reintentar
               </Button>
             </div>
@@ -62,6 +69,11 @@ export default function DashboardSection({ establecimiento }) {
   return (
     <div className="space-y-6">
       <KpiCards data={datos} />
+      <DemandChart
+        grafico={datos?.grafico}
+        establecimiento={establecimiento}
+        onRefresh={cargarDatos}
+      />
     </div>
   )
 }
