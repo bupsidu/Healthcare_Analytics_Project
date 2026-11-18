@@ -105,24 +105,43 @@ Los artefactos grandes de manejan de la siguiente manera:
 
 - Datos completos: se comparten por el medio interno del equipo.
 - Modelo entrenado: se publica como evidencia versionada en GitHub Releases.
-- Release actual del modelo: `modelo-v6-e2` (RandomForest directo, MAE 9.33 / R² 0.72 en test 2025; ver `Modelo/docs/model_evolution.md` para la evolución v1→v11).
+- Release vigente del modelo: `modelo-v12-ventanas` (RandomForest directo a nivel
+  establecimiento). Release anterior: `modelo-v6-e2`.
 
-Enlace del release:
+Enlaces de los releases:
 
-`https://github.com/bupsidu/Healthcare_Analytics_Project/releases/tag/modelo-v6-e2`
+- v12: `https://github.com/bupsidu/Healthcare_Analytics_Project/releases/tag/modelo-v12-ventanas`
+- v6 E2: `https://github.com/bupsidu/Healthcare_Analytics_Project/releases/tag/modelo-v6-e2`
 
-> La versión **entrenada más reciente** es **v11** (modelo directo con tendencia
-> regional, patrón semanal y ventanas móviles del establecimiento):
-> **MAE 6.787 / RMSE 10.010 / R2 0.8283 / sesgo +2.57%** en test 2025, sobre
-> **16/16 regiones** y 226.003 filas de establecimiento-día.
-> Todavía **no tiene release publicado**: hasta que se publique, el release
-> vigente sigue siendo `modelo-v6-e2`.
+> La versión **vigente** es **v12**: modelo directo a nivel establecimiento con
+> 60 variables (ventanas del establecimiento, patrón semanal, tendencia regional
+> y clima), entrenado con 2024-2025 y validado sobre 2026.
 >
-> Evolución resumida del MAE: v5 14.763 → v6 E2 9.334 → v7 8.550 (16 regiones)
-> → v8 8.009 → v9 7.236 → v11 **6.787** (−54% desde v5).
+> **MAE 6.827 / RMSE 10.411 / R2 0.8056 / sesgo +0.45%**
+> sobre 199.155 filas de establecimiento-día (año 2026) y **16/16 regiones**.
 >
-> Ver `Modelo/docs/model_evolution.md` (detalle técnico) y
-> `Modelo/ENTREGA/EVOLUCION.md` (relato simple).
+> Evolución del MAE: v5 14.763 → v6 E2 9.334 → v7 8.550 → v8 8.009
+> → v9 7.236 → v11 6.787 → **v12 6.827** (−54% desde v5).
+>
+> El v12 tiene un MAE apenas mayor que v11 porque se valida sobre un año que el
+> modelo nunca vio (2026), en lugar de 2025. Es una medición más exigente.
+
+### 📁 Documentación de la entrega
+
+Toda la documentación para revisión está en **[`ENTREGA/`](ENTREGA/)**:
+
+| Documento | Contenido |
+|---|---|
+| [`ENTREGA/README.md`](ENTREGA/README.md) | Índice de la entrega |
+| [`ENTREGA/EVOLUCION.md`](ENTREGA/EVOLUCION.md) | Historia del modelo v1 → v12, explicada simple |
+| [`ENTREGA/RESULTADOS.md`](ENTREGA/RESULTADOS.md) | Métricas, comparativas y análisis por región |
+| [`ENTREGA/CORRECCIONES.md`](ENTREGA/CORRECCIONES.md) | Bugs encontrados y corregidos |
+| [`ENTREGA/PROYECTO.md`](ENTREGA/PROYECTO.md) | Arquitectura y alcance |
+| [`ENTREGA/diagramas/`](ENTREGA/diagramas/) | UML: casos de uso, clases, secuencia, componentes, ER y mapa tecnológico |
+| [`ENTREGA/evidencias/`](ENTREGA/evidencias/) | Logs y auditorías verificables |
+| [`ENTREGA/figuras/`](ENTREGA/figuras/) | Gráficos para la presentación |
+
+Para el detalle técnico del modelo: [`Modelo/docs/model_evolution.md`](Modelo/docs/model_evolution.md).
 
 ## Reproducción del proyecto
 
