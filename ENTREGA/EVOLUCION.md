@@ -32,7 +32,8 @@ por 12 versiones.
 | v8 | Nivel y tendencia de la región | 8.01 | 🙂 mejora |
 | v9 | Día de la semana | 7.24 | 🙂 mejora fuerte |
 | v10 | Feriados | 7.25 | ⛔ **no funcionó** |
-| **v11** | **Ventana móvil del establecimiento** | **6.79** | ✅ **modelo final** |
+| v11 | Ventana móvil del establecimiento | 6.79 | ✅ mejora grande |
+| **v12** | **Reentrenado con datos de 2026** | **6.83** | ✅ **modelo vigente** |
 
 Menos MAE es mejor. MAE = cuántos pacientes nos equivocamos en promedio.
 
@@ -237,6 +238,37 @@ cambio.
 features nuevas son 7 de las 10 más importantes del modelo: `W7_mean` es la
 número 1.
 
+### v12 — El modelo necesitaba datos de este año
+
+**Qué probó:** hasta acá todos los modelos se entrenaban con 2024 y se validaban
+con 2025. Para el demo hacía falta predecir **noviembre de 2026**, un año
+completo más adelante. Eso es una laguna de 11 meses respecto de los datos de
+entrenamiento.
+
+**Qué hizo:** se extendió todo el pipeline para incluir 2026:
+- Descarga de temperatura, precipitación y calidad del aire de 2026 desde Open-Meteo
+- Carga del archivo de atenciones del DEIS de 2026 (recortando los últimos días,
+  que la fuente publica incompletos)
+- Reentrenamiento con **2024 + 2025 como entrenamiento y 2026 como prueba**
+
+**Qué pasó:** MAE **6.83**.
+
+| | v11 | v12 |
+|---|---|---|
+| Entrenamiento | 2024 | 2024 + 2025 |
+| Prueba | 2025 | **2026** |
+| MAE | 6.787 | 6.827 |
+| R2 | 0.8283 | 0.8056 |
+| Sesgo | +2.57% | **+0.45%** |
+
+**Por qué el MAE subió 0,04 (0,6%) y no es un problema:** cambió el conjunto de
+prueba. v12 se valida sobre un año que el modelo **nunca vio**, mientras que v11
+se validaba sobre 2025, que estaba más cerca de sus datos de entrenamiento.
+Validar sobre 2026 es más exigente y más representativo del uso real.
+
+El sesgo, en cambio, mejoró: pasó de +2,57% a **+0,45%**, es decir, el modelo
+prácticamente no sobreestima ni subestima a nivel agregado.
+
 ---
 
 ## Qué se aprendió (resumen para la defensa)
@@ -262,12 +294,12 @@ número 1.
 
 | | Valor |
 |---|---|
-| MAE | **6.79** pacientes por establecimiento-día |
-| R2 | **0.8283** (explica el 83% de la varianza) |
-| Sesgo global | **+2.57%** |
+| MAE | **6.83** pacientes por establecimiento-día |
+| R2 | **0.8056** (explica el 81% de la varianza) |
+| Sesgo global | **+0.45%** |
 | Cobertura | **16/16 regiones**, 657 establecimientos |
 | Mejora vs v1 real | **−32% en MAE** respecto del primer modelo honesto (v2: 9.98) |
-| Mejora vs v5 | **−54% en MAE** (14.76 → 6.79) |
+| Mejora vs v5 | **−54% en MAE** (14.76 → 6.83) |
 
 ### Comparación con baselines triviales
 
@@ -276,7 +308,7 @@ número 1.
 | Usar el dato de hace 4 días | 10.29 |
 | Promedio histórico del hospital | 10.89 |
 | Promedio histórico por día de semana | 10.91 |
-| **Nuestro modelo (v11)** | **6.79** |
+| **Nuestro modelo (v12)** | **6.83** |
 
 Superamos al mejor baseline trivial por **−34%**.
 

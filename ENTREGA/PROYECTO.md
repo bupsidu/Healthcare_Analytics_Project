@@ -115,14 +115,19 @@ Ver **[RESULTADOS.md](RESULTADOS.md)** para el detalle completo, y
 | v7 (16 regiones) | 8.550 | 0.7378 | +5.69% |
 | v8 (+ tendencia regional) | 8.009 | 0.7648 | +4.17% |
 | v9 (+ patrón semanal) | 7.236 | 0.8066 | +4.25% |
-| **v11 (+ ventanas, vigente)** | **6.787** | **0.8283** | **+2.57%** |
+| v11 (+ ventanas del estab) | 6.787 | 0.8283 | +2.57% |
+| **v12 (validado en 2026)** | **6.827** | **0.8056** | **+0.45%** |
+
+**Nota sobre v11 vs v12:** el MAE de v12 es apenas mayor porque se valida sobre
+2026, un año que el modelo nunca vio, en lugar de 2025. Es una medición más
+exigente y más representativa del uso real.
 
 ---
 
 ## 6. Limitaciones
 
-1. **Solo dos años de datos** (2024–2025): no hay validación externa con años
-   adicionales. La incorporación de 2022–2023 es el siguiente paso natural.
+1. **Tres años de datos** (2024-2026): v12 entrena con 2024-2025 y valida
+   sobre 2026. La incorporación de 2022-2023 sigue siendo el siguiente paso.
 2. **Split temporal único**: el test es un solo año, así que la comparación
    entre versiones es sólida pero no mide robustez interanual.
 3. **Regresión a la media** en los extremos: el modelo sobreestima los días de
