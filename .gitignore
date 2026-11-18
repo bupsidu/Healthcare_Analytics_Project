@@ -77,3 +77,8 @@ Modelo/artifacts/model_rf_directo_v6e2.joblib
 
 # Artefactos pesados locales
 Modelo/artifacts/local_v1/
+
+# Carpeta de entrega para demos: contiene SQL con fechas concretas que caducan.
+# Se regenera con Modelo/src/serving/predecir_futuro.py y se comparte por canal
+# interno, no se versiona.
+Modelo/entrega_demo/
