@@ -106,7 +106,12 @@ class ProjectionDay(BaseModel):
     precipitacion_mm: float | None
     mp2_5: float | None
     mp10: float | None
-    total_lag_4: int | None = Field(description="Demanda del hospital 4 días antes; null si no se cargó")
+    total_lag_4: int | None = Field(description="Demanda del hospital usada como lag; 4 días antes, o la más reciente si T-4 no está publicada")
+    antiguedad_lag_dias: int | None = Field(
+        default=None,
+        description="Días entre la fecha objetivo y la demanda usada como lag. 4 = T-4 exacto; "
+                    ">4 indica que se usó la observación más reciente por rezago del DEIS.",
+    )
     pacientes_predichos: int | None = Field(default=None, description="Predicción guardada o respaldo provisional; null si ninguno está disponible")
     nivel_alerta: str | None = None
     color_semaforo: str | None = None
