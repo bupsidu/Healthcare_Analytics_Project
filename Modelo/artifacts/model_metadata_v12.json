@@ -1,7 +1,7 @@
 {
   "release": "modelo-v12-ventanas",
-  "experimento": "v12 — v11 reentrenado con datos hasta 2026 (train 2024-2025, test 2026)",
-  "descripcion": "v9 solo conocía Total_Lag_4 (un día) y la media de 28 días del establecimiento. El residuo de v9 tiene autocorrelación lag-1 de +0.245, señal de estructura temporal no capturada. v11 agrega los 7 lags consecutivos T−4..T−10, estadísticos de la ventana de 7 y 28 días (media, desvío, min, max) y dos razones de cambio. Antes de llegar acá se descartaron cambios de algoritmo (RF profundo, ExtraTrees, HistGradientBoosting L1/L2, log1p) y calibración isotónica: ninguno superó a v9 de forma consistente.",
+  "experimento": "v12 — modelo directo validado sobre 2026 (train 2024-2025 / test 2026)",
+  "descripcion": "v12 = v11 (RandomForest directo con 60 features: ventanas del establecimiento, patron semanal, tendencia regional y clima) reentrenado con datos observados hasta 2026. Cambia el split respecto de v11: ahora entrena con 2024-2025 completos y valida sobre 2026 (199.155 filas de establecimiento-dia), lo que permite predecir con historia reciente en lugar de proyectar 11 meses desde 2024.",
   "justificacion_diagnostica": {
     "autocorrelacion_residuo_lag1": 0.245,
     "experimentos_descartados": {
@@ -144,7 +144,7 @@
   "configuracion": {
     "target": "Total (nivel, sin transformar)",
     "filas": "una por (establecimiento, fecha)",
-    "split": "train = 2024, test = 2025",
+    "split": "train = 2024-2025, test = 2026",
     "horizonte_horas": 96,
     "semilla": 42,
     "hiperparametros": {
@@ -491,8 +491,15 @@
   "tiempo_entrenamiento_segundos": 21.1,
   "tiempo_total_segundos": 26.9,
   "limitaciones": [
-    "Split de 2 años: el aporte de las ventanas se valida en 2025 solamente.",
-    "La regresión a la media persiste en los extremos: es una propiedad del RandomForest con MSE, no un bug.",
-    "Los lags asumen reporte diario continuo; establecimientos con huecos usan ffill (documentado desde v6)."
-  ]
+    "Validación sobre un único año de test (2026): no hay validación cruzada interanual.",
+    "El DEIS publica con ~5 días de rezago; en producción se usa la observación más reciente y se declara su antigüedad (antiguedad_lag_dias).",
+    "Sigue existiendo regresión a la media en los extremos: sobreestima días de demanda muy baja y subestima los picos."
+  ],
+  "cobertura_datos": {
+    "train": "2024-2025",
+    "test": "2026",
+    "filas_test": 199155,
+    "regiones": 16,
+    "establecimientos": 657
+  }
 }

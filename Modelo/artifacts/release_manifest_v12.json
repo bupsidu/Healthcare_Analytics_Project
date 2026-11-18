@@ -29,8 +29,8 @@
     },
     {
       "nombre": "model_metadata_v12.json",
-      "bytes": 11382,
-      "sha256": "083f8f77a2c0f7fd14ce49352f324de642cf5b5238f76ab79f2473c84a8419ba",
+      "bytes": 11470,
+      "sha256": "0c3cf6514de8ff34151531824e65064318adcc5764d55c31f6c972742e5db7dd",
       "origen": "Modelo/artifacts/model_metadata_v12.json",
       "rol": "Métricas, lista de features en orden, verificación anti-leakage y limitaciones del modelo.",
       "obligatorio": true
