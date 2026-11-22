@@ -21,6 +21,8 @@ class DailyIntake(Base):
     casos_respiratorios = Column("respiratory_cases", Integer, nullable=False)
     # El rango debe indicarse explícitamente al registrar casos nuevos.
     grupo_etario = Column("age_group", String(30), nullable=False)
+    # Causa respiratoria del DEIS (GlosaCausa); opcional porque los datos cargados aún no la traen.
+    causa = Column("causa", String(100), nullable=True)
     created_by_user_id = Column(Integer, ForeignKey("usuarios.id", ondelete="RESTRICT"), nullable=True)
     created_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
 

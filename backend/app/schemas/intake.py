@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from enum import Enum
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class GrupoEtario(str, Enum):
@@ -21,11 +21,30 @@ class GrupoEtarioAnterior(str, Enum):
     GENERAL = "General"
 
 
+class CausaRespiratoria(str, Enum):
+    """Las mismas opciones del formulario de triage (TriageSection.jsx)."""
+
+    IRA_ALTA = "IRA Alta (Infección Respiratoria Aguda)"
+    BRONQUITIS = "Bronquitis / Bronquiolitis aguda"
+    NEUMONIA = "Neumonía / Sospecha de Neumonía"
+    CRISIS_ASMATICA = "Crisis Asmática / SBO"
+    INFLUENZA = "Influenza / Síndrome Gripal"
+    OTRAS = "Otras patologías respiratorias"
+
+
 class IntakeCreate(BaseModel):
     fecha: date
     establecimiento_id: int = Field(gt=0)
     casos_respiratorios: int = Field(ge=0)
     grupo_etario: GrupoEtario
+    causa: CausaRespiratoria | None = None
+
+    @field_validator("causa", mode="before")
+    @classmethod
+    def normalize_causa(cls, value):
+        if isinstance(value, str):
+            return value.strip() or None
+        return value
 
 
 class IntakeResponse(BaseModel):
@@ -34,6 +53,7 @@ class IntakeResponse(BaseModel):
     establecimiento_id: int
     casos_respiratorios: int
     grupo_etario: GrupoEtario | GrupoEtarioAnterior
+    causa: str | None = None
     created_by_user_id: int | None
     created_at: datetime
 

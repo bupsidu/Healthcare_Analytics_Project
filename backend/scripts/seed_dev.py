@@ -82,7 +82,7 @@ def ensure_schema(eng) -> list[str]:
     if eng.dialect.name != "postgresql":
         return []
     insp = inspect(eng)
-    columns = {t: {c["name"] for c in insp.get_columns(t)} for t in ("usuarios", "establecimientos")}
+    columns = {t: {c["name"] for c in insp.get_columns(t)} for t in ("usuarios", "establecimientos", "ingresos_diarios")}
     with eng.begin() as conn:
         constraints = {row[0] for row in conn.execute(text("SELECT conname FROM pg_constraint"))}
         steps = []
@@ -97,6 +97,8 @@ def ensure_schema(eng) -> list[str]:
             steps.append("CREATE INDEX ix_usuarios_establecimiento_id ON usuarios (establecimiento_id)")
         if "ck_usuarios_rol" not in constraints:
             steps.append("ALTER TABLE usuarios ADD CONSTRAINT ck_usuarios_rol CHECK (role IN ('admin', 'medico'))")
+        if "causa" not in columns["ingresos_diarios"]:
+            steps.append("ALTER TABLE ingresos_diarios ADD COLUMN causa VARCHAR(100)")
         for step in steps:
             conn.execute(text(step))
     return steps

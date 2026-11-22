@@ -48,6 +48,7 @@ def registrar_ingreso_diario(
         establecimiento_id=intake_in.establecimiento_id,
         casos_respiratorios=intake_in.casos_respiratorios,
         grupo_etario=intake_in.grupo_etario.value,
+        causa=intake_in.causa.value if intake_in.causa else None,
         created_by_user_id=usuario_actual.id,
     )
     try:
