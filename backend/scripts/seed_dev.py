@@ -3,7 +3,7 @@
 Uso, desde la carpeta backend:
     python scripts/seed_dev.py                 # esquema + hospitales, admin y médicos de prueba
     python scripts/seed_dev.py --solo-admin    # esquema + solo el administrador
-    python scripts/seed_dev.py --solo-esquema  # solo las tablas y columnas que falten, sin datos
+    python scripts/seed_dev.py --solo-esquema  # crea y actualiza tablas y columnas, sin cargar datos
 Salvo --solo-esquema, requiere SEED_ADMIN_PASSWORD en backend/.env (la clave del admin; no va en el código).
 Se puede ejecutar varias veces: no duplica ni pisa lo que ya existe. Solo para desarrollo.
 """
@@ -74,7 +74,7 @@ DOCTORS = [
 
 
 def ensure_schema(eng) -> list[str]:
-    """Crea tablas que falten y, en PostgreSQL, agrega las columnas y restricciones nuevas.
+    """Crea tablas que falten y, en PostgreSQL, actualiza columnas y restricciones.
 
     create_all() no modifica tablas existentes, por eso este paso. Devuelve lo que aplicó.
     """
@@ -97,8 +97,11 @@ def ensure_schema(eng) -> list[str]:
             steps.append("CREATE INDEX ix_usuarios_establecimiento_id ON usuarios (establecimiento_id)")
         if "ck_usuarios_rol" not in constraints:
             steps.append("ALTER TABLE usuarios ADD CONSTRAINT ck_usuarios_rol CHECK (role IN ('admin', 'medico'))")
-        if "causa" not in columns["ingresos_diarios"]:
-            steps.append("ALTER TABLE ingresos_diarios ADD COLUMN causa VARCHAR(100)")
+        if "cause" not in columns["ingresos_diarios"]:
+            if "causa" in columns["ingresos_diarios"]:
+                steps.append("ALTER TABLE ingresos_diarios RENAME COLUMN causa TO cause")
+            else:
+                steps.append("ALTER TABLE ingresos_diarios ADD COLUMN cause VARCHAR(100)")
         for step in steps:
             conn.execute(text(step))
     return steps
@@ -145,7 +148,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--force", action="store_true", help="permite ejecutar contra un servidor que no sea local")
     mode = parser.add_mutually_exclusive_group()
-    mode.add_argument("--solo-esquema", action="store_true", help="solo crea las tablas y columnas que falten (sin datos)")
+    mode.add_argument("--solo-esquema", action="store_true", help="crea y actualiza tablas y columnas (sin cargar datos)")
     mode.add_argument("--solo-admin", action="store_true", help="esquema + solo el administrador (sin hospitales ni médicos de prueba)")
     args = parser.parse_args()
     error = validate(settings.POSTGRES_SERVER, settings.SEED_ADMIN_PASSWORD, args.force, needs_admin=not args.solo_esquema)

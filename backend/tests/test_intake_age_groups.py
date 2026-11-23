@@ -4,7 +4,7 @@ import unittest
 from datetime import date
 from urllib.parse import urlencode
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from sqlalchemy.pool import StaticPool
@@ -103,6 +103,10 @@ class IntakeAgeGroupTests(unittest.TestCase):
         self.db.expire_all()
         stored = self.db.get(DailyIntake, result["id"])
         self.assertEqual(stored.causa, result["causa"])
+        sql_cause = self.db.execute(
+            text("SELECT cause FROM ingresos_diarios WHERE id = :id"), {"id": result["id"]}
+        ).scalar_one()
+        self.assertEqual(sql_cause, result["causa"])
         status, history = asyncio.run(request_intakes("GET"))
         self.assertEqual(status, 200)
         self.assertEqual(history["items"][0]["causa"], result["causa"])
