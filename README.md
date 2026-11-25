@@ -96,8 +96,6 @@ Healthcare_Analytics_Project/
 │   ├── data_extraction/
 │   └── pipelines/
 ├── models/
-├── docs/
-│   └── PROJECT_CONTEXT.md
 ├── requirements.txt
 └── README.md
 
