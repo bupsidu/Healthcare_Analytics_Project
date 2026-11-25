@@ -65,7 +65,7 @@ export default function TriageSection({ establecimiento }) {
       const formateados = (datos || []).map((item) => {
         const fechaStr = formatearFechaHora(item.fecha, item.created_at)
         const etiquetaGrupo = RANGOS_ETARIOS.find((r) => r.value === item.grupo_etario)?.label || item.grupo_etario
-        const causaGuardada = sessionStorage.getItem(`ingreso_causa_${item.id}`) || 'Patología Respiratoria'
+        const causaGuardada = item.causa || 'Sin causa registrada'
 
         return {
           id: String(item.id).padStart(2, '0'),
@@ -109,15 +109,12 @@ export default function TriageSection({ establecimiento }) {
     setGuardando(true)
 
     try {
-      const nuevo = await intakeService.registrarIngreso({
+      await intakeService.registrarIngreso({
         establecimientoId: establecimiento.id,
         grupoEtario: grupoEtario,
         casos: 1,
+        causa: causaConsulta,
       })
-
-      if (nuevo?.id) {
-        sessionStorage.setItem(`ingreso_causa_${nuevo.id}`, causaConsulta)
-      }
 
       await recargarHistorial()
       setMensajeExito(true)

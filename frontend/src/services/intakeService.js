@@ -7,7 +7,7 @@ export const intakeService = {
   /**
    * Registra una nueva atención médica en PostgreSQL vía POST /api/ingresos.
    */
-  async registrarIngreso({ establecimientoId, grupoEtario, casos = 1 }) {
+  async registrarIngreso({ establecimientoId, grupoEtario, casos = 1, causa = null }) {
     const token = authClient.getToken()
     const hoy = new Date().toISOString().split('T')[0]
 
@@ -22,6 +22,7 @@ export const intakeService = {
         establecimiento_id: establecimientoId,
         casos_respiratorios: casos,
         grupo_etario: grupoEtario,
+        causa,
       }),
     })
 
