@@ -10,6 +10,17 @@ Pasar de una gestión reactiva de crisis respiratorias a un sistema de apoyo a d
 
 El modelo actual predice el **total de atenciones respiratorias por establecimiento y fecha**.
 
+## Innovación
+
+### ¿Qué problema resuelve?
+La respuesta actual del Ministerio de Salud chileno es **reactiva**: toma acción después de que los establecimientos colapsan y en base al nivel de ese colapso. Esto provoca que en invierno y temporadas de temperaturas muy frías se registren muchas bajas a causa de enfermedades respiratorias, sobrepasando la capacidad instalada sin previo aviso.
+
+### ¿Qué hace diferente a la solución?
+A diferencia de los planes actuales, este proyecto integra el **historial de enfermedades y los hechos ocurridos en años previos** junto con variables climáticas (temperatura, precipitación, contaminación) para generar proyecciones con **96 horas de anticipación**. El modelo no espera el pico: lo anticipa.
+
+### ¿Qué valor agrega?
+Permite a los establecimientos de salud tomar **acciones preventivas antes de que el sistema colapse**, como adelantar camas, turnos e insumos, optimizando recursos y protegiendo vidas durante las temporadas de mayor presión sanitaria.
+
 ## Estado actual
 
 - Integración de datos funcionando.
