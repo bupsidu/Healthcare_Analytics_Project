@@ -182,6 +182,23 @@ El primer notebook prepara los datos. El segundo entrena y evalúa el modelo sin
 - Tipo de establecimiento
 - Región y variables climáticas regionales
 
+## Estructura de evidencias APT
+
+Las evidencias del proyecto se organizan por fase en la siguiente ruta:
+```
+Antonio Varas/Aldo Martinez/Equipo 7/
+├── Fase1/
+│   ├── Evidencia Individual/          ← Autoevaluaciones y diarios ×3
+│   └── Evidencias Grupales/           ← Guías, presentaciones, planillas
+└── Fase 2/
+    ├── Evidencia Individual/          ← Diarios reflexivos ×3
+    ├── Evidencia grupal/              ← Guías de metodología (2.4, 2.6)
+    └── Evidencias Proyecto/
+        ├── Presentacion_Capstone_2_final.pptx
+        ├── Evidencias de documentación/     ← Product vision, backlog,HU,RNF,DoD, arquitectura
+        └── Evidencias de sistema Aplicación/ ← Screenshots frontend y PostgreSQL
+```
+
 ## Equipo y roles
 
 - Integrante 1 - ML y Data Science Lead:
