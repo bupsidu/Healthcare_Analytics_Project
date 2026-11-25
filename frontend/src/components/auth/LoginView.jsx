@@ -169,7 +169,7 @@ export default function LoginView({ onLoginSuccess }) {
           <div className="mt-8 pt-6 border-t border-slate-100 flex items-center justify-center gap-2 text-center">
             <Lock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
             <p className="text-[11px] text-slate-400 font-normal">
-              Conexión encriptada con cifrado de grado médico SSL de 256 bits.
+              Autenticación segura mediante tokens JWT y contraseñas cifradas con Bcrypt.
             </p>
           </div>
 

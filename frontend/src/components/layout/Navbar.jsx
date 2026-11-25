@@ -2,7 +2,13 @@
 import React from 'react'
 import { Hospital, User, LogOut } from 'lucide-react'
 
-export default function Navbar({ usuario, establecimiento, onLogout }) {
+export default function Navbar({
+  usuario,
+  establecimiento,
+  onLogout,
+  tabActiva = 'dashboard',
+  onCambiarTab,
+}) {
   return (
     <header className="w-full bg-white border-b border-slate-200/80 sticky top-0 z-30 font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between gap-4">
@@ -25,15 +31,27 @@ export default function Navbar({ usuario, establecimiento, onLogout }) {
           </div>
         </div>
 
-        {/* Pestañas de Navegación (Sin Configuración) */}
+        {/* Pestañas de Navegación Interactivas */}
         <nav className="hidden md:flex items-center gap-1 bg-slate-50/80 p-1 rounded-xl border border-slate-200/60">
-          <span className="px-4 py-1.5 text-xs font-semibold rounded-lg bg-clinical-100 text-clinical-800 shadow-2xs">
-            Dashboard & Triage
-          </span>
           <button
             type="button"
-            onClick={() => alert('Módulo de reportes epidemiológicos MINSAL.')}
-            className="px-4 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 rounded-lg cursor-pointer transition"
+            onClick={() => onCambiarTab && onCambiarTab('dashboard')}
+            className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition cursor-pointer ${
+              tabActiva === 'dashboard'
+                ? 'bg-clinical-100 text-clinical-800 shadow-2xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60'
+            }`}
+          >
+            Dashboard & Triage
+          </button>
+          <button
+            type="button"
+            onClick={() => onCambiarTab && onCambiarTab('reportes')}
+            className={`px-4 py-1.5 text-xs font-semibold rounded-lg transition cursor-pointer ${
+              tabActiva === 'reportes'
+                ? 'bg-clinical-100 text-clinical-800 shadow-2xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/60'
+            }`}
           >
             Reportes
           </button>

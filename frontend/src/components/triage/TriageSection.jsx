@@ -144,85 +144,89 @@ export default function TriageSection({ establecimiento }) {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* Contenedor Grid con items-stretch para igualar la altura de ambas cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         
         {/* Formulario (Columna Izquierda) */}
-        <div className="lg:col-span-5">
-          <Card className="!p-6">
+        <div className="lg:col-span-5 flex flex-col">
+          <Card className="!p-6 flex-1 flex flex-col justify-between">
             
-            <div className="flex items-center gap-3 pb-5 mb-5 border-b border-slate-100">
-              <div className="w-10 h-10 rounded-xl bg-clinical-50 text-clinical-600 flex items-center justify-center border border-clinical-100">
-                <Stethoscope className="w-5 h-5" />
+            <div>
+              <div className="flex items-center gap-3 pb-5 mb-5 border-b border-slate-100">
+                <div className="w-10 h-10 rounded-xl bg-clinical-50 text-clinical-600 flex items-center justify-center border border-clinical-100">
+                  <Stethoscope className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900">Nueva consulta</h3>
+                  <p className="text-xs text-slate-500">
+                    Enfermedades respiratorias · {establecimiento?.tipo || 'Centro'}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-sm font-bold text-slate-900">Nueva consulta</h3>
-                <p className="text-xs text-slate-500">
-                  Enfermedades respiratorias · {establecimiento?.tipo || 'Centro'}
-                </p>
-              </div>
+
+              {errorServidor && (
+                <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                  <span>{errorServidor}</span>
+                </div>
+              )}
+
+              {mensajeExito && (
+                <div className="mb-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-center gap-2 animate-in fade-in">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>Atención clínica registrada exitosamente.</span>
+                </div>
+              )}
+
+              <form onSubmit={handleRegistrar} noValidate className="space-y-4">
+                <SelectField
+                  label="Rango Etario"
+                  id="grupoEtario"
+                  required
+                  placeholder="Selecciona un rango etario"
+                  options={RANGOS_ETARIOS}
+                  value={grupoEtario}
+                  onChange={(e) => {
+                    setGrupoEtario(e.target.value)
+                    if (errores.grupoEtario) setErrores({ ...errores, grupoEtario: '' })
+                  }}
+                  error={errores.grupoEtario}
+                />
+
+                <SelectField
+                  label="Causa de Consulta"
+                  id="causaConsulta"
+                  required
+                  placeholder="Selecciona una causa de consulta"
+                  options={CAUSAS_CONSULTA}
+                  value={causaConsulta}
+                  onChange={(e) => {
+                    setCausaConsulta(e.target.value)
+                    if (errores.causaConsulta) setErrores({ ...errores, causaConsulta: '' })
+                  }}
+                  error={errores.causaConsulta}
+                />
+
+                <div className="pt-2">
+                  <Button type="submit" variant="primary" isLoading={guardando} icon={PlusCircle}>
+                    Registrar consulta
+                  </Button>
+                  <p className="text-[11px] text-slate-400 text-center mt-2">
+                    Los campos marcados con <span className="text-rose-500">*</span> son obligatorios
+                  </p>
+                </div>
+              </form>
             </div>
-
-            {errorServidor && (
-              <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-start gap-2">
-                <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-                <span>{errorServidor}</span>
-              </div>
-            )}
-
-            {mensajeExito && (
-              <div className="mb-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-center gap-2 animate-in fade-in">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>Atención clínica registrada exitosamente.</span>
-              </div>
-            )}
-
-            <form onSubmit={handleRegistrar} noValidate className="space-y-4">
-              <SelectField
-                label="Rango Etario"
-                id="grupoEtario"
-                required
-                placeholder="Selecciona un rango etario"
-                options={RANGOS_ETARIOS}
-                value={grupoEtario}
-                onChange={(e) => {
-                  setGrupoEtario(e.target.value)
-                  if (errores.grupoEtario) setErrores({ ...errores, grupoEtario: '' })
-                }}
-                error={errores.grupoEtario}
-              />
-
-              <SelectField
-                label="Causa de Consulta"
-                id="causaConsulta"
-                required
-                placeholder="Selecciona una causa de consulta"
-                options={CAUSAS_CONSULTA}
-                value={causaConsulta}
-                onChange={(e) => {
-                  setCausaConsulta(e.target.value)
-                  if (errores.causaConsulta) setErrores({ ...errores, causaConsulta: '' })
-                }}
-                error={errores.causaConsulta}
-              />
-
-              <div className="pt-2">
-                <Button type="submit" variant="primary" isLoading={guardando} icon={PlusCircle}>
-                  Registrar consulta
-                </Button>
-                <p className="text-[11px] text-slate-400 text-center mt-2">
-                  Los campos marcados con <span className="text-rose-500">*</span> son obligatorios
-                </p>
-              </div>
-            </form>
 
           </Card>
         </div>
 
-        {/* Historial en Tiempo Real (Columna Derecha) */}
-        <div className="lg:col-span-7">
-          <Card className="!p-6">
+        {/* Historial en Tiempo Real con Scroll Interno (Columna Derecha) */}
+        <div className="lg:col-span-7 flex flex-col">
+          <Card className="!p-6 flex-1 flex flex-col min-h-[440px]">
             
-            <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
+            {/* Cabecera fija de la tarjeta */}
+            <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100 shrink-0">
               <div>
                 <h3 className="text-sm font-bold text-slate-900">Atenciones de la jornada</h3>
                 <p className="text-xs text-slate-500">
@@ -245,26 +249,28 @@ export default function TriageSection({ establecimiento }) {
               </div>
             </div>
 
+            {/* Contenedor del contenido */}
             {cargandoHistorial && registros.length === 0 ? (
-              <div className="py-10 text-center text-slate-400 text-xs flex flex-col items-center gap-2">
+              <div className="py-10 text-center text-slate-400 text-xs flex-1 flex flex-col items-center justify-center gap-2">
                 <div className="w-5 h-5 border-2 border-clinical-600 border-t-transparent rounded-full animate-spin" />
                 <span>Cargando atenciones registradas...</span>
               </div>
             ) : registros.length === 0 ? (
-              <div className="py-10 text-center text-slate-400 text-xs flex flex-col items-center gap-2">
+              <div className="py-10 text-center text-slate-400 text-xs flex-1 flex flex-col items-center justify-center gap-2">
                 <Inbox className="w-8 h-8 text-slate-300" />
                 <p className="font-medium text-slate-600">No hay atenciones registradas para este centro</p>
                 <p className="text-[11px] text-slate-400">Ingresa la primera consulta con el formulario de la izquierda.</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
+              /* Contenedor con scroll vertical limitado y cabecera fija */
+              <div className="overflow-x-auto overflow-y-auto flex-1 max-h-[340px] pr-1">
                 <table className="w-full text-left text-xs">
-                  <thead>
+                  <thead className="sticky top-0 bg-white z-10">
                     <tr className="text-slate-400 font-semibold border-b border-slate-100">
-                      <th className="pb-3 pl-2 w-10">#</th>
-                      <th className="pb-3">RANGO ETARIO</th>
-                      <th className="pb-3">DIAGNÓSTICO</th>
-                      <th className="pb-3 pr-2 text-right">REGISTRADO</th>
+                      <th className="pb-3 pl-2 w-10 bg-white">#</th>
+                      <th className="pb-3 bg-white">RANGO ETARIO</th>
+                      <th className="pb-3 bg-white">DIAGNÓSTICO</th>
+                      <th className="pb-3 pr-2 text-right bg-white">REGISTRADO</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100/80">
