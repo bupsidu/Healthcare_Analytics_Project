@@ -141,14 +141,13 @@ Toda la documentación para revisión está en **[`ENTREGA/`](ENTREGA/)**:
 
 | Documento | Contenido |
 |---|---|
-| [`ENTREGA/README.md`](ENTREGA/README.md) | Índice de la entrega |
-| [`ENTREGA/EVOLUCION.md`](ENTREGA/EVOLUCION.md) | Historia del modelo v1 → v12, explicada simple |
-| [`ENTREGA/RESULTADOS.md`](ENTREGA/RESULTADOS.md) | Métricas, comparativas y análisis por región |
-| [`ENTREGA/CORRECCIONES.md`](ENTREGA/CORRECCIONES.md) | Bugs encontrados y corregidos |
-| [`ENTREGA/PROYECTO.md`](ENTREGA/PROYECTO.md) | Arquitectura y alcance |
-| [`ENTREGA/diagramas/`](ENTREGA/diagramas/) | UML: casos de uso, clases, secuencia, componentes, ER y mapa tecnológico |
-| [`ENTREGA/evidencias/`](ENTREGA/evidencias/) | Logs y auditorías verificables |
-| [`ENTREGA/figuras/`](ENTREGA/figuras/) | Gráficos para la presentación |
+| [`EVOLUCION.md`](Antonio%20Varas/Aldo%20Martinez/Equipo%207/Fase%202/Evidencias%20Proyecto/Evidencias%20de%20sistema%20Aplicación/EVOLUCION.md) | Historia del modelo v1 → v12, explicada simple |
+| [`CORRECCIONES.md`](ENTREGA/CORRECCIONES.md) | Bugs encontrados y corregidos |
+| [`RESULTADOS.md](Antonio%20Varas/Aldo%20Martinez/Equipo%207/Fase%202/Evidencias%20Proyecto/Evidencias%20de%20sistema%20Aplicación/RESULTADOS.md) | Métricas, comparativas y análisis por región |
+| [`PROYECTO.md](Antonio%20Varas/Aldo%20Martinez/Equipo%207/Fase%202/Evidencias%20Proyecto/Evidencias%20de%20sistema%20Aplicación/PROYECTO.md) | Arquitectura y alcance |
+| [`diagramas/`](Antonio%20Varas/Aldo%20Martinez/Equipo%207/Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentación/) | UML: casos de uso, clases, secuencia, componentes, ER y mapa tecnológico |
+| [`evidencias/`](Antonio%20Varas/Aldo%20Martinez/Equipo%207/Fase%202/Evidencias%20Proyecto/Evidencias%20de%20sistema%20Aplicación/) | Logs y auditorías verificables |
+| [`figuras/`](Antonio%20Varas/Aldo%20Martinez/Equipo%207/Fase%202/Evidencias%20Proyecto/Evidencias%20de%20documentación/figuras_presentacion/) | Gráficos para la presentación |
 
 Para el detalle técnico del modelo: [`Modelo/docs/model_evolution.md`](Modelo/docs/model_evolution.md).
 
