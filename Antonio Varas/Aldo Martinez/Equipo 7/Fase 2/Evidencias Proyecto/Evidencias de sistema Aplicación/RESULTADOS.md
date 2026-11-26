@@ -3,7 +3,7 @@
 **Modelo vigente:** v12 · **Evaluación:** test 2026 (199.155 filas de
 establecimiento-día) · **Semilla:** 42
 
-> Si querés el relato simple de cómo se llegó acá (sin métricas ni jerga),
+> Si quieres el relato simple de cómo se llegó acá (sin métricas ni jerga),
 > leé [EVOLUCION.md](EVOLUCION.md). Este documento es la evidencia numérica.
 
 ---

@@ -21,19 +21,19 @@ por 12 versiones.
 
 | Versión | Qué cambió | MAE | Lectura |
 |---|---|---|---|
-| v1 | Primera versión | 0.321 | 😍 “casi perfecto” |
-| v2 | Le sacamos variables tramposas | 9.98 | 😱 el castillo se derrumbó |
-| v3 | Dos modelos en cadena | 20.12 | 😖 peor todavía |
-| v4 | Anomalías en vez de valores absolutos | 16.31 | 🙂 mejora |
-| v5 | Anomalías que se adaptan al presente | 14.76 | 🙂 mejora |
-| v6-A | Cuota dinámica | 13.81 | 🙂 mejora |
-| v6-B | **Un solo modelo directo** | 8.55 | 🚀 salto grande |
-| v7 | Arreglamos 3 bugs de features | 8.55 | 🔧 igual, pero ahora es real |
-| v8 | Nivel y tendencia de la región | 8.01 | 🙂 mejora |
-| v9 | Día de la semana | 7.24 | 🙂 mejora fuerte |
-| v10 | Feriados | 7.25 | ⛔ **no funcionó** |
-| v11 | Ventana móvil del establecimiento | 6.79 | ✅ mejora grande |
-| **v12** | **Reentrenado con datos de 2026** | **6.83** | ✅ **modelo vigente** |
+| v1 | Primera versión | 0.321 | “casi perfecto” |
+| v2 | Le sacamos variables tramposas | 9.98 | el castillo se derrumbó |
+| v3 | Dos modelos en cadena | 20.12 | peor todavía |
+| v4 | Anomalías en vez de valores absolutos | 16.31 | mejora |
+| v5 | Anomalías que se adaptan al presente | 14.76 | mejora |
+| v6-A | Cuota dinámica | 13.81 | mejora |
+| v6-B | **Un solo modelo directo** | 8.55 | salto grande |
+| v7 | Arreglamos 3 bugs de features | 8.55 | igual, pero ahora es real |
+| v8 | Nivel y tendencia de la región | 8.01 | mejora |
+| v9 | Día de la semana | 7.24 | mejora fuerte |
+| v10 | Feriados | 7.25 | **no funcionó** |
+| v11 | Ventana móvil del establecimiento | 6.79 | mejora grande |
+| **v12** | **Reentrenado con datos de 2026** | **6.83** | **modelo vigente** |
 
 Menos MAE es mejor. MAE = cuántos pacientes nos equivocamos en promedio.
 
@@ -74,7 +74,7 @@ El modelo no aprendió nada: aprendió a sumar. MAE 0.321 y R2 0.9956 son
 artificialmente perfectos — es como predecir tu edad y usar como variable
 predictora tu año de nacimiento.
 
-> **Lección:** si tu modelo es casi perfecto en el primer intento, tenés un bug.
+> **Lección:** si tu modelo es casi perfecto en el primer intento, tienes un bug.
 
 ### v2 — Le sacamos la trampa y apareció la verdad
 
