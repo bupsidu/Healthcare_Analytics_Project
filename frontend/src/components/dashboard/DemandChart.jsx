@@ -61,13 +61,8 @@ function CustomTooltip({ active, payload }) {
 export default function DemandChart({ grafico, establecimiento, onRefresh }) {
   if (!grafico) return null
 
-  const { serieSemanal, capacidadMaxima, hayPredicciones } = grafico
+  const { serieSemanal, hayPredicciones } = grafico
   const puntoHoy = serieSemanal.find((p) => p.esHoy)
-
-  // Escala limpia para el eje Y sin aplastar valores pequeños
-  const valores = serieSemanal.flatMap((p) => [p.registros, p.prediccion]).filter((v) => v !== null)
-  const maxValor = valores.length > 0 ? Math.max(...valores) : 0
-  const mostrarLineaCapacidad = maxValor >= capacidadMaxima * 0.45
 
   return (
     <Card className="!p-6 sm:!p-7 font-sans">
@@ -82,8 +77,7 @@ export default function DemandChart({ grafico, establecimiento, onRefresh }) {
               Demanda Semanal: Registros vs. Predicción (96h)
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              {establecimiento?.nombre || 'Establecimiento'} · Capacidad instalada:{' '}
-              <span className="font-semibold text-slate-700 font-mono">{capacidadMaxima} camas</span>
+              {establecimiento?.nombre || 'Establecimiento'} · Monitoreo de consultas de urgencia
             </p>
           </div>
         </div>
@@ -131,13 +125,7 @@ export default function DemandChart({ grafico, establecimiento, onRefresh }) {
 
             <YAxis
               allowDecimals={false}
-              domain={[
-                0,
-                (dataMax) =>
-                  mostrarLineaCapacidad
-                    ? Math.max(Math.ceil(dataMax * 1.15), Math.ceil(capacidadMaxima * 1.1))
-                    : Math.max(Math.ceil(dataMax * 1.25), 10),
-              ]}
+              domain={[0, (dataMax) => Math.max(Math.ceil(dataMax * 1.25), 8)]}
               tick={{ fill: '#64748b', fontSize: 12 }}
               axisLine={false}
               tickLine={false}
@@ -163,23 +151,6 @@ export default function DemandChart({ grafico, establecimiento, onRefresh }) {
                   value: 'Hoy',
                   position: 'top',
                   fill: '#475569',
-                  fontSize: 11,
-                  fontWeight: 700,
-                }}
-              />
-            )}
-
-            {/* Línea horizontal de capacidad máxima cuando los valores se acercan */}
-            {mostrarLineaCapacidad && (
-              <ReferenceLine
-                y={capacidadMaxima}
-                stroke="#e11d48"
-                strokeDasharray="5 5"
-                strokeWidth={1.5}
-                label={{
-                  value: `Capacidad máx. (${capacidadMaxima})`,
-                  position: 'insideTopRight',
-                  fill: '#e11d48',
                   fontSize: 11,
                   fontWeight: 700,
                 }}
@@ -214,7 +185,6 @@ export default function DemandChart({ grafico, establecimiento, onRefresh }) {
         </ResponsiveContainer>
       </div>
 
-      {/* Aviso informativo real si el modelo aún no tiene lag de 4 días en BD */}
       {!hayPredicciones && (
         <div className="mt-4 pt-3 border-t border-slate-100 flex items-start gap-2 text-xs text-slate-500">
           <Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />

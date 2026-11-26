@@ -8,12 +8,8 @@ export default function KpiCards({ data }) {
 
   const { demanda, clima, ica } = data
 
-  // 1. Evaluación Semafórica de Demanda
-  const estadoDemanda = demanda.porcentajeOcupacion >= 85
-    ? 'rojo'
-    : demanda.porcentajeOcupacion >= 70
-    ? 'amarillo'
-    : 'verde'
+  // 1. Evaluación Semafórica de Demanda vs Promedio
+  const estadoDemanda = demanda.semaforo || 'verde'
 
   // 2. Evaluación Semafórica de Clima
   const tempMin = clima.tempMinNum ?? (clima.alertaFrio ? 2 : 10)
@@ -56,12 +52,12 @@ export default function KpiCards({ data }) {
   const estiloClima = estilosPorColor[estadoClima]
   const estiloIca = estilosPorColor[estadoIca]
 
-  // Textos descriptivos del semáforo
+  // Textos descriptivos del semáforo de Demanda
   const textoDemanda = estadoDemanda === 'rojo'
-    ? 'Riesgo de Saturación'
+    ? `${demanda.diffTexto} sobre promedio (Pico)`
     : estadoDemanda === 'amarillo'
-    ? 'Alerta Moderada'
-    : 'Capacidad Normal'
+    ? `${demanda.diffTexto} sobre promedio`
+    : 'Flujo Habitual'
 
   const textoClima = estadoClima === 'rojo'
     ? (tempMin <= 0 ? 'Helada Severa' : 'Temporal Extremo')
@@ -80,11 +76,11 @@ export default function KpiCards({ data }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-5 font-sans">
       
-      {/* TARJETA 1: Demanda y Ocupación */}
+      {/* TARJETA 1: Demanda vs. Promedio Histórico del Centro */}
       <Card className={`!p-5 transition-all duration-300 shadow-xs ${estiloDemanda.card}`}>
         <div className="flex items-center justify-between">
           <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">
-            {demanda.esProyeccionIA ? 'Afluencia Estimada Hoy' : 'Demanda Registrada'}
+            {demanda.esProyeccionIA ? 'Afluencia Estimada Hoy' : 'Demanda de Hoy'}
           </span>
           <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${estiloDemanda.icono}`}>
             <Users className="w-5 h-5" />
@@ -95,31 +91,39 @@ export default function KpiCards({ data }) {
           <span className="text-3xl font-extrabold text-slate-900 tracking-tight font-mono">
             {demanda.valor}
           </span>
-          <span className="text-xs text-slate-400 font-medium font-mono">
-            / {demanda.capacidadMaxima} camas
+          <span className="text-xs text-slate-500 font-medium">
+            {demanda.valor === 1 ? 'paciente' : 'pacientes'}
           </span>
         </div>
 
-        {/* Semáforo inferior y porcentaje */}
+        {/* Semáforo inferior y comparación con el promedio del centro */}
         <div className="mt-3 flex items-center justify-between text-xs pt-3 border-t border-slate-200/60">
           <span className={`inline-flex items-center gap-1.5 font-semibold px-2 py-0.5 rounded-md text-[11px] ${estiloDemanda.badge}`}>
             <span className={`w-2 h-2 rounded-full ${estiloDemanda.dot}`} />
             {textoDemanda}
           </span>
 
-          <span className="text-[11px] font-bold text-slate-600 font-mono">
-            {demanda.porcentajeOcupacion}% ocupación
+          <span className="text-[11px] font-medium text-slate-500">
+            Promedio: <strong className="font-mono text-slate-700">{demanda.promedioSemanal}</strong> pac/día
           </span>
         </div>
 
+        {/* Proyección de mañana (si está disponible) */}
         {demanda.comparativaManana && (
-          <div className="mt-2 flex items-center gap-1 text-[11px] text-slate-500">
-            {demanda.comparativaManana.esAlza ? (
-              <TrendingUp className="w-3.5 h-3.5 text-rose-500" />
-            ) : (
-              <TrendingDown className="w-3.5 h-3.5 text-emerald-500" />
-            )}
-            <span>Proyección mañana: {demanda.comparativaManana.valor} pac. ({demanda.comparativaManana.diffTexto})</span>
+          <div className="mt-2 flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-100">
+            <span className="inline-flex items-center gap-1">
+              {demanda.comparativaManana.esAlza ? (
+                <TrendingUp className="w-3.5 h-3.5 text-rose-500" />
+              ) : (
+                <TrendingDown className="w-3.5 h-3.5 text-emerald-500" />
+              )}
+              <span>Mañana: <strong className="text-slate-700">{demanda.comparativaManana.valor} pac</strong></span>
+            </span>
+            <span className={`font-semibold font-mono text-[10px] px-1.5 py-0.5 rounded ${
+              demanda.comparativaManana.esAlza ? 'bg-rose-50 text-rose-700' : 'bg-emerald-50 text-emerald-700'
+            }`}>
+              {demanda.comparativaManana.diffTexto} vs hoy
+            </span>
           </div>
         )}
       </Card>

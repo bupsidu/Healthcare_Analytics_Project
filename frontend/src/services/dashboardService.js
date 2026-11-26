@@ -7,7 +7,6 @@ const DIAS_SEMANA_CORTOS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
 const DIAS_SEMANA_LARGOS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
 const MESES_CORTOS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
 
-// Parsea "YYYY-MM-DD" en hora local para evitar desfases de zona horaria en Chile
 function parseFechaLocal(isoDate) {
   const [y, m, d] = isoDate.split('-').map(Number)
   return new Date(y, m - 1, d)
@@ -21,10 +20,6 @@ function formatFechaISO(dateObj) {
 }
 
 export const dashboardService = {
-  /**
-   * Obtiene los datos reales de clima, atenciones, historial diario y proyección ML
-   * para el hospital en sesión.
-   */
   async obtenerDatosDashboard(establecimiento) {
     const token = authClient.getToken()
     if (!token) {
@@ -37,19 +32,16 @@ export const dashboardService = {
 
     const hospitalId = establecimiento.id
     const codigoDeis = establecimiento.id_establecimiento
-    const capacidadMax = establecimiento.capacidad_camas || 50
     const headers = { Authorization: `Bearer ${token}` }
 
-    // 1. Consultar el clima real del hospital en Open-Meteo vía FastAPI
+    // 1. Clima de Open-Meteo vía FastAPI
     const respClima = await fetch(`${API_BASE_URL}/establecimientos/${hospitalId}/clima`, { headers })
-
     if (!respClima.ok) {
       throw new Error('No fue posible obtener el clima del establecimiento desde el servidor.')
     }
 
     const climaData = await respClima.json()
     const horas = climaData.pronostico_horario || []
-
     if (horas.length === 0) {
       throw new Error('El servicio meteorológico no entregó datos horarios.')
     }
@@ -64,7 +56,6 @@ export const dashboardService = {
     const tempMin = primeras24.length ? Math.min(...primeras24) : tempActual
     const tempMax = primeras24.length ? Math.max(...primeras24) : tempActual
 
-    // Fecha de hoy en formato local YYYY-MM-DD
     const hoy = new Date()
     const hoyISO = formatFechaISO(hoy)
 
@@ -87,7 +78,7 @@ export const dashboardService = {
         atencionesHoy = registrosPorFecha[hoyISO] || 0
       }
     } catch {
-      // Si falla la consulta de ingresos, continúa sin bloquear la pantalla
+      // Continúa sin bloquear
     }
 
     try {
@@ -96,8 +87,6 @@ export const dashboardService = {
       if (respDemanda.ok) {
         const demandaData = await respDemanda.json()
         for (const item of demandaData.items || []) {
-          // La tabla demanda_diaria guarda el total consolidado del día;
-          // si hoy ya tiene registros en Triage, conservamos el mayor valor real.
           if (item.fecha === hoyISO) {
             registrosPorFecha[item.fecha] = Math.max(registrosPorFecha[item.fecha] || 0, item.total)
             atencionesHoy = registrosPorFecha[item.fecha]
@@ -107,29 +96,14 @@ export const dashboardService = {
         }
       }
     } catch {
-      // Si no hay demanda histórica cargada, se mantiene solo lo de /ingresos
+      // Continúa sin bloquear
     }
 
-    // 3. Consultar predicciones reales del modelo ML (/predicciones/historial y /predict/proyeccion-96h)
+    // 3. Predicciones reales ML (/predict/proyeccion-96h y /predicciones/historial)
     const prediccionesPorFecha = {}
     let pacientesHoy = null
     let pacientesManana = null
     let diasProyeccion = []
-
-    try {
-      const queryDeis = codigoDeis ? `?id_establecimiento=${encodeURIComponent(codigoDeis)}&limit=30` : '?limit=30'
-      const respHistPred = await fetch(`${API_BASE_URL}/predicciones/historial${queryDeis}`, { headers })
-      if (respHistPred.ok) {
-        const histPredData = await respHistPred.json()
-        for (const item of histPredData.items || []) {
-          if (item.pacientes_predichos !== null && prediccionesPorFecha[item.fecha] === undefined) {
-            prediccionesPorFecha[item.fecha] = item.pacientes_predichos
-          }
-        }
-      }
-    } catch {
-      // Si aún no hay predicciones guardadas, continúa sin error
-    }
 
     try {
       const respProy = await fetch(
@@ -154,16 +128,54 @@ export const dashboardService = {
         }
       }
     } catch {
-      // Si el modelo aún no tiene histórico previo de 4 días, se mantiene en null
+      // Sin histórico previo
     }
 
-    // 4. Armar la serie de 7 días de la semana (3 días atrás + Hoy + 3 días futuros)
+    // 4. Cálculo del Promedio Diario Histórico del propio centro
+    const fechasConRegistro = Object.keys(registrosPorFecha).filter(
+      (f) => f <= hoyISO && registrosPorFecha[f] !== null && registrosPorFecha[f] !== undefined
+    )
+    let promedioHistorico = 0
+    if (fechasConRegistro.length > 0) {
+      const sumaHistorica = fechasConRegistro.reduce((acc, f) => acc + registrosPorFecha[f], 0)
+      promedioHistorico = Math.round((sumaHistorica / fechasConRegistro.length) * 10) / 10
+    } else {
+      promedioHistorico = (pacientesHoy !== null ? pacientesHoy : atencionesHoy) || 1
+    }
+
+    // Valor de demanda de hoy (IA si existe, si no registros reales)
+    const valorAfluencia = pacientesHoy !== null ? pacientesHoy : atencionesHoy
+
+    // Desvío porcentual respecto al promedio habitual
+    const diffPromedioPct =
+      promedioHistorico > 0
+        ? Math.round(((valorAfluencia - promedioHistorico) / promedioHistorico) * 100)
+        : 0
+
+    // Semáforo relativo al promedio:
+    // Verde: dentro del flujo normal (<= +15%)
+    // Amarillo: aumento moderado (+16% a +35%)
+    // Rojo: pico inusual de consultas (> +35%)
+    const semaforoDemanda =
+      diffPromedioPct > 35 ? 'rojo' : diffPromedioPct > 15 ? 'amarillo' : 'verde'
+
+    // Comparativa de mañana (si la IA la calculó)
+    let comparativaManana = null
+    if (pacientesManana !== null && valorAfluencia > 0) {
+      const diffPct = Math.round(((pacientesManana - valorAfluencia) / valorAfluencia) * 100)
+      comparativaManana = {
+        valor: pacientesManana,
+        diffTexto: diffPct >= 0 ? `+${diffPct}%` : `${diffPct}%`,
+        esAlza: diffPct > 0,
+      }
+    }
+
+    // Serie semanal para el gráfico
     const fechasSet = new Set()
     for (let offset = -3; offset <= 3; offset++) {
       const d = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate() + offset)
       fechasSet.add(formatFechaISO(d))
     }
-    // Asegurar que todos los días devueltos por proyeccion-96h estén incluidos
     for (const d of diasProyeccion) {
       if (d.fecha) fechasSet.add(d.fecha)
     }
@@ -177,7 +189,6 @@ export const dashboardService = {
       const numDia = fechaObj.getDate()
       const esFuturo = fechaISO > hoyISO
 
-      // Para días futuros los registros siempre son null (aún no ocurren)
       const registros = esFuturo
         ? null
         : registrosPorFecha[fechaISO] !== undefined
@@ -186,9 +197,10 @@ export const dashboardService = {
         ? atencionesHoy
         : null
 
-      const prediccion = prediccionesPorFecha[fechaISO] !== undefined
-        ? prediccionesPorFecha[fechaISO]
-        : null
+      const prediccion =
+        prediccionesPorFecha[fechaISO] !== undefined
+          ? prediccionesPorFecha[fechaISO]
+          : null
 
       return {
         fecha: fechaISO,
@@ -203,28 +215,16 @@ export const dashboardService = {
     const hayPredicciones = serieSemanal.some((p) => p.prediccion !== null)
     const hayRegistros = serieSemanal.some((p) => p.registros !== null)
 
-    // Si hay proyección IA la usamos en la tarjeta 1; si no, mostramos las atenciones reales de hoy
-    const valorAfluencia = pacientesHoy !== null ? pacientesHoy : atencionesHoy
-    const porcentajeOcupacion = Math.min(Math.round((valorAfluencia / capacidadMax) * 100), 100)
-
-    let comparativaManana = null
-    if (pacientesManana !== null && pacientesHoy !== null && pacientesHoy > 0) {
-      const diffPct = Math.round(((pacientesManana - pacientesHoy) / pacientesHoy) * 100)
-      comparativaManana = {
-        valor: pacientesManana,
-        diffTexto: diffPct >= 0 ? `+${diffPct}%` : `${diffPct}%`,
-        esAlza: diffPct > 0,
-      }
-    }
-
     return {
       demanda: {
         valor: valorAfluencia,
         esProyeccionIA: pacientesHoy !== null,
-        capacidadMaxima: capacidadMax,
-        porcentajeOcupacion,
         atencionesHoy,
+        promedioSemanal: promedioHistorico,
+        diffPromedioPct,
+        diffTexto: diffPromedioPct >= 0 ? `+${diffPromedioPct}%` : `${diffPromedioPct}%`,
         comparativaManana,
+        semaforo: semaforoDemanda,
       },
       clima: {
         temperatura: `${Math.round(tempActual * 10) / 10}°C`,
@@ -241,7 +241,6 @@ export const dashboardService = {
       },
       grafico: {
         serieSemanal,
-        capacidadMaxima: capacidadMax,
         hayPredicciones,
         hayRegistros,
       },
